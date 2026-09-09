@@ -1,0 +1,81 @@
+<app-public-header />
+
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-overlay"></div>
+    <div class="hero-content page-container">
+      <p class="eyebrow hero-eyebrow">Agenda digital para barbearias</p>
+      <h1 id="hero-title">BarberFlow</h1>
+      <p class="hero-copy">
+        Receba marcações online através de um link simples e mantenha o seu dia organizado, sem
+        depender de mensagens para confirmar cada horário.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary button-large" routerLink="/register">
+          Começar agora
+          <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+        </a>
+        <a class="button button-ghost button-large" routerLink="/pricing">Ver preço</a>
+      </div>
+      <p class="hero-note">
+        <svg lucideCheck [size]="17" aria-hidden="true"></svg>
+        Configuração simples e 14 dias para experimentar
+      </p>
+    </div>
+  </section>
+
+  <section class="benefits-section" aria-labelledby="benefits-title">
+    <div class="page-container">
+      <div class="section-heading">
+        <p class="eyebrow">O essencial, num só lugar</p>
+        <h2 id="benefits-title">Menos tempo no telemóvel. Mais controlo da agenda.</h2>
+      </div>
+
+      <div class="benefits-grid">
+        <article class="benefit">
+          <span class="benefit-icon" aria-hidden="true">
+            <svg lucideLink [size]="22"></svg>
+          </span>
+          <h3>O seu próprio link</h3>
+          <p>Partilhe-o no Instagram, WhatsApp ou Google e receba marcações a qualquer hora.</p>
+        </article>
+
+        <article class="benefit">
+          <span class="benefit-icon" aria-hidden="true">
+            <svg lucideClock [size]="22"></svg>
+          </span>
+          <h3>Horários sob controlo</h3>
+          <p>Defina quando trabalha e deixe os clientes escolherem apenas horários disponíveis.</p>
+        </article>
+
+        <article class="benefit">
+          <span class="benefit-icon" aria-hidden="true">
+            <svg lucideCalendarCheck [size]="22"></svg>
+          </span>
+          <h3>Agenda organizada</h3>
+          <p>Consulte todas as marcações do dia e evite conflitos entre clientes.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing-section">
+    <div class="page-container closing-layout">
+      <div>
+        <p class="eyebrow">Comece sem complicações</p>
+        <h2>A sua agenda online pronta para receber clientes.</h2>
+      </div>
+      <a class="button button-dark button-large" routerLink="/register">
+        Criar a minha conta
+        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="page-container footer-content">
+    <span>BarberFlow</span>
+    <span>Marcações online para barbearias.</span>
+  </div>
+</footer>

@@ -1,0 +1,45 @@
+<app-public-header />
+
+<main class="pricing-page">
+  <section class="pricing-intro page-container">
+    <p class="eyebrow">Preço simples</p>
+    <h1>Um plano para começar.</h1>
+    <p>Pague apenas pelo que precisa para receber e gerir marcações online.</p>
+  </section>
+
+  <section class="pricing-content page-container" aria-label="Plano disponível">
+    <article class="price-card">
+      <div class="price-card-heading">
+        <div>
+          <p class="plan-name">Plano Marcações</p>
+          <p class="plan-description">Para barbeiros independentes e pequenas barbearias.</p>
+        </div>
+        <span class="trial-label">14 dias grátis</span>
+      </div>
+
+      <p class="price"><strong>19 €</strong><span>/ mês</span></p>
+
+      <ul class="feature-list">
+        <li><svg lucideCheck [size]="18" aria-hidden="true"></svg> Página pública de marcações</li>
+        <li><svg lucideCheck [size]="18" aria-hidden="true"></svg> Gestão de serviços e preços</li>
+        <li><svg lucideCheck [size]="18" aria-hidden="true"></svg> Configuração dos horários</li>
+        <li><svg lucideCheck [size]="18" aria-hidden="true"></svg> Agenda de clientes</li>
+        <li><svg lucideCheck [size]="18" aria-hidden="true"></svg> Link próprio da barbearia</li>
+      </ul>
+
+      <a class="button button-primary button-large button-full" routerLink="/register">
+        Começar período experimental
+        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+      </a>
+      <p class="price-note">Sem cobrança durante o período experimental.</p>
+    </article>
+
+    <div class="pricing-assurance">
+      <h2>O pagamento ainda é simulado nesta versão.</h2>
+      <p>
+        O produto está em desenvolvimento. O fluxo de subscrição já faz parte da arquitetura, mas
+        nenhuma cobrança real será efetuada no MVP.
+      </p>
+    </div>
+  </section>
+</main>

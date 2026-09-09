@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: BarberFlow API
+  datasource:
+    url: ${BARBERFLOW_DATABASE_URL:jdbc:postgresql://localhost:5432/barberflow}
+    username: ${BARBERFLOW_DATABASE_USERNAME:barberflow}
+    password: ${BARBERFLOW_DATABASE_PASSWORD:barberflow}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+server:
+  port: ${BARBERFLOW_API_PORT:8080}
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        name: BARBERFLOW_SESSION
+        http-only: true
+        secure: ${BARBERFLOW_COOKIE_SECURE:false}
+        same-site: lax
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  cors:
+    allowed-origins: ${BARBERFLOW_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8081}

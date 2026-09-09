@@ -1,0 +1,44 @@
+name: barberflow
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-barberflow}
+      POSTGRES_USER: ${POSTGRES_USER:-barberflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-barberflow}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - barberflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      BARBERFLOW_DATABASE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB:-barberflow}
+      BARBERFLOW_DATABASE_USERNAME: ${POSTGRES_USER:-barberflow}
+      BARBERFLOW_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-barberflow}
+      BARBERFLOW_ALLOWED_ORIGINS: http://localhost:${APP_PORT:-8081}
+      BARBERFLOW_COOKIE_SECURE: "false"
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${APP_PORT:-8081}:80"
+    depends_on:
+      - backend
+
+volumes:
+  barberflow_postgres_data:

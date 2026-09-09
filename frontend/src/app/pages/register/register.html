@@ -1,0 +1,154 @@
+<main class="auth-page">
+  <aside class="auth-context">
+    <a class="brand brand-light" routerLink="/" aria-label="BarberFlow, página inicial">
+      <span class="brand-mark" aria-hidden="true">
+        <svg lucideScissors [size]="19"></svg>
+      </span>
+      <span>BarberFlow</span>
+    </a>
+
+    <div class="auth-context-copy">
+      <p class="eyebrow">Comece hoje</p>
+      <h1>Organize as marcações da sua barbearia.</h1>
+      <p>Crie a conta de administrador e prepare o seu espaço para receber clientes online.</p>
+    </div>
+
+    <p class="auth-context-note">14 dias grátis · Sem cobrança real no MVP</p>
+  </aside>
+
+  <section class="auth-form-area">
+    <div class="auth-form-container auth-form-wide">
+      <a class="back-link" routerLink="/">
+        <svg lucideArrowLeft [size]="17" aria-hidden="true"></svg>
+        Voltar ao início
+      </a>
+
+      <div class="auth-form-heading">
+        <p class="eyebrow">Nova conta</p>
+        <h2>Dados da sua barbearia</h2>
+        <p>Já tem uma conta? <a routerLink="/login">Entre aqui</a>.</p>
+      </div>
+
+      @if (serverError()) {
+        <div class="form-alert" role="alert">{{ serverError() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="ownerName">O seu nome</label>
+            <input
+              id="ownerName"
+              type="text"
+              formControlName="ownerName"
+              autocomplete="name"
+              placeholder="João Silva"
+            />
+            @if (form.controls.ownerName.touched && form.controls.ownerName.invalid) {
+              <span class="field-error">Introduza o seu nome.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="barbershopName">Nome da barbearia</label>
+            <input
+              id="barbershopName"
+              type="text"
+              formControlName="barbershopName"
+              autocomplete="organization"
+              placeholder="Barbearia Central"
+            />
+            @if (form.controls.barbershopName.touched && form.controls.barbershopName.invalid) {
+              <span class="field-error">Introduza o nome da barbearia.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="joao@barbearia.pt"
+            />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span class="field-error">Introduza um e-mail válido.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="phone">Telefone</label>
+            <input
+              id="phone"
+              type="tel"
+              formControlName="phone"
+              autocomplete="tel"
+              placeholder="+351 912 345 678"
+            />
+            @if (form.controls.phone.touched && form.controls.phone.invalid) {
+              <span class="field-error">Introduza um telefone válido.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="password">Palavra-passe</label>
+            <div class="password-field">
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="Mínimo de 8 caracteres"
+              />
+              <button
+                class="icon-button input-action"
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="
+                  showPassword() ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'
+                "
+                [title]="showPassword() ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
+              >
+                @if (showPassword()) {
+                  <svg lucideEyeOff [size]="18" aria-hidden="true"></svg>
+                } @else {
+                  <svg lucideEye [size]="18" aria-hidden="true"></svg>
+                }
+              </button>
+            </div>
+            @if (form.controls.password.touched && form.controls.password.invalid) {
+              <span class="field-error">Use entre 8 e 72 caracteres.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirmar palavra-passe</label>
+            <input
+              id="confirmPassword"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              placeholder="Repita a palavra-passe"
+            />
+            @if (form.controls.confirmPassword.touched && form.hasError('passwordsDoNotMatch')) {
+              <span class="field-error">As palavras-passe não coincidem.</span>
+            }
+          </div>
+        </div>
+
+        <button
+          class="button button-primary button-large button-full"
+          type="submit"
+          [disabled]="submitting()"
+        >
+          {{ submitting() ? 'A criar conta...' : 'Criar conta' }}
+        </button>
+      </form>
+
+      <p class="form-legal">
+        Ao criar a conta, aceita utilizar esta versão de demonstração do BarberFlow.
+      </p>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,20 @@
+<header class="public-header">
+  <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
+    <span class="brand-mark" aria-hidden="true">
+      <svg lucideScissors [size]="19"></svg>
+    </span>
+    <span>BarberFlow</span>
+  </a>
+
+  <nav class="public-nav" aria-label="Navegação principal">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      Início
+    </a>
+    <a routerLink="/pricing" routerLinkActive="active">Preço</a>
+  </nav>
+
+  <div class="header-actions">
+    <a class="text-link" routerLink="/login">Entrar</a>
+    <a class="button button-small button-primary" routerLink="/register">Criar conta</a>
+  </div>
+</header>

@@ -1,0 +1,155 @@
+<main class="dashboard-shell">
+  <aside class="dashboard-sidebar">
+    <a class="brand dashboard-brand" routerLink="/dashboard">
+      <span class="brand-mark" aria-hidden="true">
+        <svg lucideScissors [size]="19"></svg>
+      </span>
+      <span>BarberFlow</span>
+    </a>
+
+    <nav class="dashboard-nav" aria-label="Navegação do painel">
+      <a class="active" routerLink="/dashboard">
+        <svg lucideLayoutDashboard [size]="19" aria-hidden="true"></svg>
+        Visão geral
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="sidebar-user-copy">
+        <strong>{{ user()?.name }}</strong>
+        <small>{{ user()?.email }}</small>
+      </span>
+      <button
+        class="icon-button sidebar-logout"
+        type="button"
+        (click)="logout()"
+        [disabled]="loggingOut()"
+        aria-label="Terminar sessão"
+        title="Terminar sessão"
+      >
+        <svg lucideLogOut [size]="18" aria-hidden="true"></svg>
+      </button>
+    </div>
+  </aside>
+
+  <section class="dashboard-main">
+    <header class="dashboard-topbar">
+      <div>
+        <p class="dashboard-date">Painel da barbearia</p>
+        <h1>{{ user()?.barbershop?.name }}</h1>
+      </div>
+      <span class="status-badge status-trial">
+        {{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}
+      </span>
+    </header>
+
+    @if (logoutError()) {
+      <div class="form-alert dashboard-alert" role="alert">{{ logoutError() }}</div>
+    }
+
+    <div class="dashboard-content">
+      <section class="welcome-block" aria-labelledby="welcome-title">
+        <div>
+          <p class="eyebrow">Primeiros passos</p>
+          <h2 id="welcome-title">Olá, {{ user()?.name }}.</h2>
+          <p>A sua conta está criada. Agora vamos preparar a agenda para receber marcações.</p>
+        </div>
+        <div class="trial-summary">
+          <span>Estado da conta</span>
+          <strong>{{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}</strong>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Resumo das marcações">
+        <article class="stat-card">
+          <span class="stat-icon"><svg lucideCalendarDays [size]="20"></svg></span>
+          <div>
+            <span>Marcações hoje</span>
+            <strong>0</strong>
+          </div>
+        </article>
+        <article class="stat-card">
+          <span class="stat-icon"><svg lucideCalendarDays [size]="20"></svg></span>
+          <div>
+            <span>Esta semana</span>
+            <strong>0</strong>
+          </div>
+        </article>
+        <article class="stat-card">
+          <span class="stat-icon"><svg lucideCircleCheck [size]="20"></svg></span>
+          <div>
+            <span>Configuração</span>
+            <strong>25%</strong>
+          </div>
+        </article>
+      </section>
+
+      <div class="dashboard-columns">
+        <section class="setup-section" aria-labelledby="setup-title">
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="eyebrow">Configuração</p>
+              <h2 id="setup-title">Prepare a sua página</h2>
+            </div>
+            <span>1 de 4</span>
+          </div>
+
+          <ol class="setup-list">
+            <li class="complete">
+              <svg lucideCircleCheck [size]="21" aria-hidden="true"></svg>
+              <div>
+                <strong>Criar a conta</strong>
+                <span>Os dados principais estão guardados.</span>
+              </div>
+            </li>
+            <li>
+              <svg lucideCircle [size]="21" aria-hidden="true"></svg>
+              <div>
+                <strong>Adicionar os serviços</strong>
+                <span>Defina nomes, duração e preços.</span>
+              </div>
+            </li>
+            <li>
+              <svg lucideCircle [size]="21" aria-hidden="true"></svg>
+              <div>
+                <strong>Configurar os horários</strong>
+                <span>Indique os dias e horas disponíveis.</span>
+              </div>
+            </li>
+            <li>
+              <svg lucideCircle [size]="21" aria-hidden="true"></svg>
+              <div>
+                <strong>Publicar o link</strong>
+                <span>Partilhe a página com os seus clientes.</span>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="public-link-section" aria-labelledby="public-link-title">
+          <p class="eyebrow">Link público reservado</p>
+          <h2 id="public-link-title">A página da sua barbearia</h2>
+          <p>
+            Este será o endereço para partilhar quando os serviços e horários estiverem prontos.
+          </p>
+          <div class="link-copy-field">
+            <span>{{ publicUrl() }}</span>
+            <button
+              class="icon-button"
+              type="button"
+              (click)="copyPublicUrl()"
+              aria-label="Copiar link público"
+              title="Copiar link público"
+            >
+              <svg lucideCopy [size]="18" aria-hidden="true"></svg>
+            </button>
+          </div>
+          <span class="copy-feedback" aria-live="polite">{{
+            copied() ? 'Link copiado.' : ''
+          }}</span>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>

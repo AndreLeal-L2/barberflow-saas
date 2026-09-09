@@ -68,7 +68,7 @@ The first version should not include:
 
 ### Frontend
 
-- Angular
+- Angular 22
 - TypeScript
 - Angular Router
 - Reactive Forms
@@ -77,7 +77,7 @@ The first version should not include:
 ### Backend
 
 - Java 21
-- Spring Boot
+- Spring Boot 4
 - Spring Web
 - Spring Security
 - Spring Data JPA
@@ -416,6 +416,15 @@ Security requirements:
 - CSRF protection must be enabled for unsafe requests if cookie authentication is used
 - CORS must explicitly allow only trusted frontend origins
 
+The session cookie is named `BARBERFLOW_SESSION`. It is `HttpOnly` and uses
+`SameSite=Lax`; `Secure` is disabled only for local HTTP development and must be
+enabled in production. Angular reads a separate `XSRF-TOKEN` cookie and sends its
+value in the `X-XSRF-TOKEN` header. That CSRF cookie is intentionally readable by
+JavaScript and is not an authentication credential.
+
+The complete rationale is recorded in
+[`ADR-0001`](docs/architecture-decisions/0001-session-authentication.md).
+
 JWT may still be considered later for mobile apps, public APIs, or third-party integrations.
 
 ## Authorization Rules
@@ -478,6 +487,7 @@ POST /api/auth/register
 POST /api/auth/login
 POST /api/auth/logout
 GET  /api/auth/me
+GET  /api/auth/csrf
 ```
 
 ### Barbershop Dashboard
@@ -608,7 +618,7 @@ The project should follow a clean Git workflow:
 Suggested branch prefixes:
 
 ```text
-feature/
+feat/
 fix/
 docs/
 test/
@@ -620,7 +630,7 @@ Commit examples:
 
 ```text
 docs: add initial architecture document
-feature: add barbershop registration endpoint
+feat: add barbershop registration endpoint
 fix: prevent overlapping bookings
 test: add booking availability tests
 chore: configure docker compose
