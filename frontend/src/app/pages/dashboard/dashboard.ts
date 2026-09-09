@@ -7,7 +7,6 @@ import {
   LucideCopy,
   LucideLayoutDashboard,
   LucideLogOut,
-  LucideScissors,
 } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { SubscriptionStatus } from '../../core/auth.models';
@@ -22,7 +21,6 @@ import { AuthService } from '../../core/auth.service';
     LucideCopy,
     LucideLayoutDashboard,
     LucideLogOut,
-    LucideScissors,
     RouterLink,
   ],
   templateUrl: './dashboard.html',

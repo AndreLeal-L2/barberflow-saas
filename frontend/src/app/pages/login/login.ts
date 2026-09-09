@@ -2,21 +2,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideArrowLeft, LucideEye, LucideEyeOff, LucideScissors } from '@lucide/angular';
+import { LucideArrowLeft, LucideEye, LucideEyeOff } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [
-    LucideArrowLeft,
-    LucideEye,
-    LucideEyeOff,
-    LucideScissors,
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [LucideArrowLeft, LucideEye, LucideEyeOff, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

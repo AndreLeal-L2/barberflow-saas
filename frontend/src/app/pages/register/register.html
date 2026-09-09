@@ -1,32 +1,37 @@
-<main class="auth-page">
-  <aside class="auth-context">
-    <a class="brand brand-light" routerLink="/" aria-label="BarberFlow, página inicial">
-      <span class="brand-mark" aria-hidden="true">
-        <svg lucideScissors [size]="19"></svg>
-      </span>
-      <span>BarberFlow</span>
+<main class="auth-shell">
+  <header class="auth-header">
+    <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
+      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
     </a>
+    <p>Já tem conta? <a routerLink="/login">Entrar</a></p>
+  </header>
 
-    <div class="auth-context-copy">
-      <p class="eyebrow">Comece hoje</p>
-      <h1>Organize as marcações da sua barbearia.</h1>
-      <p>Crie a conta de administrador e prepare o seu espaço para receber clientes online.</p>
-    </div>
+  <div class="auth-main auth-main-register">
+    <aside class="auth-intro">
+      <p class="section-number">14 DIAS PARA TESTAR</p>
+      <h1>Comece pela barbearia.</h1>
+      <p>
+        Crie o acesso de administrador. Os serviços e horários são configurados depois, dentro do
+        painel.
+      </p>
+      <ol class="register-steps">
+        <li><span>01</span>Conta e barbearia</li>
+        <li><span>02</span>Serviços e horários</li>
+        <li><span>03</span>Link de marcações</li>
+      </ol>
+    </aside>
 
-    <p class="auth-context-note">14 dias grátis · Sem cobrança real no MVP</p>
-  </aside>
-
-  <section class="auth-form-area">
-    <div class="auth-form-container auth-form-wide">
+    <section class="auth-panel auth-panel-wide" aria-labelledby="register-title">
       <a class="back-link" routerLink="/">
         <svg lucideArrowLeft [size]="17" aria-hidden="true"></svg>
         Voltar ao início
       </a>
 
       <div class="auth-form-heading">
-        <p class="eyebrow">Nova conta</p>
-        <h2>Dados da sua barbearia</h2>
-        <p>Já tem uma conta? <a routerLink="/login">Entre aqui</a>.</p>
+        <span>PASSO 1 DE 3</span>
+        <h2 id="register-title">Dados da conta</h2>
+        <p>Todos os campos são obrigatórios.</p>
       </div>
 
       @if (serverError()) {
@@ -146,9 +151,7 @@
         </button>
       </form>
 
-      <p class="form-legal">
-        Ao criar a conta, aceita utilizar esta versão de demonstração do BarberFlow.
-      </p>
-    </div>
-  </section>
+      <p class="form-legal">Esta versão não efetua cobranças nem solicita dados de pagamento.</p>
+    </section>
+  </div>
 </main>

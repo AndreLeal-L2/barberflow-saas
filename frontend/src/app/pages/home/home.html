@@ -2,80 +2,138 @@
 
 <main>
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-overlay"></div>
     <div class="hero-content page-container">
-      <p class="eyebrow hero-eyebrow">Agenda digital para barbearias</p>
+      <p class="hero-kicker">Agenda online para barbeiros</p>
       <h1 id="hero-title">BarberFlow</h1>
+      <p class="hero-statement">Marcações abertas, mesmo quando tem as mãos ocupadas.</p>
       <p class="hero-copy">
-        Receba marcações online através de um link simples e mantenha o seu dia organizado, sem
-        depender de mensagens para confirmar cada horário.
+        O cliente escolhe o serviço e um horário livre. A agenda atualiza-se sem chamadas nem troca
+        de mensagens.
       </p>
       <div class="hero-actions">
         <a class="button button-primary button-large" routerLink="/register">
-          Começar agora
+          Criar a minha agenda
           <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
         </a>
-        <a class="button button-ghost button-large" routerLink="/pricing">Ver preço</a>
+        <a class="hero-text-link" href="#produto">Ver como funciona</a>
       </div>
-      <p class="hero-note">
-        <svg lucideCheck [size]="17" aria-hidden="true"></svg>
-        Configuração simples e 14 dias para experimentar
-      </p>
+    </div>
+    <div class="hero-index" aria-hidden="true">
+      <span>01</span>
+      <span>MARCAÇÕES</span>
     </div>
   </section>
 
-  <section class="benefits-section" aria-labelledby="benefits-title">
-    <div class="page-container">
-      <div class="section-heading">
-        <p class="eyebrow">O essencial, num só lugar</p>
-        <h2 id="benefits-title">Menos tempo no telemóvel. Mais controlo da agenda.</h2>
-      </div>
-
-      <div class="benefits-grid">
-        <article class="benefit">
-          <span class="benefit-icon" aria-hidden="true">
-            <svg lucideLink [size]="22"></svg>
-          </span>
-          <h3>O seu próprio link</h3>
-          <p>Partilhe-o no Instagram, WhatsApp ou Google e receba marcações a qualquer hora.</p>
-        </article>
-
-        <article class="benefit">
-          <span class="benefit-icon" aria-hidden="true">
-            <svg lucideClock [size]="22"></svg>
-          </span>
-          <h3>Horários sob controlo</h3>
-          <p>Defina quando trabalha e deixe os clientes escolherem apenas horários disponíveis.</p>
-        </article>
-
-        <article class="benefit">
-          <span class="benefit-icon" aria-hidden="true">
-            <svg lucideCalendarCheck [size]="22"></svg>
-          </span>
-          <h3>Agenda organizada</h3>
-          <p>Consulte todas as marcações do dia e evite conflitos entre clientes.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="closing-section">
-    <div class="page-container closing-layout">
+  <section id="produto" class="product-section" aria-labelledby="product-title">
+    <div class="page-container product-intro">
+      <p class="section-number">01 / O PRODUTO</p>
       <div>
-        <p class="eyebrow">Comece sem complicações</p>
-        <h2>A sua agenda online pronta para receber clientes.</h2>
+        <h2 id="product-title">Uma agenda que o cliente consegue preencher sozinho.</h2>
+        <p>
+          O BarberFlow trata do percurso entre o link na bio e o horário confirmado. O barbeiro
+          mantém o controlo sobre serviços, duração e disponibilidade.
+        </p>
       </div>
-      <a class="button button-dark button-large" routerLink="/register">
-        Criar a minha conta
-        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
-      </a>
+    </div>
+
+    <div class="page-container product-layout">
+      <div class="schedule-preview" aria-label="Exemplo de agenda diária">
+        <div class="preview-toolbar">
+          <div>
+            <span>AGENDA</span>
+            <strong>Hoje</strong>
+          </div>
+          <span class="preview-count">3 marcações</span>
+        </div>
+
+        <div class="appointment-row">
+          <time>09:00</time>
+          <span class="appointment-line confirmed" aria-hidden="true"></span>
+          <div>
+            <strong>Miguel Santos</strong>
+            <span>Corte clássico · 45 min</span>
+          </div>
+          <span class="appointment-status">Confirmada</span>
+        </div>
+        <div class="appointment-row">
+          <time>10:00</time>
+          <span class="appointment-line confirmed" aria-hidden="true"></span>
+          <div>
+            <strong>Rui Almeida</strong>
+            <span>Barba · 30 min</span>
+          </div>
+          <span class="appointment-status">Confirmada</span>
+        </div>
+        <div class="appointment-row available">
+          <time>11:00</time>
+          <span class="appointment-line" aria-hidden="true"></span>
+          <div>
+            <strong>Horário disponível</strong>
+            <span>Visível na página de marcações</span>
+          </div>
+          <span class="appointment-status">Livre</span>
+        </div>
+        <div class="appointment-row">
+          <time>12:00</time>
+          <span class="appointment-line confirmed" aria-hidden="true"></span>
+          <div>
+            <strong>André Costa</strong>
+            <span>Corte + barba · 60 min</span>
+          </div>
+          <span class="appointment-status">Confirmada</span>
+        </div>
+      </div>
+
+      <ol class="workflow-list">
+        <li>
+          <span>01</span>
+          <div>
+            <strong>Defina o que faz</strong>
+            <p>Adicione os serviços, preços e duração de cada marcação.</p>
+          </div>
+        </li>
+        <li>
+          <span>02</span>
+          <div>
+            <strong>Abra os horários</strong>
+            <p>Escolha os dias de trabalho e os intervalos disponíveis.</p>
+          </div>
+        </li>
+        <li>
+          <span>03</span>
+          <div>
+            <strong>Partilhe o link</strong>
+            <p>Coloque-o no Instagram, WhatsApp ou perfil do Google.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="decision-section" aria-labelledby="decision-title">
+    <div class="page-container decision-layout">
+      <p class="section-number">02 / SEM ATRITO</p>
+      <div>
+        <h2 id="decision-title">
+          Sem instalação. Sem formação. Sem interromper um corte para responder ao telemóvel.
+        </h2>
+        <div class="decision-footer">
+          <p>A conta fica pronta para configurar assim que termina o registo.</p>
+          <a class="button button-light button-large" routerLink="/register"
+            >Experimentar durante 14 dias <svg lucideArrowRight [size]="18" aria-hidden="true"></svg
+          ></a>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
 <footer class="site-footer">
   <div class="page-container footer-content">
-    <span>BarberFlow</span>
-    <span>Marcações online para barbearias.</span>
+    <a class="brand brand-light" routerLink="/" aria-label="BarberFlow, página inicial">
+      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
+    </a>
+    <span>Agenda online para barbeiros independentes e pequenas barbearias.</span>
   </div>
 </footer>

@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { LucideArrowLeft, LucideEye, LucideEyeOff, LucideScissors } from '@lucide/angular';
+import { LucideArrowLeft, LucideEye, LucideEyeOff } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
@@ -21,14 +21,7 @@ function matchingPasswords(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-register',
-  imports: [
-    LucideArrowLeft,
-    LucideEye,
-    LucideEyeOff,
-    LucideScissors,
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [LucideArrowLeft, LucideEye, LucideEyeOff, ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

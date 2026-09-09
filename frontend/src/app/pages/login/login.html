@@ -1,32 +1,28 @@
-<main class="auth-page">
-  <aside class="auth-context auth-context-login">
-    <a class="brand brand-light" routerLink="/" aria-label="BarberFlow, página inicial">
-      <span class="brand-mark" aria-hidden="true">
-        <svg lucideScissors [size]="19"></svg>
-      </span>
-      <span>BarberFlow</span>
+<main class="auth-shell">
+  <header class="auth-header">
+    <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
+      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
     </a>
+    <p>Ainda não tem conta? <a routerLink="/register">Criar conta</a></p>
+  </header>
 
-    <div class="auth-context-copy">
-      <p class="eyebrow">Área reservada</p>
-      <h1>A sua agenda começa aqui.</h1>
-      <p>Entre para acompanhar a barbearia e preparar os próximos horários.</p>
-    </div>
+  <div class="auth-main auth-main-login">
+    <section class="auth-intro">
+      <p class="section-number">ACESSO À CONTA</p>
+      <h1>Voltar à agenda.</h1>
+      <p>Consulte as marcações e continue a configuração da sua barbearia.</p>
+    </section>
 
-    <p class="auth-context-note">Gestão simples, pensada para o trabalho diário.</p>
-  </aside>
-
-  <section class="auth-form-area">
-    <div class="auth-form-container">
+    <section class="auth-panel" aria-labelledby="login-title">
       <a class="back-link" routerLink="/">
         <svg lucideArrowLeft [size]="17" aria-hidden="true"></svg>
         Voltar ao início
       </a>
 
       <div class="auth-form-heading">
-        <p class="eyebrow">Bem-vindo de volta</p>
-        <h2>Entrar na conta</h2>
-        <p>Ainda não tem conta? <a routerLink="/register">Crie uma agora</a>.</p>
+        <h2 id="login-title">Entrar</h2>
+        <p>Use o e-mail do administrador.</p>
       </div>
 
       @if (serverError()) {
@@ -85,6 +81,6 @@
           {{ submitting() ? 'A entrar...' : 'Entrar' }}
         </button>
       </form>
-    </div>
-  </section>
+    </section>
+  </div>
 </main>

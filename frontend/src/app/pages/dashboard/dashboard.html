@@ -1,13 +1,12 @@
 <main class="dashboard-shell">
   <aside class="dashboard-sidebar">
     <a class="brand dashboard-brand" routerLink="/dashboard">
-      <span class="brand-mark" aria-hidden="true">
-        <svg lucideScissors [size]="19"></svg>
-      </span>
-      <span>BarberFlow</span>
+      <span class="brand-stripes brand-stripes-dark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
     </a>
 
     <nav class="dashboard-nav" aria-label="Navegação do painel">
+      <span class="nav-label">PAINEL</span>
       <a class="active" routerLink="/dashboard">
         <svg lucideLayoutDashboard [size]="19" aria-hidden="true"></svg>
         Visão geral
@@ -36,8 +35,8 @@
   <section class="dashboard-main">
     <header class="dashboard-topbar">
       <div>
-        <p class="dashboard-date">Painel da barbearia</p>
-        <h1>{{ user()?.barbershop?.name }}</h1>
+        <h1>Visão geral</h1>
+        <p class="dashboard-shop-name">{{ user()?.barbershop?.name }}</p>
       </div>
       <span class="status-badge status-trial">
         {{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}
@@ -49,105 +48,123 @@
     }
 
     <div class="dashboard-content">
-      <section class="welcome-block" aria-labelledby="welcome-title">
-        <div>
-          <p class="eyebrow">Primeiros passos</p>
-          <h2 id="welcome-title">Olá, {{ user()?.name }}.</h2>
-          <p>A sua conta está criada. Agora vamos preparar a agenda para receber marcações.</p>
+      <section class="activation-banner" aria-labelledby="activation-title">
+        <div class="activation-copy">
+          <p class="section-number">CONFIGURAÇÃO · 1 DE 4</p>
+          <h2 id="activation-title">A página ainda não está publicada.</h2>
+          <p>Adicione os serviços e os horários antes de enviar o link aos clientes.</p>
         </div>
-        <div class="trial-summary">
-          <span>Estado da conta</span>
-          <strong>{{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}</strong>
+        <div class="activation-progress" aria-label="Configuração concluída a 25%">
+          <div><span>Progresso</span><strong>25%</strong></div>
+          <div class="progress-track" aria-hidden="true"><span></span></div>
         </div>
       </section>
 
-      <section class="stats-grid" aria-label="Resumo das marcações">
-        <article class="stat-card">
-          <span class="stat-icon"><svg lucideCalendarDays [size]="20"></svg></span>
-          <div>
-            <span>Marcações hoje</span>
-            <strong>0</strong>
-          </div>
-        </article>
-        <article class="stat-card">
-          <span class="stat-icon"><svg lucideCalendarDays [size]="20"></svg></span>
-          <div>
-            <span>Esta semana</span>
-            <strong>0</strong>
-          </div>
-        </article>
-        <article class="stat-card">
-          <span class="stat-icon"><svg lucideCircleCheck [size]="20"></svg></span>
-          <div>
-            <span>Configuração</span>
-            <strong>25%</strong>
-          </div>
-        </article>
-      </section>
-
-      <div class="dashboard-columns">
-        <section class="setup-section" aria-labelledby="setup-title">
-          <div class="dashboard-section-heading">
-            <div>
-              <p class="eyebrow">Configuração</p>
-              <h2 id="setup-title">Prepare a sua página</h2>
+      <div class="dashboard-workspace">
+        <div class="workspace-primary">
+          <section class="agenda-section" aria-labelledby="agenda-title">
+            <div class="dashboard-section-heading">
+              <div>
+                <p class="section-label">AGENDA</p>
+                <h2 id="agenda-title">Próximas marcações</h2>
+              </div>
+              <span>Hoje</span>
             </div>
-            <span>1 de 4</span>
-          </div>
+            <div class="agenda-empty">
+              <svg lucideCalendarDays [size]="24" aria-hidden="true"></svg>
+              <div>
+                <strong>Ainda não há marcações.</strong>
+                <p>Quando a página estiver publicada, as próximas entradas aparecem aqui.</p>
+              </div>
+            </div>
+          </section>
 
-          <ol class="setup-list">
-            <li class="complete">
-              <svg lucideCircleCheck [size]="21" aria-hidden="true"></svg>
+          <section class="setup-section" aria-labelledby="setup-title">
+            <div class="dashboard-section-heading">
               <div>
-                <strong>Criar a conta</strong>
-                <span>Os dados principais estão guardados.</span>
+                <p class="section-label">PREPARAR A PÁGINA</p>
+                <h2 id="setup-title">Lista de configuração</h2>
               </div>
-            </li>
-            <li>
-              <svg lucideCircle [size]="21" aria-hidden="true"></svg>
-              <div>
-                <strong>Adicionar os serviços</strong>
-                <span>Defina nomes, duração e preços.</span>
-              </div>
-            </li>
-            <li>
-              <svg lucideCircle [size]="21" aria-hidden="true"></svg>
-              <div>
-                <strong>Configurar os horários</strong>
-                <span>Indique os dias e horas disponíveis.</span>
-              </div>
-            </li>
-            <li>
-              <svg lucideCircle [size]="21" aria-hidden="true"></svg>
-              <div>
-                <strong>Publicar o link</strong>
-                <span>Partilhe a página com os seus clientes.</span>
-              </div>
-            </li>
-          </ol>
-        </section>
+              <span>1 de 4 concluído</span>
+            </div>
 
-        <aside class="public-link-section" aria-labelledby="public-link-title">
-          <p class="eyebrow">Link público reservado</p>
-          <h2 id="public-link-title">A página da sua barbearia</h2>
-          <p>
-            Este será o endereço para partilhar quando os serviços e horários estiverem prontos.
-          </p>
-          <div class="link-copy-field">
-            <span>{{ publicUrl() }}</span>
-            <button
-              class="icon-button"
-              type="button"
-              (click)="copyPublicUrl()"
-              aria-label="Copiar link público"
-              title="Copiar link público"
-            >
-              <svg lucideCopy [size]="18" aria-hidden="true"></svg>
-            </button>
-          </div>
-          <span class="copy-feedback" aria-live="polite">{{
-            copied() ? 'Link copiado.' : ''
-          }}</span>
+            <ol class="setup-list">
+              <li class="complete">
+                <svg lucideCircleCheck [size]="21" aria-hidden="true"></svg>
+                <div>
+                  <strong>Conta criada</strong>
+                  <span>Administrador e barbearia registados.</span>
+                </div>
+                <small>CONCLUÍDO</small>
+              </li>
+              <li>
+                <svg lucideCircle [size]="21" aria-hidden="true"></svg>
+                <div>
+                  <strong>Adicionar serviços</strong>
+                  <span>Nome, duração e preço de cada serviço.</span>
+                </div>
+                <small>A SEGUIR</small>
+              </li>
+              <li>
+                <svg lucideCircle [size]="21" aria-hidden="true"></svg>
+                <div>
+                  <strong>Definir horários</strong>
+                  <span>Dias de trabalho, pausas e disponibilidade.</span>
+                </div>
+                <small>PENDENTE</small>
+              </li>
+              <li>
+                <svg lucideCircle [size]="21" aria-hidden="true"></svg>
+                <div>
+                  <strong>Publicar a página</strong>
+                  <span>Ativar o endereço que será enviado aos clientes.</span>
+                </div>
+                <small>PENDENTE</small>
+              </li>
+            </ol>
+          </section>
+        </div>
+
+        <aside class="workspace-rail">
+          <section class="public-link-section" aria-labelledby="public-link-title">
+            <p class="section-label">LINK RESERVADO</p>
+            <h2 id="public-link-title">Página da barbearia</h2>
+            <p>O endereço já é seu. Ficará acessível quando terminar a configuração.</p>
+            <div class="link-copy-field">
+              <span>{{ publicUrl() }}</span>
+              <button
+                class="icon-button"
+                type="button"
+                (click)="copyPublicUrl()"
+                aria-label="Copiar link público"
+                title="Copiar link público"
+              >
+                <svg lucideCopy [size]="18" aria-hidden="true"></svg>
+              </button>
+            </div>
+            <span class="copy-feedback" aria-live="polite">{{
+              copied() ? 'Link copiado.' : ''
+            }}</span>
+          </section>
+
+          <section class="account-section" aria-labelledby="account-title">
+            <p class="section-label">CONTA</p>
+            <h2 id="account-title">Período experimental</h2>
+            <dl>
+              <div>
+                <dt>Estado</dt>
+                <dd>{{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}</dd>
+              </div>
+              <div>
+                <dt>Plano</dt>
+                <dd>Marcações</dd>
+              </div>
+              <div>
+                <dt>Pagamento</dt>
+                <dd>Simulado no MVP</dd>
+              </div>
+            </dl>
+          </section>
         </aside>
       </div>
     </div>
