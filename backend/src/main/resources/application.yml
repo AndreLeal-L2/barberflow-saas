@@ -37,5 +37,6 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  time-zone: ${BARBERFLOW_TIME_ZONE:Europe/Lisbon}
   cors:
     allowed-origins: ${BARBERFLOW_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8081}

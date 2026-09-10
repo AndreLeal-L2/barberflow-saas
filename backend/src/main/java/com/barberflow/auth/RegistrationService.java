@@ -1,5 +1,7 @@
 package com.barberflow.auth;
 
+import com.barberflow.barber.Barber;
+import com.barberflow.barber.BarberRepository;
 import com.barberflow.barbershop.Barbershop;
 import com.barberflow.barbershop.BarbershopRepository;
 import com.barberflow.barbershop.SlugGenerator;
@@ -14,17 +16,20 @@ public class RegistrationService {
 
     private final AppUserRepository userRepository;
     private final BarbershopRepository barbershopRepository;
+    private final BarberRepository barberRepository;
     private final PasswordEncoder passwordEncoder;
     private final SlugGenerator slugGenerator;
 
     public RegistrationService(
             AppUserRepository userRepository,
             BarbershopRepository barbershopRepository,
+            BarberRepository barberRepository,
             PasswordEncoder passwordEncoder,
             SlugGenerator slugGenerator
     ) {
         this.userRepository = userRepository;
         this.barbershopRepository = barbershopRepository;
+        this.barberRepository = barberRepository;
         this.passwordEncoder = passwordEncoder;
         this.slugGenerator = slugGenerator;
     }
@@ -56,6 +61,7 @@ public class RegistrationService {
                 passwordEncoder.encode(request.password())
         );
         userRepository.save(owner);
+        barberRepository.save(Barber.createOwner(barbershop, owner.getName()));
 
         return BarberFlowPrincipal.from(owner);
     }

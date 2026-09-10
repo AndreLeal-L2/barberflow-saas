@@ -43,6 +43,9 @@ public class Barbershop {
     @Column(nullable = false)
     private boolean active;
 
+    @Column(nullable = false)
+    private boolean published;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "subscription_status", nullable = false, length = 20)
     private SubscriptionStatus subscriptionStatus;
@@ -62,6 +65,7 @@ public class Barbershop {
         this.phone = phone;
         this.email = email;
         this.active = true;
+        this.published = false;
         this.subscriptionStatus = SubscriptionStatus.TRIALING;
     }
 
@@ -101,11 +105,32 @@ public class Barbershop {
         return email;
     }
 
+    public String getPublicDescription() {
+        return publicDescription;
+    }
+
+    public String getPublicAddress() {
+        return publicAddress;
+    }
+
     public boolean isActive() {
         return active;
     }
 
+    public boolean isPublished() {
+        return published;
+    }
+
     public SubscriptionStatus getSubscriptionStatus() {
         return subscriptionStatus;
+    }
+
+    public void updatePublicProfile(String publicDescription, String publicAddress) {
+        this.publicDescription = publicDescription;
+        this.publicAddress = publicAddress;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 }

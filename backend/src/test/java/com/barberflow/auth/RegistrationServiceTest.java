@@ -7,6 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.barberflow.barber.Barber;
+import com.barberflow.barber.BarberRepository;
 import com.barberflow.barbershop.Barbershop;
 import com.barberflow.barbershop.BarbershopRepository;
 import com.barberflow.barbershop.SlugGenerator;
@@ -26,6 +28,9 @@ class RegistrationServiceTest {
 
     @Mock
     private BarbershopRepository barbershopRepository;
+
+    @Mock
+    private BarberRepository barberRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -55,6 +60,7 @@ class RegistrationServiceTest {
         assertThat(owner.getPasswordHash()).isEqualTo("encoded-password");
         assertThat(owner.getBarbershop().getSlug()).isEqualTo("barbearia-central");
         assertThat(principal.getUsername()).isEqualTo("joao@example.com");
+        verify(barberRepository).save(any(Barber.class));
     }
 
     @Test
@@ -88,6 +94,7 @@ class RegistrationServiceTest {
         return new RegistrationService(
                 userRepository,
                 barbershopRepository,
+                barberRepository,
                 passwordEncoder,
                 slugGenerator
         );

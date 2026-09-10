@@ -4,5 +4,9 @@ public enum SubscriptionStatus {
     TRIALING,
     ACTIVE,
     PAST_DUE,
-    CANCELLED
+    CANCELLED;
+
+    public boolean grantsBookingAccess() {
+        return this == TRIALING || this == ACTIVE;
+    }
 }

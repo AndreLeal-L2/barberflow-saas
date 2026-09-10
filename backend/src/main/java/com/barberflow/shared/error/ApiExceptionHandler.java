@@ -49,6 +49,24 @@ public class ApiExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of(
+                HttpStatus.NOT_FOUND.value(),
+                exception.getCode(),
+                exception.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    ResponseEntity<ApiError> handleBusinessRule(BusinessRuleException exception) {
+        return ResponseEntity.status(exception.getStatus()).body(ApiError.of(
+                exception.getStatus().value(),
+                exception.getCode(),
+                exception.getMessage()
+        ));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiError> handleDataIntegrityViolation() {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of(
