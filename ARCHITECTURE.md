@@ -259,6 +259,7 @@ phone
 email
 public_description
 public_address
+published
 active
 subscription_status
 created_at
@@ -472,10 +473,7 @@ Public booking endpoints do not require login, but they must:
   Public profile configuration
 
 /b/:slug
-  Public barbershop page
-
-/b/:slug/book
-  Public booking flow
+  Public barbershop page and booking flow
 ```
 
 ## Initial REST API
@@ -493,8 +491,9 @@ GET  /api/auth/csrf
 ### Barbershop Dashboard
 
 ```text
-GET /api/barbershops/me
-PUT /api/barbershops/me
+GET   /api/dashboard/barbershop
+PUT   /api/dashboard/barbershop/profile
+PATCH /api/dashboard/barbershop/publication
 ```
 
 ### Public Barbershop
@@ -518,21 +517,18 @@ DELETE /api/dashboard/services/{id}
 ### Availability
 
 ```text
-GET    /api/dashboard/availability
-POST   /api/dashboard/availability
-PUT    /api/dashboard/availability/{id}
-DELETE /api/dashboard/availability/{id}
+GET /api/dashboard/availability
+PUT /api/dashboard/availability
 ```
 
 ### Bookings
 
 ```text
 GET   /api/dashboard/bookings
-GET   /api/dashboard/bookings/{id}
 PATCH /api/dashboard/bookings/{id}/status
 ```
 
-### Subscription
+### Subscription (Future Administration API)
 
 ```text
 GET   /api/dashboard/subscription
@@ -541,10 +537,16 @@ PATCH /api/dashboard/subscription/simulated-status
 
 The simulated subscription update endpoint should be restricted to development or admin usage.
 
+The current MVP creates new tenants with `TRIALING` status. Both `TRIALING` and
+`ACTIVE` grant booking access; payment and subscription administration endpoints
+remain intentionally deferred.
+
 ## Business Rules
 
 - A booking cannot overlap another active booking for the same barber.
+- Booking creation locks the selected barber while availability is rechecked, preventing concurrent double booking.
 - A booking must fit inside the barber's availability rules.
+- Public bookings can be created up to 60 days ahead and start on 30-minute boundaries.
 - Cancelled bookings do not block availability.
 - Completed bookings remain visible in history.
 - Public booking is blocked if the barbershop subscription is not active or trialing.
@@ -650,16 +652,16 @@ chore: configure docker compose
 
 ### Phase 2: Core SaaS
 
-- Registration
-- Login
-- Tenant model
-- Barbershop profile
-- Service management
-- Availability management
-- Public booking page
-- Booking creation
-- Booking dashboard
-- Simulated subscription status
+- [x] Registration
+- [x] Login
+- [x] Tenant model
+- [x] Barbershop profile
+- [x] Service management
+- [x] Availability management
+- [x] Public booking page
+- [x] Booking creation
+- [x] Booking dashboard
+- [x] Simulated subscription status
 
 ### Phase 3: Quality
 

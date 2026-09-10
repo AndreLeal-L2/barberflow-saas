@@ -6,20 +6,23 @@ The project is a full-stack Java portfolio application with a separated Angular 
 
 ## Current Status
 
-The first working increment includes:
+The working MVP includes:
 
 - Responsive landing and pricing pages
 - Barbershop owner registration
 - Login, authenticated session recovery, and logout
 - Spring Security session authentication with an HttpOnly cookie
 - CSRF protection and restricted credentialed CORS
-- PostgreSQL persistence with the first Flyway migration
-- Initial tenant-aware owner and barbershop model
-- Authenticated dashboard with the reserved public URL
+- PostgreSQL persistence with versioned Flyway migrations
+- Tenant-aware owner, barbershop, barber, service, availability, and booking models
+- Service catalogue management with create, edit, and removal flows
+- Weekly availability management with 30-minute booking intervals
+- Public barbershop profile and publication controls
+- Public booking link with service, date, time, and customer data selection
+- Availability calculation and concurrent booking conflict prevention
+- Authenticated agenda with upcoming bookings, history, cancellation, and completion
 - Simulated `TRIALING` subscription state
-- OpenAPI UI, health endpoint, tests, and Docker Compose
-
-Service management, availability, and the public booking flow are the next product increments.
+- OpenAPI UI, health endpoint, integration tests, and Docker Compose
 
 ## Tech Stack
 
@@ -74,6 +77,16 @@ pnpm test --watch=false
 ```
 
 The Angular development server proxies `/api` and `/actuator` to the backend at port `8080`.
+
+## Main Product Flow
+
+1. Create a barbershop owner account.
+2. Add at least one service in the private dashboard.
+3. Configure the weekly working hours.
+4. Optionally complete the public profile and publish the booking page.
+5. Share the generated `/b/{slug}` link with clients.
+6. Clients choose an available slot and create a booking without an account.
+7. The owner manages the booking from the private agenda.
 
 ## Repository Structure
 
