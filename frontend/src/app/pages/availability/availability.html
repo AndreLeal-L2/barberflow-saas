@@ -1,0 +1,72 @@
+<div class="dashboard-content">
+  <header class="page-heading page-heading-action">
+    <div>
+      <p class="section-label">DISPONIBILIDADE</p>
+      <h1>Horário semanal</h1>
+      <p>Os clientes só poderão escolher horas dentro destes períodos.</p>
+    </div>
+    <button class="button button-primary" type="button" (click)="save()" [disabled]="saving()">
+      <svg lucideSave [size]="18" aria-hidden="true"></svg>
+      {{ saving() ? 'A guardar...' : 'Guardar horário' }}
+    </button>
+  </header>
+
+  @if (error()) {
+    <div class="form-alert" role="alert">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="success-alert" role="status">{{ success() }}</div>
+  }
+
+  <section class="schedule-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="section-label">SEMANA</p>
+        <h2>Dias de trabalho</h2>
+      </div>
+      <span>Intervalos de 30 minutos</span>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">A carregar horários...</div>
+    } @else {
+      <form [formGroup]="form">
+        <div class="schedule-list">
+          @for (day of dayControls; track day.controls.dayOfWeek.value) {
+            <div
+              class="schedule-row"
+              [formGroup]="day"
+              [class.disabled]="!day.controls.enabled.value"
+            >
+              <label class="day-toggle">
+                <input type="checkbox" formControlName="enabled" />
+                <span class="toggle-control" aria-hidden="true"></span>
+                <strong>{{ dayLabel(day.controls.dayOfWeek.value) }}</strong>
+              </label>
+              <div class="time-range">
+                <label>
+                  <span>Abre</span>
+                  <input
+                    type="time"
+                    formControlName="startTime"
+                    [attr.tabindex]="day.controls.enabled.value ? 0 : -1"
+                  />
+                </label>
+                <span aria-hidden="true">até</span>
+                <label>
+                  <span>Fecha</span>
+                  <input
+                    type="time"
+                    formControlName="endTime"
+                    [attr.tabindex]="day.controls.enabled.value ? 0 : -1"
+                  />
+                </label>
+              </div>
+              <span class="day-state">{{ day.controls.enabled.value ? 'ABERTO' : 'FECHADO' }}</span>
+            </div>
+          }
+        </div>
+      </form>
+    }
+  </section>
+</div>

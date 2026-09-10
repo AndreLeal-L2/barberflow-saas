@@ -1,0 +1,70 @@
+<main class="dashboard-shell">
+  <aside class="dashboard-sidebar">
+    <a class="brand dashboard-brand" routerLink="/dashboard">
+      <span class="brand-stripes brand-stripes-dark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
+    </a>
+
+    <nav class="dashboard-nav" aria-label="Navegação do painel">
+      <span class="nav-label">GESTÃO</span>
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <svg lucideLayoutDashboard [size]="19" aria-hidden="true"></svg>
+        Visão geral
+      </a>
+      <a routerLink="/dashboard/bookings" routerLinkActive="active">
+        <svg lucideCalendarDays [size]="19" aria-hidden="true"></svg>
+        Marcações
+      </a>
+      <a routerLink="/dashboard/services" routerLinkActive="active">
+        <svg lucideScissors [size]="19" aria-hidden="true"></svg>
+        Serviços
+      </a>
+      <a routerLink="/dashboard/availability" routerLinkActive="active">
+        <svg lucideClock [size]="19" aria-hidden="true"></svg>
+        Horários
+      </a>
+      <a routerLink="/dashboard/profile" routerLinkActive="active">
+        <svg lucideMapPin [size]="19" aria-hidden="true"></svg>
+        Página pública
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="sidebar-user-copy">
+        <strong>{{ user()?.name }}</strong>
+        <small>{{ user()?.email }}</small>
+      </span>
+      <button
+        class="icon-button sidebar-logout"
+        type="button"
+        (click)="logout()"
+        [disabled]="loggingOut()"
+        aria-label="Terminar sessão"
+        title="Terminar sessão"
+      >
+        <svg lucideLogOut [size]="18" aria-hidden="true"></svg>
+      </button>
+    </div>
+  </aside>
+
+  <section class="dashboard-main">
+    <header class="dashboard-topbar">
+      <div>
+        <strong>{{ user()?.barbershop?.name }}</strong>
+        <span>Painel de gestão</span>
+      </div>
+      <span class="status-badge status-trial">Período experimental</span>
+    </header>
+
+    @if (logoutError()) {
+      <div class="form-alert dashboard-alert" role="alert">{{ logoutError() }}</div>
+    }
+
+    <router-outlet />
+  </section>
+</main>

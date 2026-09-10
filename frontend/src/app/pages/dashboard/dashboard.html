@@ -1,172 +1,215 @@
-<main class="dashboard-shell">
-  <aside class="dashboard-sidebar">
-    <a class="brand dashboard-brand" routerLink="/dashboard">
-      <span class="brand-stripes brand-stripes-dark" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="brand-name">BarberFlow</span>
-    </a>
-
-    <nav class="dashboard-nav" aria-label="Navegação do painel">
-      <span class="nav-label">PAINEL</span>
-      <a class="active" routerLink="/dashboard">
-        <svg lucideLayoutDashboard [size]="19" aria-hidden="true"></svg>
-        Visão geral
-      </a>
-    </nav>
-
-    <div class="sidebar-user">
-      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
-      <span class="sidebar-user-copy">
-        <strong>{{ user()?.name }}</strong>
-        <small>{{ user()?.email }}</small>
-      </span>
-      <button
-        class="icon-button sidebar-logout"
-        type="button"
-        (click)="logout()"
-        [disabled]="loggingOut()"
-        aria-label="Terminar sessão"
-        title="Terminar sessão"
-      >
-        <svg lucideLogOut [size]="18" aria-hidden="true"></svg>
-      </button>
+<div class="dashboard-content">
+  <header class="page-heading">
+    <div>
+      <p class="section-label">VISÃO GERAL</p>
+      <h1>A sua agenda</h1>
+      <p>Acompanhe a configuração e as próximas marcações.</p>
     </div>
-  </aside>
+  </header>
 
-  <section class="dashboard-main">
-    <header class="dashboard-topbar">
-      <div>
-        <h1>Visão geral</h1>
-        <p class="dashboard-shop-name">{{ user()?.barbershop?.name }}</p>
+  @if (error()) {
+    <div class="form-alert" role="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">A carregar o painel...</div>
+  } @else if (shop(); as currentShop) {
+    <section class="activation-banner" [class.published]="currentShop.published">
+      <div class="activation-copy">
+        <p class="section-number">
+          {{
+            currentShop.published
+              ? 'PÁGINA PUBLICADA'
+              : 'CONFIGURAÇÃO · ' + currentShop.completedSetupSteps + ' DE 4'
+          }}
+        </p>
+        <h2>
+          {{
+            currentShop.published
+              ? 'Os clientes já podem fazer marcações.'
+              : 'Prepare a página antes de partilhar o link.'
+          }}
+        </h2>
+        <p>
+          {{
+            currentShop.published
+              ? 'O link está ativo e apresenta os horários livres.'
+              : 'Complete os serviços e horários para ativar as marcações.'
+          }}
+        </p>
       </div>
-      <span class="status-badge status-trial">
-        {{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}
-      </span>
-    </header>
-
-    @if (logoutError()) {
-      <div class="form-alert dashboard-alert" role="alert">{{ logoutError() }}</div>
-    }
-
-    <div class="dashboard-content">
-      <section class="activation-banner" aria-labelledby="activation-title">
-        <div class="activation-copy">
-          <p class="section-number">CONFIGURAÇÃO · 1 DE 4</p>
-          <h2 id="activation-title">A página ainda não está publicada.</h2>
-          <p>Adicione os serviços e os horários antes de enviar o link aos clientes.</p>
+      <div class="activation-actions">
+        <div class="activation-progress">
+          <div>
+            <span>Progresso</span><strong>{{ progress() }}%</strong>
+          </div>
+          <div class="progress-track"><span [style.width.%]="progress()"></span></div>
         </div>
-        <div class="activation-progress" aria-label="Configuração concluída a 25%">
-          <div><span>Progresso</span><strong>25%</strong></div>
-          <div class="progress-track" aria-hidden="true"><span></span></div>
-        </div>
-      </section>
+        @if (currentShop.canPublish || currentShop.published) {
+          <button
+            class="button button-primary"
+            type="button"
+            (click)="togglePublication()"
+            [disabled]="savingPublication()"
+          >
+            {{
+              savingPublication()
+                ? 'A guardar...'
+                : currentShop.published
+                  ? 'Retirar página'
+                  : 'Publicar página'
+            }}
+          </button>
+        }
+      </div>
+    </section>
 
-      <div class="dashboard-workspace">
-        <div class="workspace-primary">
-          <section class="agenda-section" aria-labelledby="agenda-title">
-            <div class="dashboard-section-heading">
-              <div>
-                <p class="section-label">AGENDA</p>
-                <h2 id="agenda-title">Próximas marcações</h2>
-              </div>
-              <span>Hoje</span>
+    <div class="dashboard-workspace">
+      <div class="workspace-primary">
+        <section class="agenda-section">
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="section-label">AGENDA</p>
+              <h2>Próximas marcações</h2>
             </div>
+            <a class="section-link" routerLink="/dashboard/bookings">Ver todas</a>
+          </div>
+          @if (nextBookings().length) {
+            <div class="compact-booking-list">
+              @for (booking of nextBookings(); track booking.id) {
+                <article>
+                  <time
+                    ><strong>{{ booking.startAt | date: 'HH:mm' }}</strong
+                    ><span>{{ booking.startAt | date: 'dd MMM' }}</span></time
+                  >
+                  <div>
+                    <strong>{{ booking.customerName }}</strong
+                    ><span
+                      >{{ booking.serviceName }} · {{ booking.serviceDurationMinutes }} min</span
+                    >
+                  </div>
+                  <span class="booking-status confirmed">Confirmada</span>
+                </article>
+              }
+            </div>
+          } @else {
             <div class="agenda-empty">
               <svg lucideCalendarDays [size]="24" aria-hidden="true"></svg>
               <div>
                 <strong>Ainda não há marcações.</strong>
-                <p>Quando a página estiver publicada, as próximas entradas aparecem aqui.</p>
+                <p>As próximas entradas aparecem aqui.</p>
               </div>
             </div>
-          </section>
+          }
+        </section>
 
-          <section class="setup-section" aria-labelledby="setup-title">
-            <div class="dashboard-section-heading">
-              <div>
-                <p class="section-label">PREPARAR A PÁGINA</p>
-                <h2 id="setup-title">Lista de configuração</h2>
-              </div>
-              <span>1 de 4 concluído</span>
+        <section class="setup-section">
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="section-label">PREPARAR A PÁGINA</p>
+              <h2>Lista de configuração</h2>
             </div>
-
-            <ol class="setup-list">
-              <li class="complete">
-                <svg lucideCircleCheck [size]="21" aria-hidden="true"></svg>
-                <div>
-                  <strong>Conta criada</strong>
-                  <span>Administrador e barbearia registados.</span>
-                </div>
-                <small>CONCLUÍDO</small>
-              </li>
-              <li>
-                <svg lucideCircle [size]="21" aria-hidden="true"></svg>
-                <div>
-                  <strong>Adicionar serviços</strong>
-                  <span>Nome, duração e preço de cada serviço.</span>
-                </div>
-                <small>A SEGUIR</small>
-              </li>
-              <li>
-                <svg lucideCircle [size]="21" aria-hidden="true"></svg>
-                <div>
-                  <strong>Definir horários</strong>
-                  <span>Dias de trabalho, pausas e disponibilidade.</span>
-                </div>
-                <small>PENDENTE</small>
-              </li>
-              <li>
-                <svg lucideCircle [size]="21" aria-hidden="true"></svg>
-                <div>
-                  <strong>Publicar a página</strong>
-                  <span>Ativar o endereço que será enviado aos clientes.</span>
-                </div>
-                <small>PENDENTE</small>
-              </li>
-            </ol>
-          </section>
-        </div>
-
-        <aside class="workspace-rail">
-          <section class="public-link-section" aria-labelledby="public-link-title">
-            <p class="section-label">LINK RESERVADO</p>
-            <h2 id="public-link-title">Página da barbearia</h2>
-            <p>O endereço já é seu. Ficará acessível quando terminar a configuração.</p>
-            <div class="link-copy-field">
-              <span>{{ publicUrl() }}</span>
-              <button
-                class="icon-button"
-                type="button"
-                (click)="copyPublicUrl()"
-                aria-label="Copiar link público"
-                title="Copiar link público"
-              >
-                <svg lucideCopy [size]="18" aria-hidden="true"></svg>
-              </button>
-            </div>
-            <span class="copy-feedback" aria-live="polite">{{
-              copied() ? 'Link copiado.' : ''
-            }}</span>
-          </section>
-
-          <section class="account-section" aria-labelledby="account-title">
-            <p class="section-label">CONTA</p>
-            <h2 id="account-title">Período experimental</h2>
-            <dl>
+            <span>
+              {{ currentShop.completedSetupSteps }} de 4
+              {{ currentShop.completedSetupSteps === 1 ? 'concluído' : 'concluídos' }}
+            </span>
+          </div>
+          <ol class="setup-list">
+            <li class="complete">
+              <svg lucideCircleCheck [size]="21"></svg>
               <div>
-                <dt>Estado</dt>
-                <dd>{{ subscriptionLabel(user()?.barbershop?.subscriptionStatus) }}</dd>
+                <strong>Conta criada</strong><span>Administrador e barbearia registados.</span>
               </div>
+              <small>CONCLUÍDO</small>
+            </li>
+            <li [class.complete]="currentShop.serviceCount > 0">
+              @if (currentShop.serviceCount > 0) {
+                <svg lucideCircleCheck [size]="21"></svg>
+              } @else {
+                <svg lucideCircle [size]="21"></svg>
+              }
               <div>
-                <dt>Plano</dt>
-                <dd>Marcações</dd>
+                <a routerLink="/dashboard/services"><strong>Adicionar serviços</strong></a
+                ><span>Nome, duração e preço.</span>
               </div>
+              <small>{{ currentShop.serviceCount > 0 ? 'CONCLUÍDO' : 'A SEGUIR' }}</small>
+            </li>
+            <li [class.complete]="currentShop.availabilityDayCount > 0">
+              @if (currentShop.availabilityDayCount > 0) {
+                <svg lucideCircleCheck [size]="21"></svg>
+              } @else {
+                <svg lucideCircle [size]="21"></svg>
+              }
               <div>
-                <dt>Pagamento</dt>
-                <dd>Simulado no MVP</dd>
+                <a routerLink="/dashboard/availability"><strong>Definir horários</strong></a
+                ><span>Dias e horas disponíveis.</span>
               </div>
-            </dl>
-          </section>
-        </aside>
+              <small>{{ currentShop.availabilityDayCount > 0 ? 'CONCLUÍDO' : 'PENDENTE' }}</small>
+            </li>
+            <li [class.complete]="currentShop.published">
+              @if (currentShop.published) {
+                <svg lucideCircleCheck [size]="21"></svg>
+              } @else {
+                <svg lucideCircle [size]="21"></svg>
+              }
+              <div>
+                <strong>Publicar a página</strong><span>Ativar o link para os clientes.</span>
+              </div>
+              <small>{{ currentShop.published ? 'CONCLUÍDO' : 'PENDENTE' }}</small>
+            </li>
+          </ol>
+        </section>
       </div>
+
+      <aside class="workspace-rail">
+        <section class="public-link-section">
+          <p class="section-label">LINK PÚBLICO</p>
+          <h2>Página da barbearia</h2>
+          <p>
+            {{
+              currentShop.published
+                ? 'O endereço está ativo.'
+                : 'O endereço fica ativo depois da publicação.'
+            }}
+          </p>
+          <div class="link-copy-field">
+            <span>{{ publicUrl() }}</span>
+            <button
+              class="icon-button"
+              type="button"
+              (click)="copyPublicUrl()"
+              title="Copiar link"
+              aria-label="Copiar link"
+            >
+              <svg lucideCopy [size]="18"></svg>
+            </button>
+          </div>
+          <span class="copy-feedback">{{ copied() ? 'Link copiado.' : '' }}</span>
+          @if (currentShop.published) {
+            <a class="section-link external-link" [href]="publicUrl()" target="_blank"
+              >Abrir página <svg lucideExternalLink [size]="15"></svg
+            ></a>
+          }
+        </section>
+        <section class="account-section">
+          <p class="section-label">CONTA</p>
+          <h2>Período experimental</h2>
+          <dl>
+            <div>
+              <dt>Serviços</dt>
+              <dd>{{ currentShop.serviceCount }}</dd>
+            </div>
+            <div>
+              <dt>Dias disponíveis</dt>
+              <dd>{{ currentShop.availabilityDayCount }}</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>{{ currentShop.published ? 'Publicada' : 'Em preparação' }}</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
     </div>
-  </section>
-</main>
+  }
+</div>

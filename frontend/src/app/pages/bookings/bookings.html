@@ -1,0 +1,117 @@
+<div class="dashboard-content">
+  <header class="page-heading">
+    <div>
+      <p class="section-label">AGENDA</p>
+      <h1>Marcações</h1>
+      <p>Consulte os próximos clientes e mantenha o histórico organizado.</p>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="form-alert" role="alert">{{ error() }}</div>
+  }
+
+  <section class="list-panel booking-panel">
+    <div class="panel-heading booking-toolbar">
+      <div>
+        <h2>Agenda da barbearia</h2>
+        <p>
+          {{ bookings().length }}
+          {{ bookings().length === 1 ? 'marcação registada' : 'marcações registadas' }}
+        </p>
+      </div>
+      <div class="segmented-control" aria-label="Filtrar marcações">
+        <button
+          type="button"
+          [class.active]="filter() === 'UPCOMING'"
+          (click)="setFilter('UPCOMING')"
+        >
+          Próximas
+        </button>
+        <button
+          type="button"
+          [class.active]="filter() === 'HISTORY'"
+          (click)="setFilter('HISTORY')"
+        >
+          Histórico
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="panel-loading">A carregar marcações...</div>
+    } @else if (visibleBookings().length === 0) {
+      <div class="panel-empty booking-empty">
+        <svg lucideCalendarCheck [size]="30" aria-hidden="true"></svg>
+        <strong>{{ filter() === 'UPCOMING' ? 'Agenda livre' : 'Sem histórico' }}</strong>
+        <span>
+          {{
+            filter() === 'UPCOMING'
+              ? 'As novas marcações surgem aqui assim que os clientes reservarem.'
+              : 'As marcações concluídas ou canceladas aparecem aqui.'
+          }}
+        </span>
+      </div>
+    } @else {
+      <div class="booking-list">
+        @for (booking of visibleBookings(); track booking.id) {
+          <article class="booking-row-full">
+            <time [attr.datetime]="booking.startAt" class="booking-date-block">
+              <strong>{{ booking.startAt | date: 'dd' }}</strong>
+              <span>{{ booking.startAt | date: 'MMM' }}</span>
+            </time>
+
+            <div class="booking-time-block">
+              <strong>{{ booking.startAt | date: 'HH:mm' }}</strong>
+              <span>{{ booking.serviceDurationMinutes }} min</span>
+            </div>
+
+            <div class="booking-customer">
+              <strong>{{ booking.customerName }}</strong>
+              <a [href]="'tel:' + booking.customerPhone">{{ booking.customerPhone }}</a>
+            </div>
+
+            <div class="booking-service">
+              <strong>{{ booking.serviceName }}</strong>
+              <span>{{ booking.servicePrice | currency: booking.priceCurrency }}</span>
+            </div>
+
+            <span
+              class="booking-status"
+              [class]="'booking-status status-' + booking.status.toLowerCase()"
+            >
+              {{ statusLabel(booking.status) }}
+            </span>
+
+            @if (booking.status === 'CONFIRMED') {
+              <div class="booking-actions">
+                <button
+                  class="icon-button"
+                  type="button"
+                  title="Cancelar marcação"
+                  aria-label="Cancelar marcação"
+                  [disabled]="updatingId() === booking.id"
+                  (click)="updateStatus(booking, 'CANCELLED')"
+                >
+                  <svg lucideX [size]="18" aria-hidden="true"></svg>
+                </button>
+                <button
+                  class="icon-button complete-button"
+                  type="button"
+                  title="Marcar como concluída"
+                  aria-label="Marcar como concluída"
+                  [disabled]="!canComplete(booking) || updatingId() === booking.id"
+                  (click)="updateStatus(booking, 'COMPLETED')"
+                >
+                  <svg lucideCheck [size]="18" aria-hidden="true"></svg>
+                </button>
+              </div>
+            } @else {
+              <span class="booking-actions-placeholder"></span>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+</div>

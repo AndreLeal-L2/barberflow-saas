@@ -26,9 +26,49 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     loadComponent: () =>
-      import('./pages/dashboard/dashboard').then((component) => component.Dashboard),
-    title: 'Visão geral | BarberFlow',
+      import('./layouts/dashboard-layout/dashboard-layout').then(
+        (component) => component.DashboardLayout,
+      ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard').then((component) => component.Dashboard),
+        title: 'Visão geral | BarberFlow',
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./pages/bookings/bookings').then((component) => component.Bookings),
+        title: 'Marcações | BarberFlow',
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./pages/services/services').then((component) => component.Services),
+        title: 'Serviços | BarberFlow',
+      },
+      {
+        path: 'availability',
+        loadComponent: () =>
+          import('./pages/availability/availability').then((component) => component.Availability),
+        title: 'Horários | BarberFlow',
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/profile/profile').then((component) => component.Profile),
+        title: 'Página pública | BarberFlow',
+      },
+    ],
+  },
+  {
+    path: 'b/:slug',
+    loadComponent: () =>
+      import('./pages/public-booking/public-booking').then((component) => component.PublicBooking),
+    title: 'Marcação online | BarberFlow',
   },
   { path: '**', redirectTo: '' },
 ];
