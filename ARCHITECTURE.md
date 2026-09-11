@@ -313,11 +313,10 @@ updated_at
 id
 barbershop_id
 barber_id
-start_date_time
-end_date_time
+start_at
+end_at
 reason
 created_at
-updated_at
 ```
 
 ### Booking
@@ -517,8 +516,11 @@ DELETE /api/dashboard/services/{id}
 ### Availability
 
 ```text
-GET /api/dashboard/availability
-PUT /api/dashboard/availability
+GET    /api/dashboard/availability
+PUT    /api/dashboard/availability
+GET    /api/dashboard/availability/blocks
+POST   /api/dashboard/availability/blocks
+DELETE /api/dashboard/availability/blocks/{id}
 ```
 
 ### Bookings
@@ -546,6 +548,9 @@ remain intentionally deferred.
 - A booking cannot overlap another active booking for the same barber.
 - Booking creation locks the selected barber while availability is rechecked, preventing concurrent double booking.
 - A booking must fit inside the barber's availability rules.
+- A blocked period removes every overlapping slot from the public booking page.
+- A blocked period cannot overlap another blocked period or a non-cancelled booking.
+- Blocked-period creation uses the same barber lock as booking creation to prevent race conditions.
 - Public bookings can be created up to 60 days ahead and start on 30-minute boundaries.
 - Cancelled bookings do not block availability.
 - Completed bookings remain visible in history.

@@ -17,6 +17,7 @@ The working MVP includes:
 - Tenant-aware owner, barbershop, barber, service, availability, and booking models
 - Service catalogue management with create, edit, and removal flows
 - Weekly availability management with 30-minute booking intervals
+- Full-day and custom schedule exceptions that remove blocked periods from public booking
 - Public barbershop profile and publication controls
 - Public booking link with service, date, time, and customer data selection
 - Availability calculation and concurrent booking conflict prevention
@@ -82,7 +83,7 @@ The Angular development server proxies `/api` and `/actuator` to the backend at 
 
 1. Create a barbershop owner account.
 2. Add at least one service in the private dashboard.
-3. Configure the weekly working hours.
+3. Configure the weekly working hours and any exceptional blocked periods.
 4. Optionally complete the public profile and publish the booking page.
 5. Share the generated `/b/{slug}` link with clients.
 6. Clients choose an available slot and create a booking without an account.
