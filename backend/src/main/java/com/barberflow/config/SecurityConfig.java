@@ -22,6 +22,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,13 +35,15 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             CorsConfigurationSource corsConfigurationSource,
-            SecurityContextRepository securityContextRepository
+            SecurityContextRepository securityContextRepository,
+            @Value("${app.security.csrf-cookie-secure}") boolean csrfCookieSecure
     ) throws Exception {
         CookieCsrfTokenRepository csrfTokenRepository =
                 CookieCsrfTokenRepository.withHttpOnlyFalse();
         csrfTokenRepository.setCookieCustomizer(cookie -> cookie
                 .path("/")
                 .sameSite("Lax")
+                .secure(csrfCookieSecure)
         );
 
         http
@@ -68,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/register",
                                 "/api/auth/login",
+                                "/api/auth/verification/confirm",
+                                "/api/auth/password/forgot",
+                                "/api/auth/password/reset",
                                 "/api/public/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -117,6 +124,19 @@ public class SecurityConfig {
     @Bean
     SecurityContextRepository securityContextRepository() {
         return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    CookieSerializer sessionCookieSerializer(
+            @Value("${app.security.session-cookie-secure}") boolean secure
+    ) {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setCookieName("BARBERFLOW_SESSION");
+        serializer.setCookiePath("/");
+        serializer.setUseHttpOnlyCookie(true);
+        serializer.setUseSecureCookie(secure);
+        serializer.setSameSite("Lax");
+        return serializer;
     }
 
     @Bean

@@ -45,6 +45,9 @@ public class AppUser {
     @Column(nullable = false)
     private boolean active;
 
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -61,6 +64,7 @@ public class AppUser {
         this.passwordHash = passwordHash;
         this.role = UserRole.OWNER;
         this.active = true;
+        this.emailVerified = false;
     }
 
     public static AppUser createOwner(
@@ -110,5 +114,17 @@ public class AppUser {
 
     public boolean isActive() {
         return active;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void verifyEmail() {
+        emailVerified = true;
+    }
+
+    public void changePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }

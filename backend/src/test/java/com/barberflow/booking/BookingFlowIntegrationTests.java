@@ -10,19 +10,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.barberflow.TestcontainersConfiguration;
+import com.barberflow.notification.NotificationOutbox;
+import com.barberflow.notification.NotificationOutboxRepository;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -31,11 +34,16 @@ import org.springframework.test.web.servlet.MvcResult;
 @AutoConfigureMockMvc
 class BookingFlowIntegrationTests {
 
+    private static final Pattern LINK_TOKEN = Pattern.compile("token=([A-Za-z0-9_-]+)");
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private Clock clock;
+
+    @Autowired
+    private NotificationOutboxRepository notificationRepository;
 
     @Test
     void shouldConfigurePublishBookAndCancel() throws Exception {
@@ -60,12 +68,11 @@ class BookingFlowIntegrationTests {
                                 """))
                 .andExpect(status().isCreated())
                 .andReturn();
-        MockHttpSession session = (MockHttpSession) registration.getRequest().getSession(false);
-        assertThat(session).isNotNull();
+        Cookie sessionCookie = registration.getResponse().getCookie("BARBERFLOW_SESSION");
+        assertThat(sessionCookie).isNotNull();
 
         MvcResult serviceResult = mockMvc.perform(post("/api/dashboard/services")
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -83,8 +90,7 @@ class BookingFlowIntegrationTests {
 
         LocalDate bookingDate = LocalDate.now(clock).plusDays(1);
         mockMvc.perform(put("/api/dashboard/availability")
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -100,8 +106,7 @@ class BookingFlowIntegrationTests {
                 .andExpect(jsonPath("$[0].dayOfWeek").value(bookingDate.getDayOfWeek().name()));
 
         mockMvc.perform(patch("/api/dashboard/barbershop/publication")
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -122,8 +127,7 @@ class BookingFlowIntegrationTests {
         LocalDateTime blockedEnd = bookingDate.atTime(12, 0);
         MvcResult blockedTimeResult = mockMvc.perform(post(
                                 "/api/dashboard/availability/blocks")
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -173,8 +177,7 @@ class BookingFlowIntegrationTests {
                 .andExpect(jsonPath("$.code").value("BOOKING_SLOT_UNAVAILABLE"));
 
         mockMvc.perform(delete("/api/dashboard/availability/blocks/{id}", blockedTimeId)
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue()))
                 .andExpect(status().isNoContent());
 
@@ -213,8 +216,7 @@ class BookingFlowIntegrationTests {
         String bookingId = JsonPath.read(bookingResult.getResponse().getContentAsString(), "$.id");
 
         mockMvc.perform(post("/api/dashboard/availability/blocks")
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -235,13 +237,40 @@ class BookingFlowIntegrationTests {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("BOOKING_SLOT_UNAVAILABLE"));
 
-        mockMvc.perform(get("/api/dashboard/bookings").session(session))
+        mockMvc.perform(get("/api/dashboard/bookings").cookie(sessionCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].customerName").value("Cliente Teste"));
 
-        mockMvc.perform(patch("/api/dashboard/bookings/{id}/status", bookingId)
-                        .session(session)
+        String cancellationToken = cancellationTokenFor("cliente@example.test");
+        mockMvc.perform(post("/api/public/bookings/cancel")
                         .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"%s\"}".formatted(cancellationToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("A marcação foi cancelada."));
+
+        mockMvc.perform(post("/api/public/bookings/cancel")
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"%s\"}".formatted(cancellationToken)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code")
+                        .value("BOOKING_CANCELLATION_TOKEN_INVALID"));
+
+        MvcResult secondBookingResult = mockMvc.perform(post(
+                                "/api/public/barbershops/barbearia-fluxo-completo/bookings")
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bookingRequest))
+                .andExpect(status().isCreated())
+                .andReturn();
+        bookingId = JsonPath.read(secondBookingResult.getResponse().getContentAsString(), "$.id");
+
+        mockMvc.perform(patch("/api/dashboard/bookings/{id}/status", bookingId)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -256,5 +285,17 @@ class BookingFlowIntegrationTests {
                         .param("date", bookingDate.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].startAt").value(startAt + ":00"));
+    }
+
+    private String cancellationTokenFor(String recipient) {
+        NotificationOutbox notification = notificationRepository
+                .findFirstByNotificationTypeAndRecipientOrderByCreatedAtDesc(
+                        "BOOKING_CONFIRMATION_CUSTOMER",
+                        recipient
+                )
+                .orElseThrow();
+        Matcher matcher = LINK_TOKEN.matcher(notification.getBody());
+        assertThat(matcher.find()).isTrue();
+        return matcher.group(1);
     }
 }

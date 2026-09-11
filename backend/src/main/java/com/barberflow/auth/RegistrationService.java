@@ -19,19 +19,22 @@ public class RegistrationService {
     private final BarberRepository barberRepository;
     private final PasswordEncoder passwordEncoder;
     private final SlugGenerator slugGenerator;
+    private final AccountSecurityService accountSecurityService;
 
     public RegistrationService(
             AppUserRepository userRepository,
             BarbershopRepository barbershopRepository,
             BarberRepository barberRepository,
             PasswordEncoder passwordEncoder,
-            SlugGenerator slugGenerator
+            SlugGenerator slugGenerator,
+            AccountSecurityService accountSecurityService
     ) {
         this.userRepository = userRepository;
         this.barbershopRepository = barbershopRepository;
         this.barberRepository = barberRepository;
         this.passwordEncoder = passwordEncoder;
         this.slugGenerator = slugGenerator;
+        this.accountSecurityService = accountSecurityService;
     }
 
     @Transactional
@@ -62,6 +65,7 @@ public class RegistrationService {
         );
         userRepository.save(owner);
         barberRepository.save(Barber.createOwner(barbershop, owner.getName()));
+        accountSecurityService.sendVerification(owner.getId());
 
         return BarberFlowPrincipal.from(owner);
     }

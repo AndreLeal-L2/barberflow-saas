@@ -1,10 +1,12 @@
 package com.barberflow.barbershop;
 
+import com.barberflow.auth.AppUserRepository;
 import com.barberflow.availability.AvailabilityRuleRepository;
 import com.barberflow.servicecatalog.BarbershopServiceRepository;
 import com.barberflow.shared.error.BusinessRuleException;
 import com.barberflow.shared.error.ResourceNotFoundException;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +17,21 @@ public class BarbershopManager {
     private final BarbershopRepository barbershopRepository;
     private final BarbershopServiceRepository serviceRepository;
     private final AvailabilityRuleRepository availabilityRepository;
+    private final AppUserRepository userRepository;
+    private final boolean requireEmailVerification;
 
     public BarbershopManager(
             BarbershopRepository barbershopRepository,
             BarbershopServiceRepository serviceRepository,
-            AvailabilityRuleRepository availabilityRepository
+            AvailabilityRuleRepository availabilityRepository,
+            AppUserRepository userRepository,
+            @Value("${app.security.require-email-verification}") boolean requireEmailVerification
     ) {
         this.barbershopRepository = barbershopRepository;
         this.serviceRepository = serviceRepository;
         this.availabilityRepository = availabilityRepository;
+        this.userRepository = userRepository;
+        this.requireEmailVerification = requireEmailVerification;
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +67,15 @@ public class BarbershopManager {
                     HttpStatus.CONFLICT,
                     "BARBERSHOP_NOT_READY",
                     "Adicione pelo menos um serviço e um horário antes de publicar."
+            );
+        }
+        if (request.published()
+                && requireEmailVerification
+                && !userRepository.existsByBarbershopIdAndEmailVerifiedTrue(barbershopId)) {
+            throw new BusinessRuleException(
+                    HttpStatus.CONFLICT,
+                    "EMAIL_VERIFICATION_REQUIRED",
+                    "Confirme o e-mail de administrador antes de publicar a página."
             );
         }
         if (request.published()

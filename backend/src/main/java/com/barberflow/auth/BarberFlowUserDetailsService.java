@@ -1,6 +1,7 @@
 package com.barberflow.auth;
 
 import java.util.Locale;
+import java.util.UUID;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +21,13 @@ public class BarberFlowUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmailIgnoreCase(email.trim().toLowerCase(Locale.ROOT))
+                .map(BarberFlowPrincipal::from)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilizador não encontrado."));
+    }
+
+    @Transactional(readOnly = true)
+    public BarberFlowPrincipal loadById(UUID userId) {
+        return userRepository.findById(userId)
                 .map(BarberFlowPrincipal::from)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilizador não encontrado."));
     }

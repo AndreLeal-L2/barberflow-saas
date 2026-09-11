@@ -37,6 +37,8 @@ public class PublicBookingService {
     private final AvailabilityRuleRepository availabilityRepository;
     private final BlockedTimeRepository blockedTimeRepository;
     private final BookingRepository bookingRepository;
+    private final BookingCancellationService cancellationService;
+    private final BookingNotificationService notificationService;
     private final Clock clock;
 
     public PublicBookingService(
@@ -46,6 +48,8 @@ public class PublicBookingService {
             AvailabilityRuleRepository availabilityRepository,
             BlockedTimeRepository blockedTimeRepository,
             BookingRepository bookingRepository,
+            BookingCancellationService cancellationService,
+            BookingNotificationService notificationService,
             Clock clock
     ) {
         this.barbershopRepository = barbershopRepository;
@@ -54,6 +58,8 @@ public class PublicBookingService {
         this.availabilityRepository = availabilityRepository;
         this.blockedTimeRepository = blockedTimeRepository;
         this.bookingRepository = bookingRepository;
+        this.cancellationService = cancellationService;
+        this.notificationService = notificationService;
         this.clock = clock;
     }
 
@@ -130,7 +136,10 @@ public class PublicBookingService {
                 request.startAt(),
                 endAt
         );
-        return BookingResponse.from(bookingRepository.save(booking));
+        Booking savedBooking = bookingRepository.save(booking);
+        String cancellationToken = cancellationService.enableCancellation(savedBooking);
+        notificationService.bookingCreated(savedBooking, cancellationToken);
+        return BookingResponse.from(savedBooking);
     }
 
     private List<SlotResponse> calculateAvailableSlots(

@@ -79,6 +79,18 @@ public class Booking {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "cancellation_token_hash", unique = true, length = 64)
+    private String cancellationTokenHash;
+
+    @Column(name = "cancellation_token_expires_at")
+    private Instant cancellationTokenExpiresAt;
+
+    @Column(name = "customer_cancelled_at")
+    private Instant customerCancelledAt;
+
+    @Column(name = "anonymized_at")
+    private Instant anonymizedAt;
+
     protected Booking() {
     }
 
@@ -131,6 +143,31 @@ public class Booking {
 
     public void changeStatus(BookingStatus newStatus) {
         status = newStatus;
+        if (newStatus != BookingStatus.CONFIRMED) {
+            cancellationTokenHash = null;
+            cancellationTokenExpiresAt = null;
+        }
+    }
+
+    public void enableCustomerCancellation(String tokenHash, Instant expiresAt) {
+        cancellationTokenHash = tokenHash;
+        cancellationTokenExpiresAt = expiresAt;
+    }
+
+    public void cancelByCustomer(Instant now) {
+        status = BookingStatus.CANCELLED;
+        customerCancelledAt = now;
+        cancellationTokenHash = null;
+        cancellationTokenExpiresAt = null;
+    }
+
+    public void anonymize(Instant now) {
+        customerName = "Cliente removido";
+        customerPhone = "removido";
+        customerEmail = null;
+        cancellationTokenHash = null;
+        cancellationTokenExpiresAt = null;
+        anonymizedAt = now;
     }
 
     @PrePersist
@@ -153,6 +190,10 @@ public class Booking {
 
     public UUID getId() {
         return id;
+    }
+
+    public Barbershop getBarbershop() {
+        return barbershop;
     }
 
     public String getCustomerName() {
@@ -193,5 +234,9 @@ public class Booking {
 
     public BookingStatus getStatus() {
         return status;
+    }
+
+    public Instant getCancellationTokenExpiresAt() {
+        return cancellationTokenExpiresAt;
     }
 }

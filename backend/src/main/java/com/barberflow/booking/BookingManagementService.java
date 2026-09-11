@@ -12,9 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class BookingManagementService {
 
     private final BookingRepository bookingRepository;
+    private final BookingNotificationService notificationService;
 
-    public BookingManagementService(BookingRepository bookingRepository) {
+    public BookingManagementService(
+            BookingRepository bookingRepository,
+            BookingNotificationService notificationService
+    ) {
         this.bookingRepository = bookingRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional(readOnly = true)
@@ -54,6 +59,9 @@ public class BookingManagementService {
         }
 
         booking.changeStatus(request.status());
+        if (request.status() == BookingStatus.CANCELLED) {
+            notificationService.cancelledByOwner(booking);
+        }
         return BookingResponse.from(booking);
     }
 }

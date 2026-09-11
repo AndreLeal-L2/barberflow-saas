@@ -1,5 +1,6 @@
 package com.barberflow.auth;
 
+import com.barberflow.config.RequestRateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,6 +31,8 @@ public class AuthenticationController {
     private final RegistrationService registrationService;
     private final SecurityContextRepository securityContextRepository;
     private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
+    private final RequestRateLimiter requestRateLimiter;
+    private final BarberFlowUserDetailsService userDetailsService;
     private final SecurityContextHolderStrategy securityContextHolderStrategy =
             SecurityContextHolder.getContextHolderStrategy();
 
@@ -37,12 +40,16 @@ public class AuthenticationController {
             AuthenticationManager authenticationManager,
             RegistrationService registrationService,
             SecurityContextRepository securityContextRepository,
-            SessionAuthenticationStrategy sessionAuthenticationStrategy
+            SessionAuthenticationStrategy sessionAuthenticationStrategy,
+            RequestRateLimiter requestRateLimiter,
+            BarberFlowUserDetailsService userDetailsService
     ) {
         this.authenticationManager = authenticationManager;
         this.registrationService = registrationService;
         this.securityContextRepository = securityContextRepository;
         this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
+        this.requestRateLimiter = requestRateLimiter;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/register")
@@ -51,6 +58,7 @@ public class AuthenticationController {
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse
     ) {
+        requestRateLimiter.checkRegistration(httpRequest);
         BarberFlowPrincipal principal = registrationService.register(request);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 principal,
@@ -68,6 +76,7 @@ public class AuthenticationController {
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse
     ) {
+        requestRateLimiter.checkLogin(httpRequest, request.email());
         Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(
                         request.email().trim().toLowerCase(Locale.ROOT),
@@ -81,7 +90,7 @@ public class AuthenticationController {
 
     @GetMapping("/me")
     public AuthResponse currentUser(@AuthenticationPrincipal BarberFlowPrincipal principal) {
-        return AuthResponse.from(principal);
+        return AuthResponse.from(userDetailsService.loadById(principal.userId()));
     }
 
     @GetMapping("/csrf")

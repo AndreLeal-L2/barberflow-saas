@@ -7,6 +7,7 @@ public record AuthResponse(
         UUID id,
         String name,
         String email,
+        boolean emailVerified,
         UserRole role,
         BarbershopSummary barbershop
 ) {
@@ -16,6 +17,7 @@ public record AuthResponse(
                 principal.userId(),
                 principal.name(),
                 principal.getUsername(),
+                principal.emailVerified(),
                 principal.role(),
                 new BarbershopSummary(
                         principal.barbershopId(),

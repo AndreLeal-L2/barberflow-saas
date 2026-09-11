@@ -1,7 +1,9 @@
 package com.barberflow.booking;
 
 import com.barberflow.barbershop.PublicBarbershopResponse;
+import com.barberflow.config.RequestRateLimiter;
 import com.barberflow.servicecatalog.ServiceResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,9 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicBookingController {
 
     private final PublicBookingService publicBookingService;
+    private final RequestRateLimiter requestRateLimiter;
 
-    public PublicBookingController(PublicBookingService publicBookingService) {
+    public PublicBookingController(
+            PublicBookingService publicBookingService,
+            RequestRateLimiter requestRateLimiter
+    ) {
         this.publicBookingService = publicBookingService;
+        this.requestRateLimiter = requestRateLimiter;
     }
 
     @GetMapping
@@ -41,8 +48,10 @@ public class PublicBookingController {
     public List<SlotResponse> getAvailableSlots(
             @PathVariable String slug,
             @RequestParam UUID serviceId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            HttpServletRequest httpRequest
     ) {
+        requestRateLimiter.checkPublicSlots(httpRequest);
         return publicBookingService.getAvailableSlots(slug, serviceId, date);
     }
 
@@ -50,8 +59,10 @@ public class PublicBookingController {
     @ResponseStatus(HttpStatus.CREATED)
     public BookingResponse createBooking(
             @PathVariable String slug,
-            @Valid @RequestBody CreateBookingRequest request
+            @Valid @RequestBody CreateBookingRequest request,
+            HttpServletRequest httpRequest
     ) {
+        requestRateLimiter.checkBooking(httpRequest, request.customerPhone());
         return publicBookingService.createBooking(slug, request);
     }
 }

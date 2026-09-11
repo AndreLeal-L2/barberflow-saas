@@ -8,4 +8,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, UUID> {
     Optional<AppUser> findByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByBarbershopIdAndEmailVerifiedTrue(UUID barbershopId);
 }

@@ -35,6 +35,9 @@ class RegistrationServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AccountSecurityService accountSecurityService;
+
     private final SlugGenerator slugGenerator = new SlugGenerator();
 
     @Test
@@ -96,7 +99,8 @@ class RegistrationServiceTest {
                 barbershopRepository,
                 barberRepository,
                 passwordEncoder,
-                slugGenerator
+                slugGenerator,
+                accountSecurityService
         );
     }
 

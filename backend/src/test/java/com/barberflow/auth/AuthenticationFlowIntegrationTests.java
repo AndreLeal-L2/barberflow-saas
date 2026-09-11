@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -55,19 +54,16 @@ class AuthenticationFlowIntegrationTests {
                 .andExpect(jsonPath("$.barbershop.subscriptionStatus").value("TRIALING"))
                 .andReturn();
 
-        MockHttpSession session = (MockHttpSession) registrationResult
-                .getRequest()
-                .getSession(false);
-        assertThat(session).isNotNull();
+        Cookie sessionCookie = registrationResult.getResponse().getCookie("BARBERFLOW_SESSION");
+        assertThat(sessionCookie).isNotNull();
 
-        mockMvc.perform(get("/api/auth/me").session(session))
+        mockMvc.perform(get("/api/auth/me").cookie(sessionCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Maria Teste"))
                 .andExpect(jsonPath("$.role").value("OWNER"));
 
         mockMvc.perform(post("/api/auth/logout")
-                        .session(session)
-                        .cookie(csrfCookie)
+                        .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue()))
                 .andExpect(status().isNoContent());
     }

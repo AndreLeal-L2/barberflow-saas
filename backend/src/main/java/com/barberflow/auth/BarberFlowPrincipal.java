@@ -19,6 +19,7 @@ public record BarberFlowPrincipal(
         String barbershopName,
         String barbershopSlug,
         SubscriptionStatus subscriptionStatus,
+        boolean emailVerified,
         boolean enabled
 ) implements UserDetails {
 
@@ -36,6 +37,7 @@ public record BarberFlowPrincipal(
                 user.getBarbershop().getName(),
                 user.getBarbershop().getSlug(),
                 user.getBarbershop().getSubscriptionStatus(),
+                user.isEmailVerified(),
                 user.isActive() && user.getBarbershop().isActive()
         );
     }

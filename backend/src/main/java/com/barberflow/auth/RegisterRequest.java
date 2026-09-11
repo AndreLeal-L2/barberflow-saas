@@ -28,9 +28,9 @@ public record RegisterRequest(
 
         @NotBlank(message = "A palavra-passe é obrigatória.")
         @Size(
-                min = 8,
+                min = 10,
                 max = 72,
-                message = "A palavra-passe deve ter entre 8 e 72 caracteres."
+                message = "A palavra-passe deve ter entre 10 e 72 caracteres."
         )
         String password
 ) {
