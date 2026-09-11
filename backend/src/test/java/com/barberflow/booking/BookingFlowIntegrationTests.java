@@ -1,6 +1,7 @@
 package com.barberflow.booking;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -116,6 +118,78 @@ class BookingFlowIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].startAt").exists());
 
+        LocalDateTime blockedStart = bookingDate.atTime(10, 0);
+        LocalDateTime blockedEnd = bookingDate.atTime(12, 0);
+        MvcResult blockedTimeResult = mockMvc.perform(post(
+                                "/api/dashboard/availability/blocks")
+                        .session(session)
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "startAt": "%s",
+                                  "endAt": "%s",
+                                  "reason": "Compromisso"
+                                }
+                                """.formatted(blockedStart, blockedEnd)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.reason").value("Compromisso"))
+                .andReturn();
+        String blockedTimeId = JsonPath.read(
+                blockedTimeResult.getResponse().getContentAsString(),
+                "$.id"
+        );
+
+        MvcResult slotsWithBlock = mockMvc.perform(get(
+                        "/api/public/barbershops/barbearia-fluxo-completo/available-slots")
+                        .param("serviceId", serviceId)
+                        .param("date", bookingDate.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+        List<String> blockedStarts = JsonPath.read(
+                slotsWithBlock.getResponse().getContentAsString(),
+                "$[*].startAt"
+        );
+        assertThat(blockedStarts)
+                .contains(bookingDate.atTime(9, 0) + ":00")
+                .doesNotContain(blockedStart + ":00");
+
+        String blockedBookingRequest = """
+                {
+                  "serviceId": "%s",
+                  "startAt": "%s",
+                  "customerName": "Cliente Bloqueado",
+                  "customerPhone": "+351 930 000 002",
+                  "customerEmail": "bloqueado@example.test"
+                }
+                """.formatted(serviceId, blockedStart);
+        mockMvc.perform(post("/api/public/barbershops/barbearia-fluxo-completo/bookings")
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(blockedBookingRequest))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("BOOKING_SLOT_UNAVAILABLE"));
+
+        mockMvc.perform(delete("/api/dashboard/availability/blocks/{id}", blockedTimeId)
+                        .session(session)
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue()))
+                .andExpect(status().isNoContent());
+
+        MvcResult slotsAfterDelete = mockMvc.perform(get(
+                        "/api/public/barbershops/barbearia-fluxo-completo/available-slots")
+                        .param("serviceId", serviceId)
+                        .param("date", bookingDate.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+        List<String> restoredStarts = JsonPath.read(
+                slotsAfterDelete.getResponse().getContentAsString(),
+                "$[*].startAt"
+        );
+        assertThat(restoredStarts).contains(blockedStart + ":00");
+
         LocalDateTime startAt = bookingDate.atTime(9, 0);
         String bookingRequest = """
                 {
@@ -137,6 +211,21 @@ class BookingFlowIntegrationTests {
                 .andExpect(jsonPath("$.status").value("CONFIRMED"))
                 .andReturn();
         String bookingId = JsonPath.read(bookingResult.getResponse().getContentAsString(), "$.id");
+
+        mockMvc.perform(post("/api/dashboard/availability/blocks")
+                        .session(session)
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "startAt": "%s",
+                                  "endAt": "%s",
+                                  "reason": "Tentativa inválida"
+                                }
+                                """.formatted(startAt, startAt.plusHours(1))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("BLOCKED_TIME_HAS_BOOKING"));
 
         mockMvc.perform(post("/api/public/barbershops/barbearia-fluxo-completo/bookings")
                         .cookie(csrfCookie)

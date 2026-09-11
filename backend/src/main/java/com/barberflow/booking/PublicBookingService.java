@@ -2,6 +2,8 @@ package com.barberflow.booking;
 
 import com.barberflow.availability.AvailabilityRule;
 import com.barberflow.availability.AvailabilityRuleRepository;
+import com.barberflow.availability.BlockedTime;
+import com.barberflow.availability.BlockedTimeRepository;
 import com.barberflow.barber.Barber;
 import com.barberflow.barber.BarberRepository;
 import com.barberflow.barbershop.Barbershop;
@@ -33,6 +35,7 @@ public class PublicBookingService {
     private final BarbershopServiceRepository serviceRepository;
     private final BarberRepository barberRepository;
     private final AvailabilityRuleRepository availabilityRepository;
+    private final BlockedTimeRepository blockedTimeRepository;
     private final BookingRepository bookingRepository;
     private final Clock clock;
 
@@ -41,6 +44,7 @@ public class PublicBookingService {
             BarbershopServiceRepository serviceRepository,
             BarberRepository barberRepository,
             AvailabilityRuleRepository availabilityRepository,
+            BlockedTimeRepository blockedTimeRepository,
             BookingRepository bookingRepository,
             Clock clock
     ) {
@@ -48,6 +52,7 @@ public class PublicBookingService {
         this.serviceRepository = serviceRepository;
         this.barberRepository = barberRepository;
         this.availabilityRepository = availabilityRepository;
+        this.blockedTimeRepository = blockedTimeRepository;
         this.bookingRepository = bookingRepository;
         this.clock = clock;
     }
@@ -107,6 +112,13 @@ public class PublicBookingService {
         if (overlaps(activeBookings, request.startAt(), endAt)) {
             throw slotUnavailable();
         }
+        if (overlapsBlockedTimes(
+                findBlockedTimes(lockedBarber.getId(), request.startAt(), endAt),
+                request.startAt(),
+                endAt
+        )) {
+            throw slotUnavailable();
+        }
 
         Booking booking = Booking.create(
                 barbershop,
@@ -139,6 +151,11 @@ public class PublicBookingService {
         }
 
         List<Booking> activeBookings = findActiveBookingsForDay(barber.getId(), date);
+        List<BlockedTime> blockedTimes = findBlockedTimes(
+                barber.getId(),
+                date.atStartOfDay(),
+                date.plusDays(1).atStartOfDay()
+        );
         LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime cursor = LocalDateTime.of(date, rule.getStartTime());
         LocalDateTime workEnd = LocalDateTime.of(date, rule.getEndTime());
@@ -146,7 +163,9 @@ public class PublicBookingService {
 
         while (!cursor.plusMinutes(service.getDurationMinutes()).isAfter(workEnd)) {
             LocalDateTime slotEnd = cursor.plusMinutes(service.getDurationMinutes());
-            if (cursor.isAfter(now) && !overlaps(activeBookings, cursor, slotEnd)) {
+            if (cursor.isAfter(now)
+                    && !overlaps(activeBookings, cursor, slotEnd)
+                    && !overlapsBlockedTimes(blockedTimes, cursor, slotEnd)) {
                 slots.add(new SlotResponse(cursor, slotEnd));
             }
             cursor = cursor.plusMinutes(SLOT_INTERVAL_MINUTES);
@@ -161,6 +180,19 @@ public class PublicBookingService {
                         BookingStatus.CANCELLED,
                         date.plusDays(1).atStartOfDay(),
                         date.atStartOfDay()
+                );
+    }
+
+    private List<BlockedTime> findBlockedTimes(
+            UUID barberId,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd
+    ) {
+        return blockedTimeRepository
+                .findAllByBarberIdAndStartAtLessThanAndEndAtGreaterThan(
+                        barberId,
+                        rangeEnd,
+                        rangeStart
                 );
     }
 
@@ -245,6 +277,17 @@ public class PublicBookingService {
     ) {
         return bookings.stream().anyMatch(booking ->
                 booking.getStartAt().isBefore(endAt) && booking.getEndAt().isAfter(startAt)
+        );
+    }
+
+    private static boolean overlapsBlockedTimes(
+            List<BlockedTime> blockedTimes,
+            LocalDateTime startAt,
+            LocalDateTime endAt
+    ) {
+        return blockedTimes.stream().anyMatch(blockedTime ->
+                blockedTime.getStartAt().isBefore(endAt)
+                        && blockedTime.getEndAt().isAfter(startAt)
         );
     }
 
