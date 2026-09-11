@@ -123,7 +123,7 @@
               </button>
             </div>
             @if (form.controls.password.touched && form.controls.password.invalid) {
-              <span class="field-error">Use entre 8 e 72 caracteres.</span>
+              <span class="field-error">Use entre 10 e 72 caracteres.</span>
             }
           </div>
 
@@ -151,7 +151,11 @@
         </button>
       </form>
 
-      <p class="form-legal">Esta versão não efetua cobranças nem solicita dados de pagamento.</p>
+      <p class="form-legal">
+        Esta versão não efetua cobranças. Ao criar a conta aceita os
+        <a routerLink="/terms">termos</a> e confirma que leu a
+        <a routerLink="/privacy">política de privacidade</a>.
+      </p>
     </section>
   </div>
 </main>

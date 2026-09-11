@@ -5,6 +5,7 @@ import {
   LucideClock,
   LucideLayoutDashboard,
   LucideLogOut,
+  LucideMailCheck,
   LucideMapPin,
   LucideScissors,
 } from '@lucide/angular';
@@ -18,6 +19,7 @@ import { AuthService } from '../../core/auth.service';
     LucideClock,
     LucideLayoutDashboard,
     LucideLogOut,
+    LucideMailCheck,
     LucideMapPin,
     LucideScissors,
     RouterLink,
@@ -34,6 +36,8 @@ export class DashboardLayout {
   readonly user = this.authService.user;
   readonly loggingOut = signal(false);
   readonly logoutError = signal<string | null>(null);
+  readonly sendingVerification = signal(false);
+  readonly verificationMessage = signal<string | null>(null);
   readonly initials = computed(() => {
     const name = this.user()?.name ?? '';
     return name
@@ -57,6 +61,21 @@ export class DashboardLayout {
       .subscribe({
         next: () => void this.router.navigateByUrl('/login'),
         error: () => this.logoutError.set('Não foi possível terminar a sessão.'),
+      });
+  }
+
+  resendVerification(): void {
+    if (this.sendingVerification()) {
+      return;
+    }
+    this.verificationMessage.set(null);
+    this.sendingVerification.set(true);
+    this.authService
+      .resendVerification()
+      .pipe(finalize(() => this.sendingVerification.set(false)))
+      .subscribe({
+        next: (response) => this.verificationMessage.set(response.message),
+        error: () => this.verificationMessage.set('Não foi possível enviar um novo link.'),
       });
   }
 }

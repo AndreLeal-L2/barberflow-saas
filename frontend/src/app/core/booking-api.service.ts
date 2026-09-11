@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { MessageResponse } from './auth.models';
 import {
   AvailabilityDay,
   AvailableSlot,
@@ -114,6 +115,12 @@ export class BookingApiService {
   createPublicBooking(slug: string, request: CreateBookingRequest): Observable<Booking> {
     return this.csrf.execute(() =>
       this.http.post<Booking>('/api/public/barbershops/' + slug + '/bookings', request),
+    );
+  }
+
+  cancelPublicBooking(token: string): Observable<MessageResponse> {
+    return this.csrf.execute(() =>
+      this.http.post<MessageResponse>('/api/public/bookings/cancel', { token }),
     );
   }
 }

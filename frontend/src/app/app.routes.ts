@@ -24,6 +24,46 @@ export const routes: Routes = [
     title: 'Entrar | BarberFlow',
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password').then(
+        (component) => component.ForgotPassword,
+      ),
+    title: 'Recuperar palavra-passe | BarberFlow',
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password').then((component) => component.ResetPassword),
+    title: 'Nova palavra-passe | BarberFlow',
+  },
+  {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./pages/verify-email/verify-email').then((component) => component.VerifyEmail),
+    title: 'Confirmar e-mail | BarberFlow',
+  },
+  {
+    path: 'cancel-booking',
+    loadComponent: () =>
+      import('./pages/cancel-booking/cancel-booking').then(
+        (component) => component.CancelBooking,
+      ),
+    title: 'Cancelar marcação | BarberFlow',
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./pages/legal/legal').then((component) => component.Legal),
+    data: { document: 'privacy' },
+    title: 'Privacidade | BarberFlow',
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./pages/legal/legal').then((component) => component.Legal),
+    data: { document: 'terms' },
+    title: 'Termos | BarberFlow',
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     canActivateChild: [authGuard],

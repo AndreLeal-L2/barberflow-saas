@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
   role: 'OWNER';
   barbershop: {
     id: string;
@@ -31,4 +32,8 @@ export interface ApiError {
   code: string;
   message: string;
   details: Record<string, string>;
+}
+
+export interface MessageResponse {
+  message: string;
 }

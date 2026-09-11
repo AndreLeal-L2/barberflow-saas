@@ -1,0 +1,31 @@
+<main class="action-page">
+  <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
+    <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="brand-name">BarberFlow</span>
+  </a>
+
+  <section class="action-panel">
+    <svg lucideCalendarX [size]="32" aria-hidden="true"></svg>
+    @if (success()) {
+      <p class="section-label">MARCAÇÃO CANCELADA</p>
+      <h1>{{ success() }}</h1>
+      <p>A barbearia recebeu a atualização e o horário voltou a ficar disponível.</p>
+      <a class="button button-secondary" routerLink="/">Fechar</a>
+    } @else {
+      <p class="section-label">CANCELAMENTO</p>
+      <h1>Cancelar esta marcação?</h1>
+      <p>Esta ação é definitiva. Para alterar o horário, faça uma nova marcação.</p>
+      @if (error()) {
+        <div class="form-alert" role="alert">{{ error() }}</div>
+      }
+      <button
+        class="button button-danger"
+        type="button"
+        [disabled]="submitting() || !token"
+        (click)="cancel()"
+      >
+        {{ submitting() ? 'A cancelar...' : 'Confirmar cancelamento' }}
+      </button>
+    }
+  </section>
+</main>

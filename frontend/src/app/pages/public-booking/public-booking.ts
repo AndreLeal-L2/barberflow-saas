@@ -2,7 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LucideCalendarCheck, LucideCheck, LucideClock, LucideMapPin } from '@lucide/angular';
 import { finalize, forkJoin } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
@@ -23,6 +23,7 @@ import {
     LucideClock,
     LucideMapPin,
     ReactiveFormsModule,
+    RouterLink,
   ],
   templateUrl: './public-booking.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

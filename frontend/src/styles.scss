@@ -614,6 +614,92 @@ textarea:focus-visible {
   gap: 32px;
 }
 
+.footer-meta {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.footer-meta nav {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-meta a,
+.form-legal a,
+.booking-privacy-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-page {
+  width: min(100% - 48px, 920px);
+  margin: 0 auto;
+  padding: 76px 0 90px;
+}
+
+.legal-heading {
+  max-width: 720px;
+  margin-bottom: 56px;
+}
+
+.legal-heading h1 {
+  margin: 12px 0 14px;
+  font-size: 3rem;
+}
+
+.legal-heading > p:last-child {
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+
+.legal-content {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.legal-content section {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 42px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-content h2 {
+  font-size: 1rem;
+}
+
+.legal-content p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.87rem;
+  line-height: 1.8;
+}
+
+.legal-content a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-footer {
+  display: flex;
+  gap: 22px;
+  padding-top: 32px;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.booking-privacy-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
 .pricing-page {
   min-height: calc(100vh - 72px);
 }
@@ -955,6 +1041,71 @@ textarea:focus-visible {
   text-align: center;
 }
 
+.auth-support-link {
+  display: inline-block;
+  margin: -4px 0 22px;
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.auth-heading-icon {
+  margin-bottom: 14px;
+  color: var(--brand);
+}
+
+.action-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: start center;
+  gap: 72px;
+  padding: 30px 24px 80px;
+  background: var(--canvas);
+}
+
+.action-panel {
+  display: grid;
+  width: min(520px, 100%);
+  justify-items: start;
+  padding: 38px;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--brand);
+  background: var(--paper);
+  box-shadow: var(--shadow-soft);
+}
+
+.action-panel > svg {
+  margin-bottom: 24px;
+  color: var(--brand);
+}
+
+.action-panel h1 {
+  margin: 8px 0 12px;
+  font-size: 2rem;
+}
+
+.action-panel > p:not(.section-label) {
+  margin-bottom: 26px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.action-panel .form-alert,
+.action-panel .success-alert {
+  width: 100%;
+}
+
+.button-danger {
+  color: var(--paper);
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.button-danger:hover:not(:disabled) {
+  background: #8e2924;
+  border-color: #8e2924;
+}
+
 .dashboard-shell {
   display: grid;
   min-height: 100vh;
@@ -1089,6 +1240,35 @@ textarea:focus-visible {
 
 .dashboard-alert {
   margin: 20px 34px 0;
+}
+
+.verification-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 13px;
+  align-items: center;
+  margin: 20px 34px 0;
+  padding: 13px 15px;
+  border: 1px solid #d8c99d;
+  background: #fff9e7;
+}
+
+.verification-banner > svg {
+  color: #8f6e11;
+}
+
+.verification-banner > div {
+  display: grid;
+  gap: 2px;
+}
+
+.verification-banner strong {
+  font-size: 0.79rem;
+}
+
+.verification-banner span {
+  color: var(--ink-soft);
+  font-size: 0.7rem;
 }
 
 .dashboard-content {
@@ -2766,6 +2946,10 @@ textarea:focus-visible {
     margin-inline: 18px;
   }
 
+  .verification-banner {
+    margin-inline: 18px;
+  }
+
   .dashboard-content {
     width: calc(100% - 36px);
     padding-top: 24px;
@@ -2881,6 +3065,30 @@ textarea:focus-visible {
     gap: 18px;
   }
 
+  .footer-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .legal-page {
+    width: calc(100% - 36px);
+    padding-block: 52px 72px;
+  }
+
+  .legal-heading {
+    margin-bottom: 38px;
+  }
+
+  .legal-heading h1 {
+    font-size: 2.15rem;
+  }
+
+  .legal-content section {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
   .pricing-hero h1 {
     font-size: 2.3rem;
   }
@@ -2914,6 +3122,28 @@ textarea:focus-visible {
     max-width: 132px;
     justify-content: center;
     text-align: center;
+  }
+
+  .verification-banner {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .verification-banner .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .action-page {
+    gap: 46px;
+    padding: 22px 18px 60px;
+  }
+
+  .action-panel {
+    padding: 30px 20px;
+  }
+
+  .action-panel h1 {
+    font-size: 1.65rem;
   }
 
   .dashboard-shop-name {

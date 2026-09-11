@@ -40,7 +40,7 @@ export class Register {
       barbershopName: ['', [Validators.required, Validators.maxLength(120)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
       phone: ['', [Validators.required, Validators.pattern(/^[+0-9() .-]{7,30}$/)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
+      password: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(72)]],
       confirmPassword: ['', Validators.required],
     },
     { validators: matchingPasswords },

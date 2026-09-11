@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap, throwError } from 'rxjs';
-import { AuthUser, LoginRequest, RegisterRequest } from './auth.models';
+import { AuthUser, LoginRequest, MessageResponse, RegisterRequest } from './auth.models';
 import { CsrfService } from './csrf.service';
 
 @Injectable({ providedIn: 'root' })
@@ -31,6 +31,43 @@ export class AuthService {
       .pipe(
         tap((user) => {
           this.currentUser.set(user);
+          this.sessionChecked = true;
+        }),
+      );
+  }
+
+  resendVerification(): Observable<MessageResponse> {
+    return this.csrf.execute(() =>
+      this.http.post<MessageResponse>('/api/auth/verification/resend', {}),
+    );
+  }
+
+  verifyEmail(token: string): Observable<MessageResponse> {
+    return this.csrf
+      .execute(() =>
+        this.http.post<MessageResponse>('/api/auth/verification/confirm', { token }),
+      )
+      .pipe(
+        tap(() =>
+          this.currentUser.update((user) => (user ? { ...user, emailVerified: true } : null)),
+        ),
+      );
+  }
+
+  requestPasswordReset(email: string): Observable<MessageResponse> {
+    return this.csrf.execute(() =>
+      this.http.post<MessageResponse>('/api/auth/password/forgot', { email }),
+    );
+  }
+
+  resetPassword(token: string, password: string): Observable<MessageResponse> {
+    return this.csrf
+      .execute(() =>
+        this.http.post<MessageResponse>('/api/auth/password/reset', { token, password }),
+      )
+      .pipe(
+        tap(() => {
+          this.currentUser.set(null);
           this.sessionChecked = true;
         }),
       );
