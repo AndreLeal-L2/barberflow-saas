@@ -27,7 +27,7 @@ jobs:
           - javascript-typescript
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -51,13 +51,13 @@ jobs:
           - frontend
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build image
         run: docker build --tag barberflow-${{ matrix.component }}:${{ github.sha }} ./${{ matrix.component }}
 
       - name: Scan image
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: barberflow-${{ matrix.component }}:${{ github.sha }}
           format: table
