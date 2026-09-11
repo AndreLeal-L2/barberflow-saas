@@ -12,7 +12,12 @@ RUN --mount=type=cache,id=barberflow-maven,target=/root/.m2 \
 FROM eclipse-temurin:21-jre-noble
 
 WORKDIR /app
-COPY --from=build /workspace/target/backend-*.jar app.jar
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    groupadd --gid 10001 barberflow && \
+    useradd --uid 10001 --gid barberflow --no-create-home --shell /usr/sbin/nologin barberflow
+COPY --chown=10001:10001 --from=build /workspace/target/backend-*.jar app.jar
 
 EXPOSE 8080
 USER 10001:10001

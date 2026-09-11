@@ -228,7 +228,7 @@ booking
   Booking creation, cancellation, status changes, overlap prevention.
 
 notification
-  Future email, SMS, or WhatsApp notifications.
+  Transactional email outbox, delivery retries, and provider adapters.
 
 admin
   Future internal platform administration.
@@ -243,6 +243,7 @@ id
 name
 email
 password_hash
+email_verified
 role
 barbershop_id
 created_at
@@ -335,8 +336,43 @@ service_name_snapshot
 service_duration_snapshot
 service_price_snapshot
 status
+cancellation_token_hash
+cancellation_token_expires_at
+customer_cancelled_at
+anonymized_at
 created_at
 updated_at
+```
+
+### Account Action Token
+
+```text
+id
+user_id
+purpose
+token_hash
+expires_at
+consumed_at
+created_at
+```
+
+Only a SHA-256 hash is stored. Raw verification and password reset tokens are
+sent once through the notification outbox.
+
+### Notification Outbox
+
+```text
+id
+notification_type
+recipient
+subject
+body
+status
+attempt_count
+next_attempt_at
+last_error
+created_at
+sent_at
 ```
 
 ## Booking Statuses
@@ -408,6 +444,11 @@ Reasons:
 The backend owns the authenticated session.
 The Angular frontend only calls the API with credentials enabled and does not store access tokens in localStorage or sessionStorage.
 
+Sessions are stored in PostgreSQL through Spring Session JDBC. Password resets
+invalidate every stored session for the account. The application reloads the
+current user from the database for `/api/auth/me`, so verification and account
+state changes are reflected without trusting stale response data.
+
 Security requirements:
 
 - Cookies must be `HttpOnly`
@@ -456,6 +497,21 @@ Public booking endpoints do not require login, but they must:
 /login
   Login
 
+/forgot-password
+  Password recovery request
+
+/reset-password
+  One-time password reset
+
+/verify-email
+  One-time email confirmation
+
+/cancel-booking
+  Customer cancellation by one-time link
+
+/privacy and /terms
+  Beta legal information
+
 /dashboard
   Main dashboard
 
@@ -485,6 +541,10 @@ POST /api/auth/login
 POST /api/auth/logout
 GET  /api/auth/me
 GET  /api/auth/csrf
+POST /api/auth/verification/confirm
+POST /api/auth/verification/resend
+POST /api/auth/password/forgot
+POST /api/auth/password/reset
 ```
 
 ### Barbershop Dashboard
@@ -502,6 +562,7 @@ GET  /api/public/barbershops/{slug}
 GET  /api/public/barbershops/{slug}/services
 GET  /api/public/barbershops/{slug}/available-slots
 POST /api/public/barbershops/{slug}/bookings
+POST /api/public/bookings/cancel
 ```
 
 ### Services
@@ -553,6 +614,8 @@ remain intentionally deferred.
 - Blocked-period creation uses the same barber lock as booking creation to prevent race conditions.
 - Public bookings can be created up to 60 days ahead and start on 30-minute boundaries.
 - Cancelled bookings do not block availability.
+- A customer cancellation token is random, stored only as a hash, single-use, and expires at the booking start.
+- Online customer cancellation requires at least two hours of notice by default.
 - Completed bookings remain visible in history.
 - Public booking is blocked if the barbershop subscription is not active or trialing.
 - A barbershop slug must be unique.
@@ -560,6 +623,10 @@ remain intentionally deferred.
 - Public pages only show active services.
 - Service name, duration, and price must be snapshotted into the booking.
 - Dashboard users can only access resources from their own barbershop.
+- New production tenants must confirm the owner email before publishing.
+- Verification links expire after 24 hours; password reset links expire after 30 minutes.
+- Booking personal data is anonymized after 365 days by default.
+- Notification delivery is asynchronous and retried with bounded backoff.
 
 ## Database Practices
 
@@ -670,12 +737,14 @@ chore: configure docker compose
 
 ### Phase 3: Quality
 
-- Backend unit tests
-- Backend integration tests
-- Frontend tests
-- API documentation
-- Error handling standardization
-- Security hardening
+- [x] Backend unit tests
+- [x] Backend integration tests
+- [x] Frontend tests
+- [x] API documentation for development
+- [x] Error handling standardization
+- [x] Security hardening baseline
+- [x] Production profile and deployment runbook
+- [x] Automated dependency and container scanning
 
 ### Phase 4: Real Billing
 
@@ -687,11 +756,11 @@ chore: configure docker compose
 
 ### Phase 5: Product Growth
 
-- Email notifications
+- [x] Transactional email notifications
 - WhatsApp/SMS notifications
 - Multiple barbers per shop
 - Rescheduling
-- Customer booking cancellation link
+- [x] Customer booking cancellation link
 - Analytics dashboard
 - Admin platform dashboard
 

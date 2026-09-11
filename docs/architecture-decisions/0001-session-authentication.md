@@ -18,6 +18,9 @@ Use Spring Security server-side sessions. The browser receives an opaque session
 - `Secure` in production over HTTPS
 - 30-minute inactivity timeout
 
+Persist sessions in PostgreSQL through Spring Session JDBC so deployments and
+backend restarts do not log users out.
+
 Keep CSRF protection enabled for state-changing requests. Spring exposes a separate `XSRF-TOKEN` cookie that Angular can read and return through the `X-XSRF-TOKEN` request header. This cookie contains an anti-CSRF value, not the authenticated session credential.
 
 CORS permits credentials only from explicitly configured frontend origins. Passwords are hashed with BCrypt and are never returned by the API.
@@ -25,7 +28,7 @@ CORS permits credentials only from explicitly configured frontend origins. Passw
 ## Consequences
 
 - A token stolen from `localStorage` is not part of the threat model because no authentication token is stored there.
-- The backend owns session state and must use a shared session store if it is later scaled to multiple instances.
+- The backend owns session state and all instances must use the same PostgreSQL session store.
 - Browser clients must send credentials and a valid CSRF token.
 - Production deployment requires HTTPS and `BARBERFLOW_COOKIE_SECURE=true`.
 - JWT can be reconsidered for a mobile client or third-party API, but it is not required for the current product.

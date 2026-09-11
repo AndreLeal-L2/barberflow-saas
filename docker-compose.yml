@@ -25,6 +25,7 @@ services:
       BARBERFLOW_DATABASE_USERNAME: ${POSTGRES_USER:-barberflow}
       BARBERFLOW_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-barberflow}
       BARBERFLOW_ALLOWED_ORIGINS: http://localhost:${APP_PORT:-8081}
+      BARBERFLOW_PUBLIC_BASE_URL: http://localhost:${APP_PORT:-8081}
       BARBERFLOW_COOKIE_SECURE: "false"
     ports:
       - "${API_PORT:-8080}:8080"
