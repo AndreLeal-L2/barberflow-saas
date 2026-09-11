@@ -69,4 +69,128 @@
       </form>
     }
   </section>
+
+  <section class="availability-exceptions">
+    <header class="subsection-heading">
+      <div>
+        <p class="section-label">EXCEÇÕES</p>
+        <h2>Indisponibilidades pontuais</h2>
+        <p>Bloqueie férias, compromissos ou períodos em que não aceita marcações.</p>
+      </div>
+    </header>
+
+    <div class="management-grid block-management-grid">
+      <form class="editor-panel" [formGroup]="blockForm" (ngSubmit)="createBlock()">
+        <div class="panel-heading">
+          <div>
+            <p class="section-label">NOVO BLOQUEIO</p>
+            <h2>Fechar um período</h2>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Data</span>
+          <input type="date" formControlName="date" [min]="today" [max]="maxBlockDate" />
+        </label>
+
+        <label class="block-mode-toggle">
+          <input type="checkbox" formControlName="fullDay" />
+          <span class="toggle-control" aria-hidden="true"></span>
+          <span>
+            <strong>Dia completo</strong>
+            <small>Bloqueia todo o horário de trabalho.</small>
+          </span>
+        </label>
+
+        @if (!blockForm.controls.fullDay.value) {
+          <div class="form-grid compact-grid block-time-range">
+            <label class="field">
+              <span>Início</span>
+              <input type="time" formControlName="startTime" />
+            </label>
+            <label class="field">
+              <span>Fim</span>
+              <input type="time" formControlName="endTime" />
+            </label>
+          </div>
+        }
+
+        <label class="field">
+          <span>Motivo <small>opcional</small></span>
+          <input type="text" formControlName="reason" maxlength="255" placeholder="Ex.: Férias" />
+        </label>
+
+        <button
+          class="button button-primary button-full"
+          type="submit"
+          [disabled]="creatingBlock()"
+        >
+          <svg lucidePlus [size]="18" aria-hidden="true"></svg>
+          {{ creatingBlock() ? 'A adicionar...' : 'Adicionar indisponibilidade' }}
+        </button>
+      </form>
+
+      <section class="list-panel block-list-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="section-label">PRÓXIMOS PERÍODOS</p>
+            <h2>Agenda bloqueada</h2>
+          </div>
+          <span>{{ blocks().length }}</span>
+        </div>
+
+        @if (blocks().length === 0) {
+          <div class="panel-empty block-empty">
+            <svg lucideCalendarOff [size]="28" aria-hidden="true"></svg>
+            <strong>Não existem indisponibilidades.</strong>
+            <p>O horário semanal está aberto sem exceções futuras.</p>
+          </div>
+        } @else {
+          <div class="block-list">
+            @for (block of blocks(); track block.id) {
+              <article>
+                <time [attr.datetime]="block.startAt">
+                  <strong>{{ block.startAt | date: 'dd' }}</strong>
+                  <span>{{ block.startAt | date: 'MMM' }}</span>
+                </time>
+                <div>
+                  <strong>{{ block.reason || 'Indisponível' }}</strong>
+                  <span>
+                    @if (block.fullDay) {
+                      Dia completo
+                    } @else {
+                      {{ block.startAt | date: 'HH:mm' }}–{{ block.endAt | date: 'HH:mm' }}
+                    }
+                  </span>
+                </div>
+                @if (confirmingBlockId() === block.id) {
+                  <div class="inline-confirm block-confirm">
+                    <span>Remover?</span>
+                    <button
+                      type="button"
+                      [disabled]="deletingBlockId() === block.id"
+                      (click)="deleteBlock(block.id)"
+                    >
+                      Sim
+                    </button>
+                    <button type="button" (click)="cancelBlockDelete()">Não</button>
+                  </div>
+                } @else {
+                  <button
+                    class="icon-button danger-action"
+                    type="button"
+                    title="Remover indisponibilidade"
+                    aria-label="Remover indisponibilidade"
+                    (click)="confirmBlockDelete(block.id)"
+                  >
+                    <svg lucideTrash2 [size]="17" aria-hidden="true"></svg>
+                  </button>
+                }
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </section>
 </div>

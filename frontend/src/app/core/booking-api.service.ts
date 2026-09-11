@@ -9,7 +9,9 @@ import {
   BookingStatus,
   CatalogService,
   CreateBookingRequest,
+  CreateBlockedTimeRequest,
   DashboardBarbershop,
+  BlockedTime,
   PublicBarbershop,
   ServiceRequest,
 } from './booking.models';
@@ -65,6 +67,22 @@ export class BookingApiService {
   updateAvailability(days: AvailabilityDay[]): Observable<AvailabilityDay[]> {
     return this.csrf.execute(() =>
       this.http.put<AvailabilityDay[]>('/api/dashboard/availability', { days }),
+    );
+  }
+
+  listBlockedTimes(): Observable<BlockedTime[]> {
+    return this.http.get<BlockedTime[]>('/api/dashboard/availability/blocks');
+  }
+
+  createBlockedTime(request: CreateBlockedTimeRequest): Observable<BlockedTime> {
+    return this.csrf.execute(() =>
+      this.http.post<BlockedTime>('/api/dashboard/availability/blocks', request),
+    );
+  }
+
+  deleteBlockedTime(id: string): Observable<void> {
+    return this.csrf.execute(() =>
+      this.http.delete<void>('/api/dashboard/availability/blocks/' + id),
     );
   }
 

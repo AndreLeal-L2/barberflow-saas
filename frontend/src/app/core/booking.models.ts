@@ -45,6 +45,20 @@ export interface AvailabilityDay {
   endTime: string;
 }
 
+export interface BlockedTime {
+  id: string;
+  startAt: string;
+  endAt: string;
+  reason: string | null;
+  fullDay: boolean;
+}
+
+export interface CreateBlockedTimeRequest {
+  startAt: string;
+  endAt: string;
+  reason: string;
+}
+
 export interface Booking {
   id: string;
   customerName: string;

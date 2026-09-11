@@ -1816,6 +1816,145 @@ textarea:focus-visible {
   color: #929b97;
 }
 
+.availability-exceptions {
+  margin-top: 48px;
+}
+
+.subsection-heading {
+  margin-bottom: 22px;
+}
+
+.subsection-heading h2 {
+  margin: 7px 0 6px;
+  font-size: 1.35rem;
+}
+
+.subsection-heading p:last-child {
+  margin-bottom: 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.block-management-grid {
+  grid-template-columns: minmax(290px, 0.65fr) minmax(0, 1.35fr);
+}
+
+.block-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0 21px;
+  cursor: pointer;
+}
+
+.block-mode-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.block-mode-toggle input:checked + .toggle-control {
+  background: var(--brand);
+}
+
+.block-mode-toggle input:checked + .toggle-control::after {
+  transform: translateX(16px);
+}
+
+.block-mode-toggle input:focus-visible + .toggle-control {
+  outline: 3px solid rgba(33, 104, 79, 0.24);
+  outline-offset: 2px;
+}
+
+.block-mode-toggle > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.block-mode-toggle strong {
+  font-size: 0.78rem;
+}
+
+.block-mode-toggle small {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+}
+
+.block-time-range {
+  margin-bottom: 0;
+}
+
+.block-list-panel {
+  overflow: hidden;
+}
+
+.block-empty {
+  gap: 4px;
+}
+
+.block-empty svg {
+  margin: 0 auto 8px;
+  color: var(--brand);
+}
+
+.block-list article {
+  display: grid;
+  min-height: 78px;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 15px;
+  align-items: center;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.block-list article:last-child {
+  border-bottom: 0;
+}
+
+.block-list time {
+  display: grid;
+  min-height: 50px;
+  place-content: center;
+  border: 1px solid var(--line);
+  background: var(--canvas);
+  text-align: center;
+}
+
+.block-list time strong {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.block-list time span {
+  color: var(--ink-soft);
+  font-size: 0.61rem;
+  text-transform: uppercase;
+}
+
+.block-list article > div:not(.inline-confirm) {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.block-list article > div > strong {
+  overflow: hidden;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block-list article > div > span {
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+
+.block-confirm {
+  min-width: 112px;
+}
+
 .booking-panel {
   overflow: hidden;
 }
