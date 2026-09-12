@@ -591,6 +591,18 @@ GET   /api/dashboard/bookings
 PATCH /api/dashboard/bookings/{id}/status
 ```
 
+### Dashboard Analytics
+
+```text
+GET /api/dashboard/analytics
+```
+
+The analytics response is calculated for the authenticated barbershop only. It
+combines the previous 30 days of completed and cancelled appointments with the
+next 30 days of confirmed appointments. `scheduledValue` is the sum of service
+price snapshots for upcoming confirmed appointments; it is operational forecast
+data and must not be presented as received revenue.
+
 ### Subscription (Future Administration API)
 
 ```text
@@ -623,6 +635,7 @@ remain intentionally deferred.
 - Public pages only show active services.
 - Service name, duration, and price must be snapshotted into the booking.
 - Dashboard users can only access resources from their own barbershop.
+- Dashboard analytics must query a bounded date range and filter by the authenticated barbershop ID.
 - New production tenants must confirm the owner email before publishing.
 - Verification links expire after 24 hours; password reset links expire after 30 minutes.
 - Booking personal data is anonymized after 365 days by default.
@@ -761,7 +774,7 @@ chore: configure docker compose
 - Multiple barbers per shop
 - Rescheduling
 - [x] Customer booking cancellation link
-- Analytics dashboard
+- [x] Analytics dashboard
 - Admin platform dashboard
 
 ## Portfolio Description
