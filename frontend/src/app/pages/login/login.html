@@ -1,0 +1,88 @@
+<main class="auth-shell">
+  <header class="auth-header">
+    <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
+      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
+    </a>
+    <p>Ainda não tem conta? <a routerLink="/register">Criar conta</a></p>
+  </header>
+
+  <div class="auth-main auth-main-login">
+    <section class="auth-intro">
+      <p class="section-number">ACESSO À CONTA</p>
+      <h1>Voltar à agenda.</h1>
+      <p>Consulte as marcações e continue a configuração da sua barbearia.</p>
+    </section>
+
+    <section class="auth-panel" aria-labelledby="login-title">
+      <a class="back-link" routerLink="/">
+        <svg lucideArrowLeft [size]="17" aria-hidden="true"></svg>
+        Voltar ao início
+      </a>
+
+      <div class="auth-form-heading">
+        <h2 id="login-title">Entrar</h2>
+        <p>Use o e-mail do administrador.</p>
+      </div>
+
+      @if (serverError()) {
+        <div class="form-alert" role="alert">{{ serverError() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            placeholder="joao@barbearia.pt"
+          />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <span class="field-error">Introduza um e-mail válido.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Palavra-passe</label>
+          <div class="password-field">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="A sua palavra-passe"
+            />
+            <button
+              class="icon-button input-action"
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
+              [title]="showPassword() ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'"
+            >
+              @if (showPassword()) {
+                <svg lucideEyeOff [size]="18" aria-hidden="true"></svg>
+              } @else {
+                <svg lucideEye [size]="18" aria-hidden="true"></svg>
+              }
+            </button>
+          </div>
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <span class="field-error">Introduza a palavra-passe.</span>
+          }
+        </div>
+
+        <a class="auth-support-link" routerLink="/forgot-password">Esqueceu a palavra-passe?</a>
+
+        <button
+          class="button button-primary button-large button-full"
+          type="submit"
+          [disabled]="submitting()"
+        >
+          {{ submitting() ? 'A entrar...' : 'Entrar' }}
+        </button>
+      </form>
+    </section>
+  </div>
+</main>

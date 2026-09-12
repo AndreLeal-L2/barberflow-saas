@@ -1,0 +1,8 @@
+minimumReleaseAgeExclude:
+  - '@lucide/angular@1.43.0'
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true

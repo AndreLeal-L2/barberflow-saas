@@ -1,0 +1,93 @@
+name: barberflow-production
+
+x-service-logging: &service-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    cpus: 1.0
+    mem_limit: 768m
+    security_opt:
+      - no-new-privileges:true
+    logging: *service-logging
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - barberflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - private
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    cpus: 1.0
+    mem_limit: 768m
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    logging: *service-logging
+    tmpfs:
+      - /tmp
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      BARBERFLOW_DATABASE_URL: jdbc:postgresql://database:5432/${POSTGRES_DB}
+      BARBERFLOW_DATABASE_USERNAME: ${POSTGRES_USER}
+      BARBERFLOW_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      BARBERFLOW_PUBLIC_BASE_URL: ${BARBERFLOW_PUBLIC_BASE_URL:?BARBERFLOW_PUBLIC_BASE_URL is required}
+      BARBERFLOW_ALLOWED_ORIGINS: ${BARBERFLOW_ALLOWED_ORIGINS:?BARBERFLOW_ALLOWED_ORIGINS is required}
+      BARBERFLOW_TIME_ZONE: ${BARBERFLOW_TIME_ZONE:-Europe/Lisbon}
+      BARBERFLOW_MAIL_HOST: ${BARBERFLOW_MAIL_HOST:?BARBERFLOW_MAIL_HOST is required}
+      BARBERFLOW_MAIL_PORT: ${BARBERFLOW_MAIL_PORT:-587}
+      BARBERFLOW_MAIL_USERNAME: ${BARBERFLOW_MAIL_USERNAME:?BARBERFLOW_MAIL_USERNAME is required}
+      BARBERFLOW_MAIL_PASSWORD: ${BARBERFLOW_MAIL_PASSWORD:?BARBERFLOW_MAIL_PASSWORD is required}
+      BARBERFLOW_MAIL_FROM: ${BARBERFLOW_MAIL_FROM:?BARBERFLOW_MAIL_FROM is required}
+    expose:
+      - "8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - private
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    cpus: 0.5
+    mem_limit: 128m
+    security_opt:
+      - no-new-privileges:true
+    logging: *service-logging
+    ports:
+      - "127.0.0.1:${APP_PORT:-8081}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - private
+
+networks:
+  private:
+    internal: false
+
+volumes:
+  barberflow_postgres_data:

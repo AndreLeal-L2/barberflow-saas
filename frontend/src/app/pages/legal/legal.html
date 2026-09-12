@@ -1,0 +1,114 @@
+<app-public-header />
+
+<main class="legal-page">
+  @if (document === 'privacy') {
+    <header class="legal-heading">
+      <p class="section-number">ÚLTIMA ATUALIZAÇÃO: 11/09/2026</p>
+      <h1>Política de privacidade</h1>
+      <p>Como o BarberFlow trata os dados de barbeiros e clientes durante a versão beta.</p>
+    </header>
+
+    <div class="legal-content">
+      <section>
+        <h2>Responsável e âmbito</h2>
+        <p>
+          O BarberFlow é um projeto beta operado pelo responsável identificado no
+          <a href="https://github.com/AndreLeal-L2/barberflow-saas" rel="noopener">repositório oficial</a>.
+          Cada barbearia controla a utilização dos dados dos seus clientes; o BarberFlow trata-os
+          para prestar o serviço de agenda.
+        </p>
+      </section>
+      <section>
+        <h2>Dados tratados</h2>
+        <p>
+          Tratamos os dados da conta do barbeiro, configuração da barbearia e, para cada marcação,
+          nome, telefone, e-mail opcional, serviço, data, hora e estado.
+        </p>
+      </section>
+      <section>
+        <h2>Finalidades e fundamento</h2>
+        <p>
+          Os dados são usados para criar e proteger contas, gerir disponibilidade, realizar e
+          cancelar marcações, enviar comunicações transacionais e prevenir abuso. O tratamento é
+          necessário para prestar o serviço e para proteger a plataforma e os seus utilizadores.
+        </p>
+      </section>
+      <section>
+        <h2>Conservação e segurança</h2>
+        <p>
+          Os dados pessoais das marcações são anonimizados 365 dias após o fim da marcação. Tokens
+          expirados são eliminados e registos técnicos de e-mail são conservados por 30 dias. São
+          aplicados controlos de acesso, encriptação em trânsito, passwords com hash e isolamento
+          entre barbearias.
+        </p>
+      </section>
+      <section>
+        <h2>Fornecedores e transferências</h2>
+        <p>
+          O alojamento, a base de dados e o envio de e-mail podem ser assegurados por fornecedores
+          contratados pelo operador. Antes da abertura comercial, a lista dos fornecedores, países
+          de tratamento e garantias de transferência será publicada nesta página.
+        </p>
+      </section>
+      <section>
+        <h2>Direitos</h2>
+        <p>
+          Pode pedir acesso, correção, eliminação, limitação ou portabilidade dos seus dados e
+          apresentar reclamação à CNPD. Durante a beta, os pedidos devem ser enviados através do
+          contacto indicado no repositório oficial.
+        </p>
+      </section>
+    </div>
+  } @else {
+    <header class="legal-heading">
+      <p class="section-number">VERSÃO BETA</p>
+      <h1>Termos de utilização</h1>
+      <p>Condições aplicáveis ao acesso gratuito de avaliação do BarberFlow.</p>
+    </header>
+
+    <div class="legal-content">
+      <section>
+        <h2>Serviço beta</h2>
+        <p>
+          O BarberFlow disponibiliza ferramentas de agenda para avaliação. Nesta fase não existem
+          pagamentos, contrato de subscrição ou garantia de disponibilidade contínua.
+        </p>
+      </section>
+      <section>
+        <h2>Responsabilidade da barbearia</h2>
+        <p>
+          A barbearia deve fornecer dados corretos, proteger o acesso à conta, manter os horários
+          atualizados e informar os clientes sobre o tratamento dos seus dados.
+        </p>
+      </section>
+      <section>
+        <h2>Utilização aceitável</h2>
+        <p>
+          Não é permitido automatizar pedidos abusivos, tentar aceder a dados de terceiros,
+          prejudicar a disponibilidade do serviço ou utilizar a plataforma para fins ilícitos.
+        </p>
+      </section>
+      <section>
+        <h2>Disponibilidade e dados</h2>
+        <p>
+          Sendo uma beta, podem ocorrer alterações e interrupções. O operador aplica medidas
+          razoáveis de segurança e, no ambiente publicado, mantém uma política de backups testada.
+          A barbearia deve conservar os contactos necessários à sua operação.
+        </p>
+      </section>
+      <section>
+        <h2>Suspensão e encerramento</h2>
+        <p>
+          Contas usadas de forma abusiva podem ser suspensas. O utilizador pode pedir o
+          encerramento e eliminação da conta através do contacto do repositório oficial.
+        </p>
+      </section>
+    </div>
+  }
+
+  <footer class="legal-footer">
+    <a routerLink="/">Voltar ao BarberFlow</a>
+    <a routerLink="/privacy">Privacidade</a>
+    <a routerLink="/terms">Termos</a>
+  </footer>
+</main>

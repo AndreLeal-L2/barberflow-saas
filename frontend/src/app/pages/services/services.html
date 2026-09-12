@@ -1,0 +1,147 @@
+<div class="dashboard-content">
+  <header class="page-heading">
+    <div>
+      <p class="section-label">CATÁLOGO</p>
+      <h1>Serviços</h1>
+      <p>Defina o que os clientes podem marcar, a duração e o preço.</p>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="form-alert" role="alert">{{ error() }}</div>
+  }
+
+  <div class="management-grid">
+    <section class="editor-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">{{ editingId() ? 'EDITAR SERVIÇO' : 'NOVO SERVIÇO' }}</p>
+          <h2>{{ editingId() ? 'Atualizar dados' : 'Adicionar ao catálogo' }}</h2>
+        </div>
+        @if (editingId()) {
+          <button class="icon-button" type="button" (click)="cancelEdit()" title="Cancelar edição">
+            <svg lucideX [size]="18" aria-hidden="true"></svg>
+          </button>
+        }
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="field">
+          <label for="serviceName">Nome</label>
+          <input id="serviceName" type="text" formControlName="name" placeholder="Corte clássico" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field-error">Introduza um nome para o serviço.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="serviceDescription"
+            >Descrição <span class="optional-label">Opcional</span></label
+          >
+          <textarea
+            id="serviceDescription"
+            formControlName="description"
+            rows="3"
+            placeholder="Inclui lavagem e acabamento"
+          ></textarea>
+        </div>
+
+        <div class="form-grid compact-grid">
+          <div class="field">
+            <label for="serviceDuration">Duração</label>
+            <div class="input-suffix">
+              <input
+                id="serviceDuration"
+                type="number"
+                min="15"
+                step="15"
+                formControlName="durationMinutes"
+              />
+              <span>min</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="servicePrice">Preço</label>
+            <div class="input-suffix">
+              <input
+                id="servicePrice"
+                type="number"
+                min="0"
+                step="0.5"
+                formControlName="priceAmount"
+              />
+              <span>€</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="button button-primary button-full" type="submit" [disabled]="saving()">
+          <svg lucidePlus [size]="18" aria-hidden="true"></svg>
+          {{ saving() ? 'A guardar...' : editingId() ? 'Guardar alterações' : 'Adicionar serviço' }}
+        </button>
+      </form>
+    </section>
+
+    <section class="list-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">SERVIÇOS ATIVOS</p>
+          <h2>Catálogo atual</h2>
+        </div>
+        <span>{{ services().length }}</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-state">A carregar serviços...</div>
+      } @else if (!services().length) {
+        <div class="panel-empty">
+          <strong>Ainda não adicionou serviços.</strong>
+          <p>O primeiro serviço desbloqueia o próximo passo da configuração.</p>
+        </div>
+      } @else {
+        <div class="service-list">
+          @for (service of services(); track service.id) {
+            <article>
+              <div class="service-main">
+                <strong>{{ service.name }}</strong>
+                <span>{{ service.description || 'Sem descrição' }}</span>
+              </div>
+              <div class="service-meta">
+                <span>{{ service.durationMinutes }} min</span>
+                <strong>{{
+                  service.priceAmount | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT'
+                }}</strong>
+              </div>
+              @if (deletingId() === service.id) {
+                <div class="inline-confirm">
+                  <span>Remover?</span>
+                  <button type="button" (click)="remove(service.id)">Sim</button>
+                  <button type="button" (click)="cancelDelete()">Não</button>
+                </div>
+              } @else {
+                <div class="row-actions">
+                  <button
+                    class="icon-button"
+                    type="button"
+                    (click)="edit(service)"
+                    title="Editar serviço"
+                  >
+                    <svg lucidePencil [size]="17" aria-hidden="true"></svg>
+                  </button>
+                  <button
+                    class="icon-button danger-action"
+                    type="button"
+                    (click)="confirmDelete(service.id)"
+                    title="Remover serviço"
+                  >
+                    <svg lucideTrash2 [size]="17" aria-hidden="true"></svg>
+                  </button>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</div>

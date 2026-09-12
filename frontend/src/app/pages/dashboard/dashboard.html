@@ -1,0 +1,215 @@
+<div class="dashboard-content">
+  <header class="page-heading">
+    <div>
+      <p class="section-label">VISÃO GERAL</p>
+      <h1>A sua agenda</h1>
+      <p>Acompanhe a configuração e as próximas marcações.</p>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="form-alert" role="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">A carregar o painel...</div>
+  } @else if (shop(); as currentShop) {
+    <section class="activation-banner" [class.published]="currentShop.published">
+      <div class="activation-copy">
+        <p class="section-number">
+          {{
+            currentShop.published
+              ? 'PÁGINA PUBLICADA'
+              : 'CONFIGURAÇÃO · ' + currentShop.completedSetupSteps + ' DE 4'
+          }}
+        </p>
+        <h2>
+          {{
+            currentShop.published
+              ? 'Os clientes já podem fazer marcações.'
+              : 'Prepare a página antes de partilhar o link.'
+          }}
+        </h2>
+        <p>
+          {{
+            currentShop.published
+              ? 'O link está ativo e apresenta os horários livres.'
+              : 'Complete os serviços e horários para ativar as marcações.'
+          }}
+        </p>
+      </div>
+      <div class="activation-actions">
+        <div class="activation-progress">
+          <div>
+            <span>Progresso</span><strong>{{ progress() }}%</strong>
+          </div>
+          <div class="progress-track"><span [style.width.%]="progress()"></span></div>
+        </div>
+        @if (currentShop.canPublish || currentShop.published) {
+          <button
+            class="button button-primary"
+            type="button"
+            (click)="togglePublication()"
+            [disabled]="savingPublication()"
+          >
+            {{
+              savingPublication()
+                ? 'A guardar...'
+                : currentShop.published
+                  ? 'Retirar página'
+                  : 'Publicar página'
+            }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <div class="dashboard-workspace">
+      <div class="workspace-primary">
+        <section class="agenda-section">
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="section-label">AGENDA</p>
+              <h2>Próximas marcações</h2>
+            </div>
+            <a class="section-link" routerLink="/dashboard/bookings">Ver todas</a>
+          </div>
+          @if (nextBookings().length) {
+            <div class="compact-booking-list">
+              @for (booking of nextBookings(); track booking.id) {
+                <article>
+                  <time
+                    ><strong>{{ booking.startAt | date: 'HH:mm' }}</strong
+                    ><span>{{ booking.startAt | date: 'dd MMM' }}</span></time
+                  >
+                  <div>
+                    <strong>{{ booking.customerName }}</strong
+                    ><span
+                      >{{ booking.serviceName }} · {{ booking.serviceDurationMinutes }} min</span
+                    >
+                  </div>
+                  <span class="booking-status confirmed">Confirmada</span>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="agenda-empty">
+              <svg lucideCalendarDays [size]="24" aria-hidden="true"></svg>
+              <div>
+                <strong>Ainda não há marcações.</strong>
+                <p>As próximas entradas aparecem aqui.</p>
+              </div>
+            </div>
+          }
+        </section>
+
+        <section class="setup-section">
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="section-label">PREPARAR A PÁGINA</p>
+              <h2>Lista de configuração</h2>
+            </div>
+            <span>
+              {{ currentShop.completedSetupSteps }} de 4
+              {{ currentShop.completedSetupSteps === 1 ? 'concluído' : 'concluídos' }}
+            </span>
+          </div>
+          <ol class="setup-list">
+            <li class="complete">
+              <svg lucideCircleCheck [size]="21"></svg>
+              <div>
+                <strong>Conta criada</strong><span>Administrador e barbearia registados.</span>
+              </div>
+              <small>CONCLUÍDO</small>
+            </li>
+            <li [class.complete]="currentShop.serviceCount > 0">
+              @if (currentShop.serviceCount > 0) {
+                <svg lucideCircleCheck [size]="21"></svg>
+              } @else {
+                <svg lucideCircle [size]="21"></svg>
+              }
+              <div>
+                <a routerLink="/dashboard/services"><strong>Adicionar serviços</strong></a
+                ><span>Nome, duração e preço.</span>
+              </div>
+              <small>{{ currentShop.serviceCount > 0 ? 'CONCLUÍDO' : 'A SEGUIR' }}</small>
+            </li>
+            <li [class.complete]="currentShop.availabilityDayCount > 0">
+              @if (currentShop.availabilityDayCount > 0) {
+                <svg lucideCircleCheck [size]="21"></svg>
+              } @else {
+                <svg lucideCircle [size]="21"></svg>
+              }
+              <div>
+                <a routerLink="/dashboard/availability"><strong>Definir horários</strong></a
+                ><span>Dias e horas disponíveis.</span>
+              </div>
+              <small>{{ currentShop.availabilityDayCount > 0 ? 'CONCLUÍDO' : 'PENDENTE' }}</small>
+            </li>
+            <li [class.complete]="currentShop.published">
+              @if (currentShop.published) {
+                <svg lucideCircleCheck [size]="21"></svg>
+              } @else {
+                <svg lucideCircle [size]="21"></svg>
+              }
+              <div>
+                <strong>Publicar a página</strong><span>Ativar o link para os clientes.</span>
+              </div>
+              <small>{{ currentShop.published ? 'CONCLUÍDO' : 'PENDENTE' }}</small>
+            </li>
+          </ol>
+        </section>
+      </div>
+
+      <aside class="workspace-rail">
+        <section class="public-link-section">
+          <p class="section-label">LINK PÚBLICO</p>
+          <h2>Página da barbearia</h2>
+          <p>
+            {{
+              currentShop.published
+                ? 'O endereço está ativo.'
+                : 'O endereço fica ativo depois da publicação.'
+            }}
+          </p>
+          <div class="link-copy-field">
+            <span>{{ publicUrl() }}</span>
+            <button
+              class="icon-button"
+              type="button"
+              (click)="copyPublicUrl()"
+              title="Copiar link"
+              aria-label="Copiar link"
+            >
+              <svg lucideCopy [size]="18"></svg>
+            </button>
+          </div>
+          <span class="copy-feedback">{{ copied() ? 'Link copiado.' : '' }}</span>
+          @if (currentShop.published) {
+            <a class="section-link external-link" [href]="publicUrl()" target="_blank"
+              >Abrir página <svg lucideExternalLink [size]="15"></svg
+            ></a>
+          }
+        </section>
+        <section class="account-section">
+          <p class="section-label">CONTA</p>
+          <h2>Período experimental</h2>
+          <dl>
+            <div>
+              <dt>Serviços</dt>
+              <dd>{{ currentShop.serviceCount }}</dd>
+            </div>
+            <div>
+              <dt>Dias disponíveis</dt>
+              <dd>{{ currentShop.availabilityDayCount }}</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>{{ currentShop.published ? 'Publicada' : 'Em preparação' }}</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  }
+</div>

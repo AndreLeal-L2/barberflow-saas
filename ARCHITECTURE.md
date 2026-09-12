@@ -68,7 +68,7 @@ The first version should not include:
 
 ### Frontend
 
-- Angular
+- Angular 22
 - TypeScript
 - Angular Router
 - Reactive Forms
@@ -77,7 +77,7 @@ The first version should not include:
 ### Backend
 
 - Java 21
-- Spring Boot
+- Spring Boot 4
 - Spring Web
 - Spring Security
 - Spring Data JPA
@@ -228,7 +228,7 @@ booking
   Booking creation, cancellation, status changes, overlap prevention.
 
 notification
-  Future email, SMS, or WhatsApp notifications.
+  Transactional email outbox, delivery retries, and provider adapters.
 
 admin
   Future internal platform administration.
@@ -243,6 +243,7 @@ id
 name
 email
 password_hash
+email_verified
 role
 barbershop_id
 created_at
@@ -259,6 +260,7 @@ phone
 email
 public_description
 public_address
+published
 active
 subscription_status
 created_at
@@ -312,11 +314,10 @@ updated_at
 id
 barbershop_id
 barber_id
-start_date_time
-end_date_time
+start_at
+end_at
 reason
 created_at
-updated_at
 ```
 
 ### Booking
@@ -335,8 +336,43 @@ service_name_snapshot
 service_duration_snapshot
 service_price_snapshot
 status
+cancellation_token_hash
+cancellation_token_expires_at
+customer_cancelled_at
+anonymized_at
 created_at
 updated_at
+```
+
+### Account Action Token
+
+```text
+id
+user_id
+purpose
+token_hash
+expires_at
+consumed_at
+created_at
+```
+
+Only a SHA-256 hash is stored. Raw verification and password reset tokens are
+sent once through the notification outbox.
+
+### Notification Outbox
+
+```text
+id
+notification_type
+recipient
+subject
+body
+status
+attempt_count
+next_attempt_at
+last_error
+created_at
+sent_at
 ```
 
 ## Booking Statuses
@@ -408,6 +444,11 @@ Reasons:
 The backend owns the authenticated session.
 The Angular frontend only calls the API with credentials enabled and does not store access tokens in localStorage or sessionStorage.
 
+Sessions are stored in PostgreSQL through Spring Session JDBC. Password resets
+invalidate every stored session for the account. The application reloads the
+current user from the database for `/api/auth/me`, so verification and account
+state changes are reflected without trusting stale response data.
+
 Security requirements:
 
 - Cookies must be `HttpOnly`
@@ -415,6 +456,15 @@ Security requirements:
 - Cookies should use `SameSite=Lax` or `SameSite=Strict` where possible
 - CSRF protection must be enabled for unsafe requests if cookie authentication is used
 - CORS must explicitly allow only trusted frontend origins
+
+The session cookie is named `BARBERFLOW_SESSION`. It is `HttpOnly` and uses
+`SameSite=Lax`; `Secure` is disabled only for local HTTP development and must be
+enabled in production. Angular reads a separate `XSRF-TOKEN` cookie and sends its
+value in the `X-XSRF-TOKEN` header. That CSRF cookie is intentionally readable by
+JavaScript and is not an authentication credential.
+
+The complete rationale is recorded in
+[`ADR-0001`](docs/architecture-decisions/0001-session-authentication.md).
 
 JWT may still be considered later for mobile apps, public APIs, or third-party integrations.
 
@@ -447,6 +497,21 @@ Public booking endpoints do not require login, but they must:
 /login
   Login
 
+/forgot-password
+  Password recovery request
+
+/reset-password
+  One-time password reset
+
+/verify-email
+  One-time email confirmation
+
+/cancel-booking
+  Customer cancellation by one-time link
+
+/privacy and /terms
+  Beta legal information
+
 /dashboard
   Main dashboard
 
@@ -463,10 +528,7 @@ Public booking endpoints do not require login, but they must:
   Public profile configuration
 
 /b/:slug
-  Public barbershop page
-
-/b/:slug/book
-  Public booking flow
+  Public barbershop page and booking flow
 ```
 
 ## Initial REST API
@@ -478,13 +540,19 @@ POST /api/auth/register
 POST /api/auth/login
 POST /api/auth/logout
 GET  /api/auth/me
+GET  /api/auth/csrf
+POST /api/auth/verification/confirm
+POST /api/auth/verification/resend
+POST /api/auth/password/forgot
+POST /api/auth/password/reset
 ```
 
 ### Barbershop Dashboard
 
 ```text
-GET /api/barbershops/me
-PUT /api/barbershops/me
+GET   /api/dashboard/barbershop
+PUT   /api/dashboard/barbershop/profile
+PATCH /api/dashboard/barbershop/publication
 ```
 
 ### Public Barbershop
@@ -494,6 +562,7 @@ GET  /api/public/barbershops/{slug}
 GET  /api/public/barbershops/{slug}/services
 GET  /api/public/barbershops/{slug}/available-slots
 POST /api/public/barbershops/{slug}/bookings
+POST /api/public/bookings/cancel
 ```
 
 ### Services
@@ -509,20 +578,20 @@ DELETE /api/dashboard/services/{id}
 
 ```text
 GET    /api/dashboard/availability
-POST   /api/dashboard/availability
-PUT    /api/dashboard/availability/{id}
-DELETE /api/dashboard/availability/{id}
+PUT    /api/dashboard/availability
+GET    /api/dashboard/availability/blocks
+POST   /api/dashboard/availability/blocks
+DELETE /api/dashboard/availability/blocks/{id}
 ```
 
 ### Bookings
 
 ```text
 GET   /api/dashboard/bookings
-GET   /api/dashboard/bookings/{id}
 PATCH /api/dashboard/bookings/{id}/status
 ```
 
-### Subscription
+### Subscription (Future Administration API)
 
 ```text
 GET   /api/dashboard/subscription
@@ -531,11 +600,22 @@ PATCH /api/dashboard/subscription/simulated-status
 
 The simulated subscription update endpoint should be restricted to development or admin usage.
 
+The current MVP creates new tenants with `TRIALING` status. Both `TRIALING` and
+`ACTIVE` grant booking access; payment and subscription administration endpoints
+remain intentionally deferred.
+
 ## Business Rules
 
 - A booking cannot overlap another active booking for the same barber.
+- Booking creation locks the selected barber while availability is rechecked, preventing concurrent double booking.
 - A booking must fit inside the barber's availability rules.
+- A blocked period removes every overlapping slot from the public booking page.
+- A blocked period cannot overlap another blocked period or a non-cancelled booking.
+- Blocked-period creation uses the same barber lock as booking creation to prevent race conditions.
+- Public bookings can be created up to 60 days ahead and start on 30-minute boundaries.
 - Cancelled bookings do not block availability.
+- A customer cancellation token is random, stored only as a hash, single-use, and expires at the booking start.
+- Online customer cancellation requires at least two hours of notice by default.
 - Completed bookings remain visible in history.
 - Public booking is blocked if the barbershop subscription is not active or trialing.
 - A barbershop slug must be unique.
@@ -543,6 +623,10 @@ The simulated subscription update endpoint should be restricted to development o
 - Public pages only show active services.
 - Service name, duration, and price must be snapshotted into the booking.
 - Dashboard users can only access resources from their own barbershop.
+- New production tenants must confirm the owner email before publishing.
+- Verification links expire after 24 hours; password reset links expire after 30 minutes.
+- Booking personal data is anonymized after 365 days by default.
+- Notification delivery is asynchronous and retried with bounded backoff.
 
 ## Database Practices
 
@@ -608,7 +692,7 @@ The project should follow a clean Git workflow:
 Suggested branch prefixes:
 
 ```text
-feature/
+feat/
 fix/
 docs/
 test/
@@ -620,7 +704,7 @@ Commit examples:
 
 ```text
 docs: add initial architecture document
-feature: add barbershop registration endpoint
+feat: add barbershop registration endpoint
 fix: prevent overlapping bookings
 test: add booking availability tests
 chore: configure docker compose
@@ -640,25 +724,27 @@ chore: configure docker compose
 
 ### Phase 2: Core SaaS
 
-- Registration
-- Login
-- Tenant model
-- Barbershop profile
-- Service management
-- Availability management
-- Public booking page
-- Booking creation
-- Booking dashboard
-- Simulated subscription status
+- [x] Registration
+- [x] Login
+- [x] Tenant model
+- [x] Barbershop profile
+- [x] Service management
+- [x] Availability management
+- [x] Public booking page
+- [x] Booking creation
+- [x] Booking dashboard
+- [x] Simulated subscription status
 
 ### Phase 3: Quality
 
-- Backend unit tests
-- Backend integration tests
-- Frontend tests
-- API documentation
-- Error handling standardization
-- Security hardening
+- [x] Backend unit tests
+- [x] Backend integration tests
+- [x] Frontend tests
+- [x] API documentation for development
+- [x] Error handling standardization
+- [x] Security hardening baseline
+- [x] Production profile and deployment runbook
+- [x] Automated dependency and container scanning
 
 ### Phase 4: Real Billing
 
@@ -670,11 +756,11 @@ chore: configure docker compose
 
 ### Phase 5: Product Growth
 
-- Email notifications
+- [x] Transactional email notifications
 - WhatsApp/SMS notifications
 - Multiple barbers per shop
 - Rescheduling
-- Customer booking cancellation link
+- [x] Customer booking cancellation link
 - Analytics dashboard
 - Admin platform dashboard
 

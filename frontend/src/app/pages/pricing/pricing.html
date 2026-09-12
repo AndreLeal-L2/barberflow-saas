@@ -1,0 +1,67 @@
+<app-public-header />
+
+<main class="pricing-page">
+  <section class="pricing-hero page-container">
+    <p class="section-number">PLANO ÚNICO</p>
+    <div>
+      <h1>Marcações online.<br />Beta gratuita.</h1>
+      <p>
+        Acesso sem cobrança durante a validação do produto com os primeiros utilizadores.
+      </p>
+    </div>
+  </section>
+
+  <section class="plan-sheet page-container" aria-labelledby="plan-title">
+    <div class="plan-summary">
+      <span class="trial-label">ACESSO BETA</span>
+      <h2 id="plan-title">Marcações</h2>
+      <p>Para barbeiros independentes e equipas pequenas.</p>
+      <div class="price"><strong>0 €</strong><span>durante a beta</span></div>
+      <a class="button button-primary button-large" routerLink="/register">
+        Criar conta
+        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+      </a>
+      <p class="price-note">Sem cartão e sem cobrança nesta fase.</p>
+    </div>
+
+    <div class="plan-includes">
+      <p class="plan-list-title">INCLUÍDO NO PLANO</p>
+      <ul class="feature-list">
+        <li>
+          <svg lucideCheck [size]="18" aria-hidden="true"></svg
+          ><span>Página pública com o nome e o link da sua barbearia</span>
+        </li>
+        <li>
+          <svg lucideCheck [size]="18" aria-hidden="true"></svg
+          ><span>Serviços com preço e duração configuráveis</span>
+        </li>
+        <li>
+          <svg lucideCheck [size]="18" aria-hidden="true"></svg
+          ><span>Horários de trabalho e disponibilidade</span>
+        </li>
+        <li>
+          <svg lucideCheck [size]="18" aria-hidden="true"></svg
+          ><span>Agenda central para consultar as marcações</span>
+        </li>
+        <li>
+          <svg lucideCheck [size]="18" aria-hidden="true"></svg
+          ><span>Conta de administrador protegida</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="billing-note">
+    <div class="page-container billing-note-layout">
+      <p class="section-number">NOTA DO MVP</p>
+      <div>
+        <h2>Sem pagamentos nesta fase.</h2>
+        <p>
+          Nesta fase pode percorrer o registo e testar a plataforma sem introduzir dados de
+          pagamento. Os preços comerciais só serão apresentados quando a subscrição estiver
+          integrada e testada.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
