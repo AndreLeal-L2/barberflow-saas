@@ -136,6 +136,7 @@ public class SecurityConfig {
         serializer.setUseHttpOnlyCookie(true);
         serializer.setUseSecureCookie(secure);
         serializer.setSameSite("Lax");
+        serializer.setUseBase64Encoding(false);
         return serializer;
     }
 
