@@ -3,7 +3,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LucideCalendarCheck, LucideCheck, LucideClock, LucideMapPin } from '@lucide/angular';
+import {
+  LucideCalendarCheck,
+  LucideCalendarDays,
+  LucideCheck,
+  LucideClock,
+  LucideMapPin,
+} from '@lucide/angular';
 import { finalize, forkJoin } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
@@ -19,6 +25,7 @@ import {
   imports: [
     CurrencyPipe,
     LucideCalendarCheck,
+    LucideCalendarDays,
     LucideCheck,
     LucideClock,
     LucideMapPin,
@@ -33,6 +40,7 @@ export class PublicBooking implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly slug = this.route.snapshot.paramMap.get('slug') ?? '';
+  private slotRequestId = 0;
 
   readonly shop = signal<PublicBarbershop | null>(null);
   readonly services = signal<CatalogService[]>([]);
@@ -49,6 +57,7 @@ export class PublicBooking implements OnInit {
 
   readonly today = this.toDateInput(new Date());
   readonly maxDate = this.toDateInput(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
+  readonly quickDates = this.buildQuickDates();
   readonly form = this.formBuilder.group({
     customerName: ['', [Validators.required, Validators.maxLength(120)]],
     customerPhone: ['', [Validators.required, Validators.maxLength(30)]],
@@ -88,6 +97,14 @@ export class PublicBooking implements OnInit {
 
   chooseDate(event: Event): void {
     const date = (event.target as HTMLInputElement).value;
+    this.selectDate(date);
+  }
+
+  selectDate(date: string): void {
+    if (!date || date === this.selectedDate()) {
+      return;
+    }
+
     this.selectedDate.set(date);
     this.selectedSlot.set(null);
     this.slots.set([]);
@@ -134,6 +151,10 @@ export class PublicBooking implements OnInit {
     this.selectedDate.set('');
     this.selectedSlot.set(null);
     this.slots.set([]);
+    this.slotRequestId += 1;
+    this.loadingSlots.set(false);
+    this.slotError.set(null);
+    this.error.set(null);
     this.form.reset({ customerName: '', customerPhone: '', customerEmail: '' });
   }
 
@@ -160,14 +181,53 @@ export class PublicBooking implements OnInit {
       return;
     }
 
+    const requestId = ++this.slotRequestId;
+    const serviceId = service.id;
     this.loadingSlots.set(true);
     this.api
       .getAvailableSlots(this.slug, service.id, date)
-      .pipe(finalize(() => this.loadingSlots.set(false)))
+      .pipe(
+        finalize(() => {
+          if (requestId === this.slotRequestId) {
+            this.loadingSlots.set(false);
+          }
+        }),
+      )
       .subscribe({
-        next: (slots) => this.slots.set(slots),
-        error: () => this.slotError.set('Não foi possível consultar os horários.'),
+        next: (slots) => {
+          if (requestId === this.slotRequestId) {
+            this.slots.set(slots);
+          }
+        },
+        error: () => {
+          if (requestId === this.slotRequestId && this.selectedService()?.id === serviceId) {
+            this.slotError.set('Não foi possível consultar os horários.');
+          }
+        },
       });
+  }
+
+  private buildQuickDates(): ReadonlyArray<{
+    value: string;
+    weekday: string;
+    day: string;
+    month: string;
+  }> {
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() + index);
+
+      return {
+        value: this.toDateInput(date),
+        weekday:
+          index === 0
+            ? 'Hoje'
+            : new Intl.DateTimeFormat('pt-PT', { weekday: 'short' }).format(date).replace('.', ''),
+        day: new Intl.DateTimeFormat('pt-PT', { day: '2-digit' }).format(date),
+        month: new Intl.DateTimeFormat('pt-PT', { month: 'short' }).format(date).replace('.', ''),
+      };
+    });
   }
 
   private toDateInput(date: Date): string {

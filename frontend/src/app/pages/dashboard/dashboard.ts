@@ -15,6 +15,7 @@ import {
   LucideCircleCheck,
   LucideCopy,
   LucideExternalLink,
+  LucideGlobe2,
 } from '@lucide/angular';
 import { finalize, forkJoin } from 'rxjs';
 import { BookingApiService } from '../../core/booking-api.service';
@@ -31,6 +32,7 @@ import { Booking, DashboardAnalytics, DashboardBarbershop } from '../../core/boo
     LucideCircleCheck,
     LucideCopy,
     LucideExternalLink,
+    LucideGlobe2,
     RouterLink,
   ],
   templateUrl: './dashboard.html',
@@ -60,7 +62,7 @@ export class Dashboard implements OnInit {
         (booking) =>
           booking.status === 'CONFIRMED' && new Date(booking.startAt).getTime() >= Date.now(),
       )
-      .slice(0, 3),
+      .slice(0, 5),
   );
 
   readonly activityDays = computed(() => {

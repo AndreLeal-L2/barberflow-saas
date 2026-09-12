@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import {
   LucideCalendarDays,
   LucideClock,
+  LucideExternalLink,
   LucideLayoutDashboard,
   LucideLogOut,
   LucideMailCheck,
@@ -17,6 +18,7 @@ import { AuthService } from '../../core/auth.service';
   imports: [
     LucideCalendarDays,
     LucideClock,
+    LucideExternalLink,
     LucideLayoutDashboard,
     LucideLogOut,
     LucideMailCheck,

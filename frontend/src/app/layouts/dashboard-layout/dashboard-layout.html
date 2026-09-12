@@ -54,11 +54,17 @@
 
   <section class="dashboard-main">
     <header class="dashboard-topbar">
-      <div>
+      <div class="topbar-context">
+        <span>BARBEARIA</span>
         <strong>{{ user()?.barbershop?.name }}</strong>
-        <span>Painel de gestão</span>
       </div>
-      <span class="status-badge status-trial">Período experimental</span>
+      <div class="topbar-actions">
+        <a class="topbar-public-link" routerLink="/dashboard/profile">
+          Gerir página
+          <svg lucideExternalLink [size]="15" aria-hidden="true"></svg>
+        </a>
+        <span class="status-badge status-trial">Período experimental</span>
+      </div>
     </header>
 
     @if (logoutError()) {
@@ -70,7 +76,9 @@
         <svg lucideMailCheck [size]="20" aria-hidden="true"></svg>
         <div>
           <strong>Confirme o e-mail de administrador</strong>
-          <span>{{ verificationMessage() || 'É necessário para publicar a página em produção.' }}</span>
+          <span>{{
+            verificationMessage() || 'É necessário para publicar a página em produção.'
+          }}</span>
         </div>
         <button
           class="button button-secondary button-small"

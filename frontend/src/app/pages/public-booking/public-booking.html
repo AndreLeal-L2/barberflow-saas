@@ -1,10 +1,10 @@
 <main class="public-booking-page">
   <header class="booking-public-header">
-    <a class="brand" href="/" aria-label="BarberFlow — página inicial">
+    <a class="brand" href="/" aria-label="BarberFlow, página inicial">
       <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="brand-name">BarberFlow</span>
     </a>
-    <span>Marcações online</span>
+    <span>Marcação online</span>
   </header>
 
   @if (loading()) {
@@ -20,17 +20,17 @@
         {{ currentShop.name.slice(0, 1).toUpperCase() }}
       </div>
       <div>
-        <p class="section-label">MARCAÇÃO ONLINE</p>
+        <p class="section-label">AGENDA ONLINE</p>
         <h1>{{ currentShop.name }}</h1>
         @if (currentShop.description) {
           <p>{{ currentShop.description }}</p>
         }
         <div class="shop-contact-row">
           @if (currentShop.address) {
-            <span
-              ><svg lucideMapPin [size]="16" aria-hidden="true"></svg
-              >{{ currentShop.address }}</span
-            >
+            <span>
+              <svg lucideMapPin [size]="16" aria-hidden="true"></svg>
+              {{ currentShop.address }}
+            </span>
           }
           <a [href]="'tel:' + currentShop.phone">{{ currentShop.phone }}</a>
         </div>
@@ -39,12 +39,12 @@
 
     @if (confirmation(); as booking) {
       <section class="booking-confirmation">
-        <span class="confirmation-icon"
-          ><svg lucideCheck [size]="30" aria-hidden="true"></svg
-        ></span>
+        <span class="confirmation-icon">
+          <svg lucideCheck [size]="30" aria-hidden="true"></svg>
+        </span>
         <p class="section-label">MARCAÇÃO CONFIRMADA</p>
         <h2>Até breve, {{ booking.customerName }}.</h2>
-        <p>A sua marcação foi registada na agenda de {{ currentShop.name }}.</p>
+        <p>A sua marcação ficou registada na agenda de {{ currentShop.name }}.</p>
         <dl class="confirmation-details">
           <div>
             <dt>Serviço</dt>
@@ -64,126 +64,222 @@
         </button>
       </section>
     } @else {
-      <form class="booking-flow" [formGroup]="form" (ngSubmit)="submit()">
-        <section class="booking-step">
-          <header>
-            <span>1</span>
-            <div>
-              <h2>Escolha o serviço</h2>
-              <p>Selecione o que pretende marcar.</p>
-            </div>
-          </header>
-          <div class="public-service-list">
-            @for (service of services(); track service.id) {
-              <button
-                class="public-service-option"
-                type="button"
-                [class.selected]="selectedService()?.id === service.id"
-                (click)="selectService(service)"
-              >
-                <span class="service-option-copy">
-                  <strong>{{ service.name }}</strong>
-                  @if (service.description) {
-                    <small>{{ service.description }}</small>
-                  }
-                  <small
-                    ><svg lucideClock [size]="15" aria-hidden="true"></svg
-                    >{{ service.durationMinutes }} min</small
-                  >
-                </span>
-                <span class="service-option-price">{{
-                  service.priceAmount | currency: service.priceCurrency
-                }}</span>
-              </button>
-            } @empty {
-              <p class="inline-empty">Ainda não existem serviços disponíveis.</p>
+      <ol class="booking-progress" aria-label="Progresso da marcação">
+        <li class="active" [class.complete]="selectedService()">
+          <span>
+            @if (selectedService()) {
+              <svg lucideCheck [size]="14" aria-hidden="true"></svg>
+            } @else {
+              1
             }
-          </div>
-        </section>
+          </span>
+          <strong>Serviço</strong>
+        </li>
+        <li [class.active]="selectedService()" [class.complete]="selectedSlot()">
+          <span>
+            @if (selectedSlot()) {
+              <svg lucideCheck [size]="14" aria-hidden="true"></svg>
+            } @else {
+              2
+            }
+          </span>
+          <strong>Horário</strong>
+        </li>
+        <li [class.active]="selectedSlot()">
+          <span>3</span>
+          <strong>Dados</strong>
+        </li>
+      </ol>
 
-        <section class="booking-step" [class.step-disabled]="!selectedService()">
-          <header>
-            <span>2</span>
-            <div>
-              <h2>Escolha o horário</h2>
-              <p>Consulte a disponibilidade para o dia pretendido.</p>
-            </div>
-          </header>
-          <label class="public-date-field">
-            <span>Data</span>
-            <input
-              type="date"
-              [min]="today"
-              [max]="maxDate"
-              [value]="selectedDate()"
-              [disabled]="!selectedService()"
-              (change)="chooseDate($event)"
-            />
-          </label>
-
-          @if (selectedDate()) {
-            <p class="selected-date-label">{{ dateLabel(selectedDate()) }}</p>
-          }
-          @if (loadingSlots()) {
-            <div class="slots-loading">A consultar a agenda...</div>
-          } @else if (slotError()) {
-            <div class="form-alert" role="alert">{{ slotError() }}</div>
-          } @else if (selectedDate() && slots().length === 0) {
-            <p class="inline-empty">Não existem horários livres neste dia.</p>
-          } @else if (slots().length > 0) {
-            <div class="slot-grid" aria-label="Horários disponíveis">
-              @for (slot of slots(); track slot.startAt) {
+      <div class="booking-workspace">
+        <form
+          id="booking-form"
+          class="booking-flow"
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+        >
+          <section class="booking-step">
+            <header>
+              <span>1</span>
+              <div>
+                <h2>Escolha o serviço</h2>
+                <p>Duração e preço definidos pela barbearia.</p>
+              </div>
+            </header>
+            <div class="public-service-list">
+              @for (service of services(); track service.id) {
                 <button
+                  class="public-service-option"
                   type="button"
-                  [class.selected]="selectedSlot()?.startAt === slot.startAt"
-                  (click)="selectSlot(slot)"
+                  [class.selected]="selectedService()?.id === service.id"
+                  (click)="selectService(service)"
                 >
-                  {{ timeLabel(slot.startAt) }}
+                  <span class="service-selection" aria-hidden="true">
+                    @if (selectedService()?.id === service.id) {
+                      <svg lucideCheck [size]="15"></svg>
+                    }
+                  </span>
+                  <span class="service-option-copy">
+                    <strong>{{ service.name }}</strong>
+                    @if (service.description) {
+                      <small>{{ service.description }}</small>
+                    }
+                    <small>
+                      <svg lucideClock [size]="15" aria-hidden="true"></svg>
+                      {{ service.durationMinutes }} min
+                    </small>
+                  </span>
+                  <span class="service-option-price">
+                    {{ service.priceAmount | currency: service.priceCurrency }}
+                  </span>
                 </button>
+              } @empty {
+                <p class="inline-empty">Ainda não existem serviços disponíveis.</p>
               }
             </div>
-          }
-        </section>
+          </section>
 
-        <section class="booking-step" [class.step-disabled]="!selectedSlot()">
-          <header>
-            <span>3</span>
-            <div>
-              <h2>Os seus dados</h2>
-              <p>Usamos estes dados apenas para identificar a marcação.</p>
+          <section class="booking-step" [class.step-disabled]="!selectedService()">
+            <header>
+              <span>2</span>
+              <div>
+                <h2>Escolha o dia e a hora</h2>
+                <p>Mostramos apenas os horários que continuam livres.</p>
+              </div>
+            </header>
+            <div class="date-and-slots">
+              <div class="quick-date-list" aria-label="Próximos dias">
+                @for (date of quickDates; track date.value) {
+                  <button
+                    type="button"
+                    [class.selected]="selectedDate() === date.value"
+                    [disabled]="!selectedService()"
+                    (click)="selectDate(date.value)"
+                  >
+                    <span>{{ date.weekday }}</span>
+                    <strong>{{ date.day }}</strong>
+                    <small>{{ date.month }}</small>
+                  </button>
+                }
+              </div>
+
+              <label class="public-date-field">
+                <span>
+                  <svg lucideCalendarDays [size]="15" aria-hidden="true"></svg>
+                  Outra data
+                </span>
+                <input
+                  type="date"
+                  [min]="today"
+                  [max]="maxDate"
+                  [value]="selectedDate()"
+                  [disabled]="!selectedService()"
+                  (change)="chooseDate($event)"
+                />
+              </label>
+
+              @if (selectedDate()) {
+                <p class="selected-date-label">{{ dateLabel(selectedDate()) }}</p>
+              }
+              @if (loadingSlots()) {
+                <div class="slots-loading">A consultar a agenda...</div>
+              } @else if (slotError()) {
+                <div class="form-alert" role="alert">{{ slotError() }}</div>
+              } @else if (selectedDate() && slots().length === 0) {
+                <p class="inline-empty">Não existem horários livres neste dia.</p>
+              } @else if (slots().length > 0) {
+                <div class="slot-grid" aria-label="Horários disponíveis">
+                  @for (slot of slots(); track slot.startAt) {
+                    <button
+                      type="button"
+                      [class.selected]="selectedSlot()?.startAt === slot.startAt"
+                      (click)="selectSlot(slot)"
+                    >
+                      {{ timeLabel(slot.startAt) }}
+                    </button>
+                  }
+                </div>
+              }
             </div>
-          </header>
-          <div class="customer-fields">
-            <label class="field">
-              <span>Nome</span>
-              <input formControlName="customerName" type="text" autocomplete="name" />
-            </label>
-            <label class="field">
-              <span>Telefone</span>
-              <input formControlName="customerPhone" type="tel" autocomplete="tel" />
-            </label>
-            <label class="field customer-email-field">
-              <span>Email <small>opcional</small></span>
-              <input formControlName="customerEmail" type="email" autocomplete="email" />
-            </label>
-          </div>
-          @if (error()) {
-            <div class="form-alert" role="alert">{{ error() }}</div>
+          </section>
+
+          <section class="booking-step" [class.step-disabled]="!selectedSlot()">
+            <header>
+              <span>3</span>
+              <div>
+                <h2>Os seus dados</h2>
+                <p>Para identificar a marcação e entrar em contacto consigo.</p>
+              </div>
+            </header>
+            <div class="booking-customer-form">
+              <div class="customer-fields">
+                <label class="field">
+                  <span>Nome</span>
+                  <input formControlName="customerName" type="text" autocomplete="name" />
+                  @if (form.controls.customerName.touched && form.controls.customerName.invalid) {
+                    <small class="field-error">Introduza o seu nome.</small>
+                  }
+                </label>
+                <label class="field">
+                  <span>Telefone</span>
+                  <input formControlName="customerPhone" type="tel" autocomplete="tel" />
+                  @if (form.controls.customerPhone.touched && form.controls.customerPhone.invalid) {
+                    <small class="field-error">Introduza o seu telefone.</small>
+                  }
+                </label>
+                <label class="field customer-email-field">
+                  <span>Email <small>opcional</small></span>
+                  <input formControlName="customerEmail" type="email" autocomplete="email" />
+                  @if (form.controls.customerEmail.touched && form.controls.customerEmail.invalid) {
+                    <small class="field-error">Introduza um email válido.</small>
+                  }
+                </label>
+              </div>
+              @if (error()) {
+                <div class="form-alert" role="alert">{{ error() }}</div>
+              }
+              <p class="booking-privacy-note">
+                Ao confirmar, os dados são tratados para gerir esta marcação.
+                <a routerLink="/privacy" target="_blank" rel="noopener">Privacidade</a>
+              </p>
+              <button
+                class="button button-primary booking-submit"
+                type="submit"
+                [disabled]="!canSubmit() || submitting()"
+              >
+                <svg lucideCalendarCheck [size]="18" aria-hidden="true"></svg>
+                {{ submitting() ? 'A confirmar...' : 'Confirmar marcação' }}
+              </button>
+            </div>
+          </section>
+        </form>
+
+        <aside class="booking-summary" aria-live="polite">
+          <p class="section-label">RESUMO</p>
+          <h2>A sua marcação</h2>
+          <dl>
+            <div>
+              <dt>Serviço</dt>
+              <dd>{{ selectedService()?.name || 'Por escolher' }}</dd>
+            </div>
+            <div>
+              <dt>Data</dt>
+              <dd>{{ selectedDate() ? dateLabel(selectedDate()) : 'Por escolher' }}</dd>
+            </div>
+            <div>
+              <dt>Hora</dt>
+              <dd>{{ selectedSlot() ? timeLabel(selectedSlot()!.startAt) : 'Por escolher' }}</dd>
+            </div>
+          </dl>
+          @if (selectedService(); as service) {
+            <div class="booking-summary-total">
+              <span>Total</span>
+              <strong>{{ service.priceAmount | currency: service.priceCurrency }}</strong>
+            </div>
           }
-          <p class="booking-privacy-note">
-            Ao confirmar, os dados são tratados para gerir esta marcação.
-            <a routerLink="/privacy" target="_blank" rel="noopener">Privacidade</a>
-          </p>
-          <button
-            class="button button-primary booking-submit"
-            type="submit"
-            [disabled]="!canSubmit() || submitting()"
-          >
-            <svg lucideCalendarCheck [size]="18" aria-hidden="true"></svg>
-            {{ submitting() ? 'A confirmar...' : 'Confirmar marcação' }}
-          </button>
-        </section>
-      </form>
+        </aside>
+      </div>
     }
   }
 </main>
