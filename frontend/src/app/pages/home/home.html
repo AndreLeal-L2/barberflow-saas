@@ -3,41 +3,50 @@
 <main>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-content page-container">
-      <p class="hero-kicker">Software de marcações para barbearias</p>
+      <div class="hero-overline">
+        <p class="hero-kicker">Software de marcações para barbearias</p>
+        <span>AGENDA / 01</span>
+      </div>
+
       <h1 id="hero-title">BarberFlow</h1>
-      <p class="hero-statement">A sua agenda continua aberta enquanto está a trabalhar.</p>
-      <p class="hero-copy">
-        Os clientes escolhem o serviço, veem os horários livres e confirmam a marcação através do
-        seu próprio link.
-      </p>
-      <div class="hero-actions">
-        <a class="button button-primary button-large" routerLink="/register">
-          Começar gratuitamente
-          <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
-        </a>
-        <a class="hero-text-link" href="#produto">Conhecer a agenda</a>
+
+      <div class="hero-bottom">
+        <p class="hero-statement">Enquanto corta, a agenda trabalha.</p>
+        <div class="hero-details">
+          <p class="hero-copy">
+            Um link próprio para os clientes escolherem o serviço, encontrarem um horário livre e
+            confirmarem a marcação.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary button-large" routerLink="/register">
+              Começar grátis
+              <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+            </a>
+            <a class="hero-text-link" href="#produto">Ver o produto</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="produto" class="product-section" aria-labelledby="product-title">
     <div class="page-container product-intro">
-      <p class="section-number">A AGENDA</p>
+      <p class="section-number">O PRODUTO / 02</p>
       <div>
-        <h2 id="product-title">Menos mensagens. Mais tempo para cada cliente.</h2>
+        <h2 id="product-title">A sua agenda, sempre a trabalhar.</h2>
         <p>
-          O BarberFlow reúne serviços, disponibilidade e marcações num painel simples. O cliente
-          reserva sozinho e o barbeiro mantém o controlo da agenda.
+          Serviços, horários e marcações ficam no mesmo lugar. O cliente reserva sozinho e cada novo
+          atendimento aparece diretamente no seu painel.
         </p>
       </div>
     </div>
 
     <div class="page-container product-layout">
-      <div class="schedule-preview" aria-label="Exemplo de agenda diária">
+      <div class="schedule-preview" aria-label="Demonstração da agenda diária BarberFlow">
         <div class="preview-toolbar">
           <div>
-            <span>AGENDA</span>
-            <strong>Hoje</strong>
+            <span>BARBERFLOW / AGENDA</span>
+            <strong>Quinta-feira, 17</strong>
           </div>
           <span class="preview-count">3 marcações</span>
         </div>
@@ -84,22 +93,22 @@
         <li>
           <span>01</span>
           <div>
-            <strong>Defina o que faz</strong>
-            <p>Adicione os serviços, preços e duração de cada marcação.</p>
+            <strong>Agenda online</strong>
+            <p>Consulte num só lugar quem marcou, o serviço escolhido e a hora de cada cliente.</p>
           </div>
         </li>
         <li>
           <span>02</span>
           <div>
-            <strong>Abra os horários</strong>
-            <p>Escolha os dias de trabalho e os intervalos disponíveis.</p>
+            <strong>Horários sob controlo</strong>
+            <p>Defina os dias de trabalho e os intervalos que podem receber marcações.</p>
           </div>
         </li>
         <li>
           <span>03</span>
           <div>
-            <strong>Partilhe o link</strong>
-            <p>Coloque-o no Instagram, WhatsApp ou perfil do Google.</p>
+            <strong>Um link que é seu</strong>
+            <p>Partilhe a página da barbearia no Instagram, WhatsApp ou perfil do Google.</p>
           </div>
         </li>
       </ol>
@@ -108,11 +117,9 @@
 
   <section class="decision-section" aria-labelledby="decision-title">
     <div class="page-container decision-layout">
-      <p class="section-number">FEITO PARA BARBEARIAS</p>
+      <p class="section-number">COMEÇAR / 03</p>
       <div>
-        <h2 id="decision-title">
-          Uma ferramenta direta para quem não quer passar o dia a gerir mensagens.
-        </h2>
+        <h2 id="decision-title">Menos conversa sobre horários. Mais tempo para o próximo corte.</h2>
         <div class="decision-footer">
           <p>Configure os serviços, abra os horários e partilhe o seu link.</p>
           <a class="button button-light button-large" routerLink="/register"
