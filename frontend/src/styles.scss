@@ -1,13 +1,13 @@
 :root {
-  --ink: #171b19;
-  --ink-soft: #58615d;
+  --ink: #101311;
+  --ink-soft: #56605b;
   --paper: #ffffff;
-  --canvas: #f3f5f4;
-  --canvas-strong: #e8ecea;
-  --line: #d4dad7;
-  --line-dark: #3a423e;
-  --brand: #21684f;
-  --brand-dark: #134735;
+  --canvas: #f0f1ef;
+  --canvas-strong: #e4e7e4;
+  --line: #ced4d0;
+  --line-dark: #393f3b;
+  --brand: #247a58;
+  --brand-dark: #16543c;
   --brand-soft: #e1eee9;
   --accent-red: #bd4037;
   --accent-blue: #315f86;
@@ -153,8 +153,13 @@ h3 {
   min-height: 72px;
   align-items: center;
   padding: 0 max(32px, calc((100% - 1200px) / 2));
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
+  color: var(--paper);
+  border-bottom: 1px solid #303431;
+  background: #0b0d0c;
+}
+
+.public-header .brand-stripes i:nth-child(2) {
+  background: #f2f3f2;
 }
 
 .public-nav,
@@ -167,7 +172,7 @@ h3 {
 .public-nav {
   height: 72px;
   gap: 32px;
-  color: var(--ink-soft);
+  color: #aeb7b2;
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -181,8 +186,8 @@ h3 {
 
 .public-nav a:hover,
 .public-nav a.active {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
+  color: var(--paper);
+  border-bottom-color: var(--brand);
 }
 
 .header-actions {
@@ -191,7 +196,7 @@ h3 {
 }
 
 .text-link {
-  color: var(--ink-soft);
+  color: #d9ddda;
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -297,19 +302,19 @@ textarea:focus-visible {
 .hero {
   position: relative;
   display: flex;
-  min-height: min(680px, calc(100svh - 106px));
-  align-items: center;
+  min-height: min(680px, calc(100svh - 92px));
+  align-items: stretch;
   overflow: hidden;
   color: var(--paper);
   background-image: url('/images/barber-working.jpg');
-  background-position: center 42%;
+  background-position: center 40%;
   background-size: cover;
 }
 
 .hero::before {
   position: absolute;
   inset: 0;
-  background: rgba(8, 12, 10, 0.67);
+  background: rgba(6, 8, 7, 0.54);
   content: '';
 }
 
@@ -324,39 +329,66 @@ textarea:focus-visible {
 .hero-content {
   position: relative;
   z-index: 1;
-  padding-block: 72px 82px;
+  display: flex;
+  min-height: min(680px, calc(100svh - 92px));
+  flex-direction: column;
+  padding-block: 42px 48px;
 }
 
-.hero-kicker {
-  margin-bottom: 20px;
-  color: #d9e4df;
-}
-
-.hero h1 {
-  margin-bottom: 18px;
-  font-size: 5rem;
+.hero-overline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.68rem;
   font-weight: 800;
 }
 
+.hero-kicker {
+  margin-bottom: 0;
+  color: inherit;
+}
+
+.hero h1 {
+  margin: 56px 0 auto;
+  font-size: 7.5rem;
+  font-weight: 900;
+  line-height: 0.88;
+}
+
+.hero-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.6fr);
+  gap: 72px;
+  align-items: end;
+}
+
 .hero-statement {
-  max-width: 760px;
-  margin-bottom: 20px;
-  font-size: 2.25rem;
-  font-weight: 700;
-  line-height: 1.16;
+  max-width: 720px;
+  margin-bottom: 0;
+  font-size: 3.15rem;
+  font-weight: 850;
+  line-height: 1.02;
+}
+
+.hero-details {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.42);
 }
 
 .hero-copy {
-  max-width: 610px;
-  margin-bottom: 32px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 1.03rem;
-  line-height: 1.65;
+  max-width: 470px;
+  margin-bottom: 24px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.96rem;
+  line-height: 1.6;
 }
 
 .hero-actions {
-  flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
 }
 
 .hero-text-link {
@@ -392,7 +424,8 @@ textarea:focus-visible {
 }
 
 .product-section {
-  padding: 104px 0 116px;
+  padding: 116px 0 124px;
+  background: var(--canvas);
 }
 
 .product-intro,
@@ -406,14 +439,17 @@ textarea:focus-visible {
 
 .product-intro {
   align-items: start;
-  margin-bottom: 68px;
+  margin-bottom: 82px;
 }
 
 .product-intro h2,
 .decision-layout h2 {
-  max-width: 860px;
-  margin-bottom: 22px;
-  font-size: 3.05rem;
+  max-width: 960px;
+  margin-bottom: 28px;
+  font-size: 4.35rem;
+  font-weight: 900;
+  line-height: 0.98;
+  text-transform: uppercase;
 }
 
 .product-intro > div > p {
@@ -427,14 +463,16 @@ textarea:focus-visible {
 .product-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.78fr);
-  gap: 76px;
+  gap: 88px;
   align-items: center;
 }
 
 .schedule-preview {
-  border: 1px solid var(--line);
-  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #bcc4bf;
+  border-radius: 0;
   background: var(--paper);
+  box-shadow: 20px 20px 0 #dfe3e0;
 }
 
 .preview-toolbar {
@@ -445,7 +483,7 @@ textarea:focus-visible {
   gap: 20px;
   padding: 16px 24px;
   color: var(--paper);
-  background: var(--ink);
+  background: #0b0d0c;
 }
 
 .preview-toolbar > div {
@@ -542,34 +580,34 @@ textarea:focus-visible {
 .workflow-list li {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
-  gap: 16px;
-  padding: 25px 0;
+  gap: 22px;
+  padding: 31px 0;
   border-bottom: 1px solid var(--line);
 }
 
 .workflow-list li > span {
   color: var(--brand);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 800;
 }
 
 .workflow-list strong {
   display: block;
   margin-bottom: 7px;
-  font-size: 1rem;
+  font-size: 1.35rem;
 }
 
 .workflow-list p {
   margin-bottom: 0;
   color: var(--ink-soft);
-  font-size: 0.87rem;
+  font-size: 0.91rem;
   line-height: 1.6;
 }
 
 .decision-section {
-  padding: 88px 0 94px;
+  padding: 106px 0 112px;
   color: var(--paper);
-  background: var(--ink);
+  background: #0b0d0c;
   border-top: 5px solid var(--accent-blue);
 }
 
@@ -578,8 +616,8 @@ textarea:focus-visible {
 }
 
 .decision-layout h2 {
-  max-width: 920px;
-  margin-bottom: 40px;
+  max-width: 980px;
+  margin-bottom: 52px;
 }
 
 .decision-footer {
@@ -700,6 +738,7 @@ textarea:focus-visible {
 
 .pricing-page {
   min-height: calc(100vh - 72px);
+  background: var(--canvas);
 }
 
 .pricing-hero {
@@ -710,7 +749,10 @@ textarea:focus-visible {
 .pricing-hero h1 {
   max-width: 800px;
   margin-bottom: 22px;
-  font-size: 3.8rem;
+  font-size: 4.35rem;
+  font-weight: 900;
+  line-height: 0.98;
+  text-transform: uppercase;
 }
 
 .pricing-hero > div > p {
@@ -726,6 +768,7 @@ textarea:focus-visible {
   grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.18fr);
   border-top: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
+  background: var(--paper);
 }
 
 .plan-summary,
@@ -813,7 +856,7 @@ textarea:focus-visible {
 .billing-note {
   margin-top: 96px;
   padding: 70px 0 76px;
-  background: var(--canvas);
+  background: var(--paper);
   border-top: 1px solid var(--line);
 }
 
@@ -2539,14 +2582,20 @@ textarea:focus-visible {
   justify-content: space-between;
   gap: 20px;
   padding: 0 max(24px, calc((100% - 920px) / 2));
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
+  color: var(--paper);
+  border-bottom: 1px solid #303431;
+  background: #0b0d0c;
 }
 
 .booking-public-header > span {
-  color: var(--ink-soft);
+  color: #aeb7b2;
   font-size: 0.75rem;
   font-weight: 700;
+  text-transform: uppercase;
+}
+
+.booking-public-header .brand-stripes i:nth-child(2) {
+  background: #f2f3f2;
 }
 
 .public-loading,
@@ -2869,6 +2918,18 @@ textarea:focus-visible {
 }
 
 @media (max-width: 1040px) {
+  .hero h1 {
+    font-size: 6.2rem;
+  }
+
+  .hero-bottom {
+    gap: 44px;
+  }
+
+  .hero-statement {
+    font-size: 2.7rem;
+  }
+
   .product-layout {
     gap: 40px;
   }
@@ -2911,23 +2972,31 @@ textarea:focus-visible {
   }
 
   .hero {
-    min-height: 650px;
+    min-height: 660px;
     background-position: 59% center;
   }
 
   .hero-content {
-    padding-block: 72px 100px;
+    min-height: 660px;
+    padding-block: 34px 38px;
   }
 
   .hero h1 {
-    font-size: 3.7rem;
+    margin: 42px 0 auto;
+    font-size: 4.4rem;
+  }
+
+  .hero-bottom {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .hero-statement {
     max-width: 560px;
-    font-size: 1.85rem;
+    font-size: 2.25rem;
   }
 
+  .hero-details,
   .hero-copy {
     max-width: 520px;
   }
@@ -2955,7 +3024,7 @@ textarea:focus-visible {
 
   .product-intro h2,
   .decision-layout h2 {
-    font-size: 2.2rem;
+    font-size: 2.85rem;
   }
 
   .product-layout,
@@ -3175,15 +3244,25 @@ textarea:focus-visible {
   }
 
   .hero {
-    min-height: 620px;
+    min-height: 660px;
+  }
+
+  .hero-content {
+    min-height: 660px;
+    padding-block: 28px 30px;
+  }
+
+  .hero-overline > span {
+    display: none;
   }
 
   .hero h1 {
-    font-size: 3rem;
+    margin-top: 34px;
+    font-size: 3.55rem;
   }
 
   .hero-statement {
-    font-size: 1.55rem;
+    font-size: 2rem;
   }
 
   .hero-copy {
@@ -3206,7 +3285,11 @@ textarea:focus-visible {
 
   .product-intro h2,
   .decision-layout h2 {
-    font-size: 1.85rem;
+    font-size: 2.3rem;
+  }
+
+  .schedule-preview {
+    box-shadow: 10px 10px 0 #dfe3e0;
   }
 
   .appointment-row {
@@ -4152,25 +4235,20 @@ textarea:focus-visible {
 }
 
 .hero-content {
-  max-width: 920px;
+  max-width: 1200px;
 }
 
 .hero::before {
-  background: linear-gradient(
-    90deg,
-    rgba(8, 12, 10, 0.84),
-    rgba(8, 12, 10, 0.54) 62%,
-    rgba(8, 12, 10, 0.28)
-  );
+  background: rgba(6, 8, 7, 0.54);
 }
 
 .hero-statement {
-  max-width: 710px;
+  max-width: 720px;
 }
 
 .schedule-preview {
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 0;
 }
 
 @media (max-width: 1040px) {
