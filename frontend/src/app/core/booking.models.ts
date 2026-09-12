@@ -18,6 +18,29 @@ export interface DashboardBarbershop {
   canPublish: boolean;
 }
 
+export interface DashboardAnalytics {
+  asOfDate: string;
+  upcomingPeriodEnd: string;
+  bookingsToday: number;
+  upcomingBookings: number;
+  completedLast30Days: number;
+  cancelledLast30Days: number;
+  scheduledValue: number;
+  priceCurrency: string;
+  topUpcomingService: TopServiceMetric | null;
+  upcomingDailyBookings: DailyBookingMetric[];
+}
+
+export interface TopServiceMetric {
+  name: string;
+  bookingCount: number;
+}
+
+export interface DailyBookingMetric {
+  date: string;
+  bookingCount: number;
+}
+
 export interface BarbershopProfileRequest {
   publicDescription: string;
   publicAddress: string;

@@ -24,6 +24,7 @@ The working MVP includes:
 - Public booking link with service, date, time, and customer data selection
 - Availability calculation and concurrent booking conflict prevention
 - Authenticated agenda with upcoming bookings, history, cancellation, and completion
+- Operational dashboard analytics for daily workload, upcoming value, completions, and cancellations
 - Transactional email outbox with retry and SMTP delivery in production
 - Customer confirmation and self-service cancellation by one-time link
 - Scheduled anonymization of expired booking personal data

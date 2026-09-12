@@ -56,6 +56,8 @@ class AuthenticationFlowIntegrationTests {
 
         Cookie sessionCookie = registrationResult.getResponse().getCookie("BARBERFLOW_SESSION");
         assertThat(sessionCookie).isNotNull();
+        assertThat(sessionCookie.getValue())
+                .matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
         mockMvc.perform(get("/api/auth/me").cookie(sessionCookie))
                 .andExpect(status().isOk())
@@ -77,5 +79,13 @@ class AuthenticationFlowIntegrationTests {
 
         assertThat(result.getRequest().getSession(false)).isNull();
         assertThat(result.getResponse().getCookie("BARBERFLOW_SESSION")).isNull();
+    }
+
+    @Test
+    void shouldIgnoreMalformedSessionCookieWithoutFailingTheRequest() throws Exception {
+        mockMvc.perform(get("/api/auth/csrf")
+                        .cookie(new Cookie("BARBERFLOW_SESSION", "AAAA")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.headerName").value("X-XSRF-TOKEN"));
     }
 }

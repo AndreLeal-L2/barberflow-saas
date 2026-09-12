@@ -18,6 +18,26 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     Optional<Booking> findByIdAndBarbershopId(UUID bookingId, UUID barbershopId);
 
+    @Query("""
+            select new com.barberflow.booking.BookingAnalyticsEntry(
+                booking.startAt,
+                booking.serviceNameSnapshot,
+                booking.servicePriceSnapshot,
+                booking.priceCurrency,
+                booking.status
+            )
+            from Booking booking
+            where booking.barbershop.id = :barbershopId
+              and booking.startAt >= :rangeStart
+              and booking.startAt < :rangeEnd
+            order by booking.startAt asc
+            """)
+    List<BookingAnalyticsEntry> findAnalyticsEntries(
+            @Param("barbershopId") UUID barbershopId,
+            @Param("rangeStart") LocalDateTime rangeStart,
+            @Param("rangeEnd") LocalDateTime rangeEnd
+    );
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             select booking
