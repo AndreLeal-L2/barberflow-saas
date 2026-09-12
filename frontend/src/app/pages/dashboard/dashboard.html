@@ -64,6 +64,95 @@
       </div>
     </section>
 
+    @if (analytics(); as currentAnalytics) {
+      <section class="analytics-section" aria-labelledby="analytics-title">
+        <header class="analytics-heading">
+          <div>
+            <p class="section-label">ATIVIDADE</p>
+            <h2 id="analytics-title">Ritmo da agenda</h2>
+          </div>
+          <p>
+            Até {{ currentAnalytics.upcomingPeriodEnd | date: 'dd MMM yyyy' }} ·
+            {{ currentAnalytics.cancelledLast30Days }}
+            {{ currentAnalytics.cancelledLast30Days === 1 ? 'cancelada' : 'canceladas' }} nos
+            últimos 30 dias
+          </p>
+        </header>
+
+        <dl class="analytics-metrics">
+          <div>
+            <dt>Hoje</dt>
+            <dd>{{ currentAnalytics.bookingsToday }}</dd>
+            <span>{{ currentAnalytics.bookingsToday === 1 ? 'confirmada' : 'confirmadas' }}</span>
+          </div>
+          <div>
+            <dt>Próximos 30 dias</dt>
+            <dd>{{ currentAnalytics.upcomingBookings }}</dd>
+            <span>{{ currentAnalytics.upcomingBookings === 1 ? 'marcação' : 'marcações' }}</span>
+          </div>
+          <div>
+            <dt>Concluídas</dt>
+            <dd>{{ currentAnalytics.completedLast30Days }}</dd>
+            <span>nos últimos 30 dias</span>
+          </div>
+          <div>
+            <dt>Valor agendado</dt>
+            <dd>
+              {{
+                currentAnalytics.scheduledValue
+                  | currency: currentAnalytics.priceCurrency : 'symbol' : '1.2-2' : 'pt-PT'
+              }}
+            </dd>
+            <span>sem cancelamentos</span>
+          </div>
+        </dl>
+
+        <div class="activity-panel">
+          <div class="activity-summary">
+            <p class="section-label">PRÓXIMOS 14 DIAS</p>
+            <h3>Carga diária</h3>
+            @if (currentAnalytics.topUpcomingService; as topService) {
+              <p>
+                <strong>{{ topService.name }}</strong> é o serviço mais marcado no próximo mês, com
+                {{ topService.bookingCount }}
+                {{ topService.bookingCount === 1 ? 'marcação' : 'marcações' }}.
+              </p>
+            } @else {
+              <p>Os dados por serviço aparecem assim que entrar a primeira marcação.</p>
+            }
+          </div>
+
+          <ol class="activity-bars" aria-label="Marcações confirmadas por dia">
+            @for (day of activityDays(); track day.date) {
+              <li>
+                <span
+                  class="activity-bar-track"
+                  [attr.aria-label]="
+                    day.bookingCount +
+                    (day.bookingCount === 1 ? ' marcação em ' : ' marcações em ') +
+                    day.date
+                  "
+                >
+                  <strong>{{ day.bookingCount || '' }}</strong>
+                  <span
+                    class="activity-bar"
+                    [style.height.%]="day.height"
+                    [attr.title]="
+                      day.bookingCount +
+                      (day.bookingCount === 1 ? ' marcação em ' : ' marcações em ') +
+                      day.date
+                    "
+                  ></span>
+                </span>
+                <time [attr.datetime]="day.date">{{ day.date | date: 'dd' }}</time>
+                <small>{{ day.date | date: 'EEE' }}</small>
+              </li>
+            }
+          </ol>
+        </div>
+      </section>
+    }
+
     <div class="dashboard-workspace">
       <div class="workspace-primary">
         <section class="agenda-section">

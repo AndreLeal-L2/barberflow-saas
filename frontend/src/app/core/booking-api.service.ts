@@ -11,6 +11,7 @@ import {
   CatalogService,
   CreateBookingRequest,
   CreateBlockedTimeRequest,
+  DashboardAnalytics,
   DashboardBarbershop,
   BlockedTime,
   PublicBarbershop,
@@ -25,6 +26,10 @@ export class BookingApiService {
 
   getBarbershop(): Observable<DashboardBarbershop> {
     return this.http.get<DashboardBarbershop>('/api/dashboard/barbershop');
+  }
+
+  getDashboardAnalytics(): Observable<DashboardAnalytics> {
+    return this.http.get<DashboardAnalytics>('/api/dashboard/analytics');
   }
 
   updateProfile(request: BarbershopProfileRequest): Observable<DashboardBarbershop> {
