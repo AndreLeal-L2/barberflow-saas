@@ -269,6 +269,16 @@ class BookingFlowIntegrationTests {
                 .andReturn();
         bookingId = JsonPath.read(secondBookingResult.getResponse().getContentAsString(), "$.id");
 
+        mockMvc.perform(get("/api/dashboard/analytics").cookie(sessionCookie))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bookingsToday").value(0))
+                .andExpect(jsonPath("$.upcomingBookings").value(1))
+                .andExpect(jsonPath("$.scheduledValue").value(18.0))
+                .andExpect(jsonPath("$.priceCurrency").value("EUR"))
+                .andExpect(jsonPath("$.topUpcomingService.name").value("Corte clássico"))
+                .andExpect(jsonPath("$.topUpcomingService.bookingCount").value(1))
+                .andExpect(jsonPath("$.upcomingDailyBookings[1].bookingCount").value(1));
+
         mockMvc.perform(patch("/api/dashboard/bookings/{id}/status", bookingId)
                         .cookie(sessionCookie, csrfCookie)
                         .header("X-XSRF-TOKEN", csrfCookie.getValue())
