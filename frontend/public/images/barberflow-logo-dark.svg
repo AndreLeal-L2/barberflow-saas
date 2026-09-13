@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 88" role="img" aria-labelledby="title">
+  <title id="title">BarberFlow</title>
+  <defs>
+    <clipPath id="calendar-window">
+      <rect x="8" y="25" width="66" height="54" rx="5" />
+    </clipPath>
+  </defs>
+
+  <g fill="none" stroke="#f3f2ee" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="16" width="74" height="66" rx="10" stroke-width="6" />
+    <path d="M23 7v18M59 7v18" stroke-width="7" />
+  </g>
+
+  <g clip-path="url(#calendar-window)">
+    <path d="M6 51 34 23h16L6 67Z" fill="#702722" />
+    <path d="M6 67 50 23h16L12 77H6Z" fill="#f3f2ee" />
+    <path d="M12 77 66 23h16L28 77Z" fill="#1c3a50" />
+  </g>
+
+  <g fill="#f3f2ee">
+    <rect x="49" y="32" width="10" height="10" rx="2" />
+    <rect x="64" y="32" width="10" height="10" rx="2" />
+    <rect x="49" y="47" width="10" height="10" rx="2" />
+    <rect x="49" y="62" width="10" height="10" rx="2" />
+    <rect x="64" y="62" width="10" height="10" rx="2" />
+  </g>
+  <rect x="64" y="47" width="10" height="10" rx="2" fill="#3f966f" />
+
+  <text
+    x="96"
+    y="67"
+    fill="#f3f2ee"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="56"
+    font-weight="800"
+    letter-spacing="0"
+  >Barber</text>
+  <text
+    x="278"
+    y="67"
+    fill="#5f89a8"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="56"
+    font-weight="800"
+    letter-spacing="0"
+  >Flow</text>
+</svg>
