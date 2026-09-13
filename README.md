@@ -126,6 +126,10 @@ launch. Billing is intentionally simulated. Domain, TLS, SMTP, off-host backups,
 monitoring, provider agreements, and final operator details must be configured by
 the deployer. Follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) before accepting users.
 
+For the non-commercial portfolio deployment using an Angular service and a
+containerized Spring Boot service on Vercel with PostgreSQL on Supabase, follow
+[docs/DEPLOYMENT_VERCEL_SUPABASE.md](docs/DEPLOYMENT_VERCEL_SUPABASE.md).
+
 ## Git Workflow
 
 - `main` contains stable code

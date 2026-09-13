@@ -94,6 +94,8 @@ The first version should not include:
 - Docker
 - Docker Compose for local development
 - Separate frontend and backend applications
+- Vercel Services for the non-commercial portfolio deployment
+- Supabase hosted PostgreSQL for the non-commercial portfolio deployment
 
 ### Testing
 
@@ -121,6 +123,11 @@ PostgreSQL
 
 The frontend never accesses the database directly.
 All business rules, authorization checks, and data isolation rules are enforced by the backend.
+
+The portfolio deployment keeps the same boundaries: Vercel serves Angular as
+static files and routes `/api/*` to the Spring Boot container, while Spring Boot
+is the only application component allowed to access Supabase PostgreSQL. See
+[ADR-0002](docs/architecture-decisions/0002-vercel-supabase-portfolio-deployment.md).
 
 ## Repository Structure
 

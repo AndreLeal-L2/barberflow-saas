@@ -125,4 +125,8 @@ public class NotificationOutbox {
     public String getBody() {
         return body;
     }
+
+    boolean isDeliverableAt(Instant now) {
+        return status == NotificationStatus.PENDING && !nextAttemptAt.isAfter(now);
+    }
 }

@@ -29,12 +29,12 @@ public class NotificationDeliveryService {
 
     @Transactional
     public void deliver(UUID notificationId) {
-        NotificationOutbox notification = repository.findById(notificationId).orElse(null);
-        if (notification == null) {
+        NotificationOutbox notification = repository.findByIdForDelivery(notificationId).orElse(null);
+        Instant now = Instant.now(clock);
+        if (notification == null || !notification.isDeliverableAt(now)) {
             return;
         }
 
-        Instant now = Instant.now(clock);
         try {
             sender.send(notification);
             notification.markSent(now);
