@@ -2,7 +2,10 @@
 
 Multi-tenant booking SaaS for independent barbers and small barbershops. BarberFlow gives each business a public booking link and a private dashboard for managing its operation.
 
-The project is a full-stack Java portfolio application with a separated Angular frontend and Spring Boot REST API. Its engineering focus is secure browser authentication, tenant isolation, explicit database migrations, automated tests, and reproducible local environments.
+The project is a full-stack Java portfolio application with a separated Angular
+frontend and Spring Boot REST API. Its engineering focus is secure browser
+authentication, tenant isolation, explicit database migrations, automated tests,
+and reproducible local environments.
 
 ## Current Status
 
@@ -25,8 +28,8 @@ The working MVP includes:
 - Availability calculation and concurrent booking conflict prevention
 - Authenticated agenda with upcoming bookings, history, cancellation, and completion
 - Operational dashboard analytics for daily workload, upcoming value, completions, and cancellations
-- Transactional email outbox with retry and SMTP delivery in production
-- Customer confirmation and self-service cancellation by one-time link
+- Transactional email outbox with retries and SMTP or Resend delivery adapters
+- Customer confirmation, 24-hour and 3-hour reminders, and self-service cancellation
 - Scheduled anonymization of expired booking personal data
 - Simulated `TRIALING` subscription state
 - Beta privacy/terms pages with no real payment collection
@@ -37,7 +40,7 @@ The working MVP includes:
 
 - Java 21 and Spring Boot 4
 - Spring Security and Spring Data JPA
-- Spring Session JDBC and Spring Mail
+- Spring Session JDBC, Spring Mail, and the Resend HTTP API
 - PostgreSQL 17 and Flyway
 - Angular 22 and TypeScript
 - Docker and Docker Compose
@@ -97,7 +100,8 @@ The Angular development server proxies `/api` and `/actuator` to the backend at 
 4. Configure the weekly working hours and any exceptional blocked periods.
 5. Optionally complete the public profile and publish the booking page.
 6. Share the generated `/b/{slug}` link with clients.
-7. Clients book without an account and can cancel from their email link.
+7. Clients book without an account and, when they provide an email address,
+   receive confirmation, reminders, and a one-time cancellation link.
 8. The owner manages the booking from the private agenda.
 
 ## Repository Structure
@@ -119,12 +123,16 @@ barberflow-saas/
 
 The product architecture and roadmap are documented in [ARCHITECTURE.md](ARCHITECTURE.md). Important technical decisions are recorded as ADRs in [`docs/architecture-decisions`](docs/architecture-decisions).
 
-Authentication uses a server-side session identified by the `BARBERFLOW_SESSION` HttpOnly cookie. The frontend never stores credentials or access tokens in `localStorage` or `sessionStorage`. Mutating requests require a CSRF token, and production must enable secure cookies and HTTPS.
+Authentication uses a server-side session identified by the `BARBERFLOW_SESSION`
+HttpOnly cookie. The frontend never stores credentials or access tokens in
+`localStorage` or `sessionStorage`. Mutating requests require a CSRF token, and
+production must enable secure cookies and HTTPS.
 
 The repository is prepared for a controlled beta, not an unattended commercial
-launch. Billing is intentionally simulated. Domain, TLS, SMTP, off-host backups,
-monitoring, provider agreements, and final operator details must be configured by
-the deployer. Follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) before accepting users.
+launch. Billing is intentionally simulated. Domain, TLS, email delivery, off-host
+backups, monitoring, provider agreements, and final operator details must be
+configured by the deployer. Follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) before
+accepting users.
 
 For the non-commercial portfolio deployment using an Angular service and a
 containerized Spring Boot service on Vercel with PostgreSQL on Supabase, follow

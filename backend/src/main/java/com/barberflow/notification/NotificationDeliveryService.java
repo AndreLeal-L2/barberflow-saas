@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -27,17 +28,17 @@ public class NotificationDeliveryService {
         this.clock = clock;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deliver(UUID notificationId) {
         NotificationOutbox notification = repository.findByIdForDelivery(notificationId).orElse(null);
         Instant now = Instant.now(clock);
-        if (notification == null || !notification.isDeliverableAt(now)) {
+        if (notification == null || !notification.isDeliverableAt(now, scheduleThrough(now))) {
             return;
         }
 
         try {
-            sender.send(notification);
-            notification.markSent(now);
+            NotificationSendResult result = sender.send(notification);
+            notification.markSubmitted(result, now);
         } catch (RuntimeException exception) {
             notification.recordFailure(exception.getMessage(), now);
             LOGGER.warn(
@@ -47,5 +48,31 @@ public class NotificationDeliveryService {
                     exception
             );
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void cancel(UUID notificationId) {
+        NotificationOutbox notification = repository.findByIdForDelivery(notificationId).orElse(null);
+        Instant now = Instant.now(clock);
+        if (notification == null || !notification.isCancellationDeliverableAt(now)) {
+            return;
+        }
+
+        try {
+            sender.cancel(notification.getProviderMessageId());
+            notification.markCancelled();
+        } catch (RuntimeException exception) {
+            notification.recordCancellationFailure(exception.getMessage(), now);
+            LOGGER.warn(
+                    "Scheduled notification cancellation failed id={} type={}",
+                    notification.getId(),
+                    notification.getNotificationType(),
+                    exception
+            );
+        }
+    }
+
+    Instant scheduleThrough(Instant now) {
+        return now.plus(sender.schedulingHorizon());
     }
 }

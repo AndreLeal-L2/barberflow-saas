@@ -61,6 +61,8 @@ public class BookingManagementService {
         booking.changeStatus(request.status());
         if (request.status() == BookingStatus.CANCELLED) {
             notificationService.cancelledByOwner(booking);
+        } else {
+            notificationService.cancelReminders(booking);
         }
         return BookingResponse.from(booking);
     }

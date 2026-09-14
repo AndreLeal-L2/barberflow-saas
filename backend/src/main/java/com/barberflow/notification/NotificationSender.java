@@ -1,5 +1,16 @@
 package com.barberflow.notification;
 
+import java.time.Duration;
+
 public interface NotificationSender {
-    void send(NotificationOutbox notification);
+
+    NotificationSendResult send(NotificationOutbox notification);
+
+    default void cancel(String providerMessageId) {
+        throw new UnsupportedOperationException("Este fornecedor não agenda notificações.");
+    }
+
+    default Duration schedulingHorizon() {
+        return Duration.ZERO;
+    }
 }

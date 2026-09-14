@@ -22,12 +22,13 @@ public class SmtpNotificationSender implements NotificationSender {
     }
 
     @Override
-    public void send(NotificationOutbox notification) {
+    public NotificationSendResult send(NotificationOutbox notification) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(notification.getRecipient());
         message.setSubject(notification.getSubject());
         message.setText(notification.getBody());
         mailSender.send(message);
+        return NotificationSendResult.sent(null);
     }
 }

@@ -1,6 +1,7 @@
 package com.barberflow.config;
 
 import com.barberflow.booking.BookingDataRetentionScheduler;
+import com.barberflow.notification.NotificationOutboxScheduler;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,17 +17,34 @@ import org.springframework.web.bind.annotation.RestController;
 public class MaintenanceJobController {
 
     private final BookingDataRetentionScheduler dataRetentionScheduler;
+    private final NotificationOutboxScheduler notificationOutboxScheduler;
     private final byte[] expectedAuthorization;
     private final boolean enabled;
 
     public MaintenanceJobController(
             BookingDataRetentionScheduler dataRetentionScheduler,
+            NotificationOutboxScheduler notificationOutboxScheduler,
             @Value("${app.jobs.cron-secret:}") String cronSecret
     ) {
         this.dataRetentionScheduler = dataRetentionScheduler;
+        this.notificationOutboxScheduler = notificationOutboxScheduler;
         this.enabled = !cronSecret.isBlank();
         this.expectedAuthorization = ("Bearer " + cronSecret)
                 .getBytes(StandardCharsets.UTF_8);
+    }
+
+    @GetMapping("/maintenance")
+    public ResponseEntity<Void> runMaintenance(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false)
+            String authorization
+    ) {
+        if (!isAuthorized(authorization)) {
+            return ResponseEntity.status(401).build();
+        }
+
+        notificationOutboxScheduler.deliverPending();
+        dataRetentionScheduler.removeExpiredPersonalData();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/data-retention")

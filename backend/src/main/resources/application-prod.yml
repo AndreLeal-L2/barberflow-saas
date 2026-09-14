@@ -53,7 +53,7 @@ app:
     session-cookie-secure: true
     require-email-verification: true
   mail:
-    delivery: smtp
+    delivery: ${BARBERFLOW_MAIL_DELIVERY:smtp}
     from: ${BARBERFLOW_MAIL_FROM}
   cors:
     allowed-origins: ${BARBERFLOW_ALLOWED_ORIGINS}
