@@ -8,16 +8,21 @@ public record AuthResponse(
         String name,
         String email,
         boolean emailVerified,
+        boolean emailVerificationRequired,
         UserRole role,
         BarbershopSummary barbershop
 ) {
 
-    public static AuthResponse from(BarberFlowPrincipal principal) {
+    public static AuthResponse from(
+            BarberFlowPrincipal principal,
+            boolean emailVerificationRequired
+    ) {
         return new AuthResponse(
                 principal.userId(),
                 principal.name(),
                 principal.getUsername(),
                 principal.emailVerified(),
+                emailVerificationRequired,
                 principal.role(),
                 new BarbershopSummary(
                         principal.barbershopId(),

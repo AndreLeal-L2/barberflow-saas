@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Locale;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,7 @@ public class AuthenticationController {
     private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private final RequestRateLimiter requestRateLimiter;
     private final BarberFlowUserDetailsService userDetailsService;
+    private final boolean emailVerificationRequired;
     private final SecurityContextHolderStrategy securityContextHolderStrategy =
             SecurityContextHolder.getContextHolderStrategy();
 
@@ -42,7 +44,9 @@ public class AuthenticationController {
             SecurityContextRepository securityContextRepository,
             SessionAuthenticationStrategy sessionAuthenticationStrategy,
             RequestRateLimiter requestRateLimiter,
-            BarberFlowUserDetailsService userDetailsService
+            BarberFlowUserDetailsService userDetailsService,
+            @Value("${app.security.require-email-verification}")
+            boolean emailVerificationRequired
     ) {
         this.authenticationManager = authenticationManager;
         this.registrationService = registrationService;
@@ -50,6 +54,7 @@ public class AuthenticationController {
         this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
         this.requestRateLimiter = requestRateLimiter;
         this.userDetailsService = userDetailsService;
+        this.emailVerificationRequired = emailVerificationRequired;
     }
 
     @PostMapping("/register")
@@ -67,7 +72,8 @@ public class AuthenticationController {
         );
         establishSession(authentication, httpRequest, httpResponse);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(AuthResponse.from(principal));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(AuthResponse.from(principal, emailVerificationRequired));
     }
 
     @PostMapping("/login")
@@ -85,12 +91,18 @@ public class AuthenticationController {
         );
         establishSession(authentication, httpRequest, httpResponse);
 
-        return AuthResponse.from((BarberFlowPrincipal) authentication.getPrincipal());
+        return AuthResponse.from(
+                (BarberFlowPrincipal) authentication.getPrincipal(),
+                emailVerificationRequired
+        );
     }
 
     @GetMapping("/me")
     public AuthResponse currentUser(@AuthenticationPrincipal BarberFlowPrincipal principal) {
-        return AuthResponse.from(userDetailsService.loadById(principal.userId()));
+        return AuthResponse.from(
+                userDetailsService.loadById(principal.userId()),
+                emailVerificationRequired
+        );
     }
 
     @GetMapping("/csrf")
