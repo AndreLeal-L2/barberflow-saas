@@ -7,6 +7,11 @@ spring:
       validation-timeout: 5000
       idle-timeout: 60000
       max-lifetime: 300000
+  mail:
+    host: ${BARBERFLOW_MAIL_HOST:localhost}
+    port: ${BARBERFLOW_MAIL_PORT:1025}
+    username: ${BARBERFLOW_MAIL_USERNAME:}
+    password: ${BARBERFLOW_MAIL_PASSWORD:}
   lifecycle:
     timeout-per-shutdown-phase: 25s
 
@@ -17,5 +22,9 @@ server:
 app:
   booking:
     data-retention-cron: "-"
+  security:
+    require-email-verification: ${BARBERFLOW_REQUIRE_EMAIL_VERIFICATION:false}
   mail:
+    delivery: ${BARBERFLOW_MAIL_DELIVERY:log}
+    from: ${BARBERFLOW_MAIL_FROM:BarberFlow <no-reply@barberflow.local>}
     outbox-poll-delay: ${BARBERFLOW_MAIL_POLL_DELAY:5000}

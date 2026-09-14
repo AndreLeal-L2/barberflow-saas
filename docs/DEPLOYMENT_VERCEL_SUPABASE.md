@@ -56,12 +56,6 @@ BARBERFLOW_PUBLIC_BASE_URL=https://barberflow-saas-delta.vercel.app
 BARBERFLOW_ALLOWED_ORIGINS=https://barberflow-saas-delta.vercel.app
 BARBERFLOW_TIME_ZONE=Europe/Lisbon
 
-BARBERFLOW_MAIL_HOST=SMTP_HOST
-BARBERFLOW_MAIL_PORT=587
-BARBERFLOW_MAIL_USERNAME=SMTP_USERNAME
-BARBERFLOW_MAIL_PASSWORD=SMTP_PASSWORD
-BARBERFLOW_MAIL_FROM=BarberFlow <SMTP_SENDER_ADDRESS>
-
 CRON_SECRET=GENERATED_RANDOM_SECRET
 ```
 
@@ -72,10 +66,18 @@ The Vercel-specific backend image already sets `PORT=8080` and
 openssl rand -hex 32
 ```
 
-For a zero-cost portfolio beta, Brevo's Free plan can provide the existing SMTP
-integration. Verify a sender address in Brevo, create an SMTP key, and use:
+The Vercel profile defaults to portfolio mode: email verification is not required
+and notifications are written to backend logs. This makes registration and
+booking demonstrable without a third service, but password recovery and customer
+cancellation links are not delivered by email. Do not use this mode with real
+customer data.
+
+For a public beta with real users, Brevo's Free plan can provide the existing
+SMTP integration. Verify a sender address in Brevo, create an SMTP key, and add:
 
 ```text
+BARBERFLOW_REQUIRE_EMAIL_VERIFICATION=true
+BARBERFLOW_MAIL_DELIVERY=smtp
 BARBERFLOW_MAIL_HOST=smtp-relay.brevo.com
 BARBERFLOW_MAIL_PORT=587
 BARBERFLOW_MAIL_USERNAME=BREVO_SMTP_LOGIN
