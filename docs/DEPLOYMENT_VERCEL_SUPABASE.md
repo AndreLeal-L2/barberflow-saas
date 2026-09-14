@@ -72,23 +72,30 @@ booking demonstrable without a third service, but password recovery,
 confirmation, reminders, and customer cancellation links are not delivered by
 email. Do not use this mode with real customer data.
 
-For a portfolio deployment that sends real booking emails, use the Resend adapter.
-It schedules the 24-hour and 3-hour reminders at the provider, so they do not
-depend on the Vercel container remaining active. Create a Resend API key, verify
-a sending domain, and add:
+For a zero-cost portfolio deployment that sends real booking emails, use the
+Brevo adapter. It submits the 24-hour and 3-hour reminders to the provider within
+Brevo's scheduling window, so their final delivery does not depend on the Vercel
+container remaining active. Create a Free account, verify a sender address,
+generate an API key, and add:
 
 ```text
 BARBERFLOW_REQUIRE_EMAIL_VERIFICATION=true
-BARBERFLOW_MAIL_DELIVERY=resend
-BARBERFLOW_MAIL_FROM=BarberFlow <bookings@VERIFIED_DOMAIN>
-RESEND_API_KEY=RE_SECRET_API_KEY
+BARBERFLOW_MAIL_DELIVERY=brevo
+BARBERFLOW_MAIL_FROM=BarberFlow <VERIFIED_SENDER_EMAIL>
+BREVO_API_KEY=SERVER_SIDE_API_KEY
 ```
 
-The Resend test domain can only deliver to the email address that owns the Resend
-account. A verified domain is required before sending to customers. Provider
-limits can change; confirm the current [Resend pricing](https://resend.com/pricing)
-and [domain requirements](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain)
-before launch. Never expose `RESEND_API_KEY` in Angular or commit it to Git.
+At the time of this decision, Brevo Free allows 300 email sends per day, has no
+time limit, and requires no card. Do not add a payment method, buy prepaid
+credits, or enable a paid add-on. When the free daily allowance is exhausted,
+delivery is limited rather than converted into paid usage. Free messages include
+Brevo branding, and an unauthenticated sender domain can be replaced with a
+Brevo-managed address. Recheck the current
+[Free plan limits](https://help.brevo.com/hc/en-us/articles/208580669-FAQs-What-are-the-limits-of-the-Free-plan)
+before activation. Never expose `BREVO_API_KEY` in Angular or commit it to Git.
+
+The Resend adapter remains available as a future alternative. Sending to real
+customers with Resend requires a domain controlled by the operator.
 
 The SMTP adapter remains available for an always-on deployment by setting
 `BARBERFLOW_MAIL_DELIVERY=smtp` and the `BARBERFLOW_MAIL_HOST`,
@@ -125,8 +132,11 @@ and password recovery.
 - Vercel may scale the backend container to zero after inactivity, so the first
   API request can be slower.
 - Immediate notification retries run while a backend instance is active. The
-  daily maintenance job resumes pending work, while reminders accepted by Resend
+  daily maintenance job resumes pending work, while reminders accepted by Brevo
   are scheduled independently of the application instance.
+- Brevo Free currently limits the project to 300 email sends per day. Each
+  booking can consume up to four sends: owner notification, customer
+  confirmation, and two reminders.
 - Supabase Free projects can pause after a week without activity and do not
   include automatic backups.
 - The configuration pins dynamic workloads to Vercel's Paris region (`cdg1`).

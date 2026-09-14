@@ -242,6 +242,12 @@ admin
   Future internal platform administration.
 ```
 
+The zero-cost portfolio deployment uses the Brevo Free transactional API. Its
+adapter submits near-term reminders to the provider and leaves reminders outside
+the 71-hour scheduling horizon in the outbox for the authenticated daily
+maintenance job. See
+[ADR-0003](docs/architecture-decisions/0003-brevo-free-email-delivery.md).
+
 ## Core Domain Entities
 
 ### User
