@@ -5,6 +5,7 @@ export interface AuthUser {
   name: string;
   email: string;
   emailVerified: boolean;
+  emailVerificationRequired: boolean;
   role: 'OWNER';
   barbershop: {
     id: string;

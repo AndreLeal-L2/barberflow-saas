@@ -71,7 +71,7 @@
       <div class="form-alert dashboard-alert" role="alert">{{ logoutError() }}</div>
     }
 
-    @if (user() && !user()?.emailVerified) {
+    @if (user()?.emailVerificationRequired && !user()?.emailVerified) {
       <aside class="verification-banner">
         <svg lucideMailCheck [size]="20" aria-hidden="true"></svg>
         <div>

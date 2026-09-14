@@ -50,6 +50,7 @@ class AuthenticationFlowIntegrationTests {
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("integration@example.test"))
+                .andExpect(jsonPath("$.emailVerificationRequired").value(false))
                 .andExpect(jsonPath("$.barbershop.slug").value("barbearia-integracao"))
                 .andExpect(jsonPath("$.barbershop.subscriptionStatus").value("TRIALING"))
                 .andReturn();
@@ -62,6 +63,7 @@ class AuthenticationFlowIntegrationTests {
         mockMvc.perform(get("/api/auth/me").cookie(sessionCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Maria Teste"))
+                .andExpect(jsonPath("$.emailVerificationRequired").value(false))
                 .andExpect(jsonPath("$.role").value("OWNER"));
 
         mockMvc.perform(post("/api/auth/logout")
