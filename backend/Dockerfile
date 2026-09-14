@@ -9,7 +9,7 @@ COPY src ./src
 RUN --mount=type=cache,id=barberflow-maven,target=/root/.m2 \
     mvn package -DskipTests
 
-FROM eclipse-temurin:21-jre-noble
+FROM eclipse-temurin:25-jre-noble
 
 WORKDIR /app
 RUN apt-get update && \
