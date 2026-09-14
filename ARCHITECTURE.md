@@ -235,7 +235,8 @@ booking
   Booking creation, cancellation, status changes, overlap prevention.
 
 notification
-  Transactional email outbox, delivery retries, and provider adapters.
+  Transactional email outbox, scheduled reminders, delivery retries, and
+  provider adapters.
 
 admin
   Future internal platform administration.
@@ -370,10 +371,13 @@ sent once through the notification outbox.
 
 ```text
 id
+booking_id
 notification_type
 recipient
 subject
 body
+scheduled_for
+provider_message_id
 status
 attempt_count
 next_attempt_at
@@ -777,6 +781,8 @@ chore: configure docker compose
 ### Phase 5: Product Growth
 
 - [x] Transactional email notifications
+- [x] Booking confirmation and reminders 24 hours and 3 hours before the
+  appointment
 - WhatsApp/SMS notifications
 - Multiple barbers per shop
 - Rescheduling

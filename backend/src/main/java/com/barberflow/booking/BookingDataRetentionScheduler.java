@@ -46,9 +46,18 @@ public class BookingDataRetentionScheduler {
         bookingRepository.anonymizeExpiredPersonalData(bookingCutoff, now);
 
         accountTokenRepository.deleteAllByExpiresAtBefore(now);
+        Instant notificationCutoff = now.minus(NOTIFICATION_RETENTION_DAYS, ChronoUnit.DAYS);
         notificationRepository.deleteAllByCreatedAtBeforeAndStatusIn(
-                now.minus(NOTIFICATION_RETENTION_DAYS, ChronoUnit.DAYS),
-                List.of(NotificationStatus.SENT, NotificationStatus.FAILED)
+                notificationCutoff,
+                List.of(
+                        NotificationStatus.SENT,
+                        NotificationStatus.CANCELLED,
+                        NotificationStatus.FAILED
+                )
+        );
+        notificationRepository.deleteAllByStatusAndScheduledForBefore(
+                NotificationStatus.SCHEDULED,
+                notificationCutoff
         );
     }
 }

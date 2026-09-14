@@ -34,6 +34,15 @@ public class NotificationOutbox {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String body;
 
+    @Column(name = "booking_id")
+    private UUID bookingId;
+
+    @Column(name = "scheduled_for", nullable = false)
+    private Instant scheduledFor;
+
+    @Column(name = "provider_message_id", length = 100)
+    private String providerMessageId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private NotificationStatus status;
@@ -61,12 +70,16 @@ public class NotificationOutbox {
             String recipient,
             String subject,
             String body,
+            UUID bookingId,
+            Instant scheduledFor,
             Instant now
     ) {
         this.notificationType = notificationType;
         this.recipient = recipient;
         this.subject = subject;
         this.body = body;
+        this.bookingId = bookingId;
+        this.scheduledFor = scheduledFor;
         this.status = NotificationStatus.PENDING;
         this.nextAttemptAt = now;
         this.createdAt = now;
@@ -79,13 +92,48 @@ public class NotificationOutbox {
             String body,
             Instant now
     ) {
-        return new NotificationOutbox(notificationType, recipient, subject, body, now);
+        return createScheduled(notificationType, recipient, subject, body, null, now, now);
+    }
+
+    public static NotificationOutbox createScheduled(
+            String notificationType,
+            String recipient,
+            String subject,
+            String body,
+            UUID bookingId,
+            Instant scheduledFor,
+            Instant now
+    ) {
+        return new NotificationOutbox(
+                notificationType,
+                recipient,
+                subject,
+                body,
+                bookingId,
+                scheduledFor,
+                now
+        );
     }
 
     public void markSent(Instant now) {
         status = NotificationStatus.SENT;
         sentAt = now;
         lastError = null;
+    }
+
+    public void markSubmitted(NotificationSendResult result, Instant now) {
+        providerMessageId = result.providerMessageId();
+        lastError = null;
+        if (result.scheduled()) {
+            if (providerMessageId == null || providerMessageId.isBlank()) {
+                throw new IllegalArgumentException(
+                        "O fornecedor deve devolver o identificador da mensagem agendada."
+                );
+            }
+            status = NotificationStatus.SCHEDULED;
+            return;
+        }
+        markSent(now);
     }
 
     public void recordFailure(String error, Instant now) {
@@ -97,6 +145,33 @@ public class NotificationOutbox {
         }
         long delayMinutes = Math.min(60, 1L << attemptCount);
         nextAttemptAt = now.plus(delayMinutes, ChronoUnit.MINUTES);
+    }
+
+    public boolean requestCancellation(Instant now) {
+        if (status == NotificationStatus.PENDING) {
+            markCancelled();
+            return false;
+        }
+        if (status == NotificationStatus.SCHEDULED && providerMessageId != null) {
+            status = NotificationStatus.CANCEL_PENDING;
+            attemptCount = 0;
+            nextAttemptAt = now;
+            lastError = null;
+            return true;
+        }
+        return false;
+    }
+
+    public void markCancelled() {
+        status = NotificationStatus.CANCELLED;
+        lastError = null;
+    }
+
+    public void recordCancellationFailure(String error, Instant now) {
+        recordFailure(error, now);
+        if (status != NotificationStatus.FAILED) {
+            status = NotificationStatus.CANCEL_PENDING;
+        }
     }
 
     private static String truncate(String value) {
@@ -126,7 +201,29 @@ public class NotificationOutbox {
         return body;
     }
 
-    boolean isDeliverableAt(Instant now) {
-        return status == NotificationStatus.PENDING && !nextAttemptAt.isAfter(now);
+    boolean isDeliverableAt(Instant now, Instant scheduledThrough) {
+        return status == NotificationStatus.PENDING
+                && !nextAttemptAt.isAfter(now)
+                && !scheduledFor.isAfter(scheduledThrough);
+    }
+
+    boolean isCancellationDeliverableAt(Instant now) {
+        return status == NotificationStatus.CANCEL_PENDING && !nextAttemptAt.isAfter(now);
+    }
+
+    public UUID getBookingId() {
+        return bookingId;
+    }
+
+    public Instant getScheduledFor() {
+        return scheduledFor;
+    }
+
+    public String getProviderMessageId() {
+        return providerMessageId;
+    }
+
+    public NotificationStatus getStatus() {
+        return status;
     }
 }

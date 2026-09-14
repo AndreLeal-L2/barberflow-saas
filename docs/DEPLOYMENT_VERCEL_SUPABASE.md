@@ -68,30 +68,39 @@ openssl rand -hex 32
 
 The Vercel profile defaults to portfolio mode: email verification is not required
 and notifications are written to backend logs. This makes registration and
-booking demonstrable without a third service, but password recovery and customer
-cancellation links are not delivered by email. Do not use this mode with real
-customer data.
+booking demonstrable without a third service, but password recovery,
+confirmation, reminders, and customer cancellation links are not delivered by
+email. Do not use this mode with real customer data.
 
-For a public beta with real users, Brevo's Free plan can provide the existing
-SMTP integration. Verify a sender address in Brevo, create an SMTP key, and add:
+For a portfolio deployment that sends real booking emails, use the Resend adapter.
+It schedules the 24-hour and 3-hour reminders at the provider, so they do not
+depend on the Vercel container remaining active. Create a Resend API key, verify
+a sending domain, and add:
 
 ```text
 BARBERFLOW_REQUIRE_EMAIL_VERIFICATION=true
-BARBERFLOW_MAIL_DELIVERY=smtp
-BARBERFLOW_MAIL_HOST=smtp-relay.brevo.com
-BARBERFLOW_MAIL_PORT=587
-BARBERFLOW_MAIL_USERNAME=BREVO_SMTP_LOGIN
-BARBERFLOW_MAIL_PASSWORD=BREVO_SMTP_KEY
-BARBERFLOW_MAIL_FROM=BarberFlow <VERIFIED_SENDER_ADDRESS>
+BARBERFLOW_MAIL_DELIVERY=resend
+BARBERFLOW_MAIL_FROM=BarberFlow <bookings@VERIFIED_DOMAIN>
+RESEND_API_KEY=RE_SECRET_API_KEY
 ```
 
-Use the SMTP key, not the Brevo account password or API key. Provider limits can
-change; confirm the current [Free plan limits](https://help.brevo.com/hc/en-us/articles/208580669-FAQs-What-are-the-limits-of-the-Free-plan)
-before launch.
+The Resend test domain can only deliver to the email address that owns the Resend
+account. A verified domain is required before sending to customers. Provider
+limits can change; confirm the current [Resend pricing](https://resend.com/pricing)
+and [domain requirements](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain)
+before launch. Never expose `RESEND_API_KEY` in Angular or commit it to Git.
 
-The daily Vercel Cron invokes `/api/internal/jobs/data-retention`. Vercel sends
+The SMTP adapter remains available for an always-on deployment by setting
+`BARBERFLOW_MAIL_DELIVERY=smtp` and the `BARBERFLOW_MAIL_HOST`,
+`BARBERFLOW_MAIL_PORT`, `BARBERFLOW_MAIL_USERNAME`, and
+`BARBERFLOW_MAIL_PASSWORD` variables. On a scale-to-zero Vercel service, SMTP
+reminder timing depends on when the backend is next awakened.
+
+The daily Vercel Cron invokes `/api/internal/jobs/maintenance`. Vercel sends
 `CRON_SECRET` in the `Authorization` header, and the backend compares it before
-running the idempotent retention operation.
+flushing pending provider schedules and running the idempotent retention
+operation. Reminders farther than the provider scheduling horizon remain in the
+outbox until a later maintenance run.
 
 ## 3. Publish
 
@@ -115,8 +124,9 @@ and password recovery.
 
 - Vercel may scale the backend container to zero after inactivity, so the first
   API request can be slower.
-- Notification retries run while a backend instance is active. A later request
-  wakes the service and resumes pending retries.
+- Immediate notification retries run while a backend instance is active. The
+  daily maintenance job resumes pending work, while reminders accepted by Resend
+  are scheduled independently of the application instance.
 - Supabase Free projects can pause after a week without activity and do not
   include automatic backups.
 - The configuration pins dynamic workloads to Vercel's Paris region (`cdg1`).

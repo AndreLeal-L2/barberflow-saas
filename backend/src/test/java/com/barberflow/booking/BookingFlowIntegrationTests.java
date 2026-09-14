@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.barberflow.TestcontainersConfiguration;
 import com.barberflow.notification.NotificationOutbox;
 import com.barberflow.notification.NotificationOutboxRepository;
+import com.barberflow.notification.NotificationStatus;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
 import java.time.Clock;
@@ -214,6 +215,13 @@ class BookingFlowIntegrationTests {
                 .andExpect(jsonPath("$.status").value("CONFIRMED"))
                 .andReturn();
         String bookingId = JsonPath.read(bookingResult.getResponse().getContentAsString(), "$.id");
+        NotificationOutbox reminder = notificationRepository
+                .findFirstByNotificationTypeAndRecipientOrderByCreatedAtDesc(
+                        "BOOKING_REMINDER_3H",
+                        "cliente@example.test"
+                )
+                .orElseThrow();
+        assertThat(reminder.getStatus()).isEqualTo(NotificationStatus.PENDING);
 
         mockMvc.perform(post("/api/dashboard/availability/blocks")
                         .cookie(sessionCookie, csrfCookie)
@@ -249,6 +257,8 @@ class BookingFlowIntegrationTests {
                         .content("{\"token\":\"%s\"}".formatted(cancellationToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("A marcação foi cancelada."));
+        assertThat(notificationRepository.findById(reminder.getId()).orElseThrow().getStatus())
+                .isEqualTo(NotificationStatus.CANCELLED);
 
         mockMvc.perform(post("/api/public/bookings/cancel")
                         .cookie(csrfCookie)

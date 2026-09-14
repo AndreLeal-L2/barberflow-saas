@@ -12,7 +12,7 @@ public class LoggingNotificationSender implements NotificationSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingNotificationSender.class);
 
     @Override
-    public void send(NotificationOutbox notification) {
+    public NotificationSendResult send(NotificationOutbox notification) {
         LOGGER.info(
                 "Development email type={} recipient={} subject={} body={}",
                 notification.getNotificationType(),
@@ -20,5 +20,6 @@ public class LoggingNotificationSender implements NotificationSender {
                 notification.getSubject(),
                 notification.getBody()
         );
+        return NotificationSendResult.sent(null);
     }
 }
