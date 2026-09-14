@@ -1,0 +1,27 @@
+FROM maven:3-eclipse-temurin-21 AS build
+
+WORKDIR /workspace
+COPY pom.xml .
+RUN --mount=type=cache,id=barberflow-vercel-maven,target=/root/.m2 \
+    mvn --batch-mode --no-transfer-progress dependency:go-offline
+
+COPY src ./src
+RUN --mount=type=cache,id=barberflow-vercel-maven,target=/root/.m2 \
+    mvn --batch-mode --no-transfer-progress package -DskipTests
+
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+RUN apk upgrade --no-cache && \
+    addgroup -g 10001 barberflow && \
+    adduser -D -u 10001 -G barberflow barberflow
+
+COPY --chown=10001:10001 --from=build /workspace/target/backend-*.jar app.jar
+
+ENV PORT=8080 \
+    SPRING_PROFILES_ACTIVE=prod,vercel \
+    JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0
+
+EXPOSE 8080
+USER 10001:10001
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

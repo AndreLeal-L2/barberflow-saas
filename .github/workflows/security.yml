@@ -54,15 +54,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component:
-          - backend
-          - frontend
+        include:
+          - component: backend
+            context: ./backend
+            dockerfile: ./backend/Dockerfile
+          - component: backend-vercel
+            context: ./backend
+            dockerfile: ./backend/Dockerfile.vercel
+          - component: frontend
+            context: ./frontend
+            dockerfile: ./frontend/Dockerfile
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
       - name: Build image
-        run: docker build --tag barberflow-${{ matrix.component }}:${{ github.sha }} ./${{ matrix.component }}
+        run: >-
+          docker build
+          --file ${{ matrix.dockerfile }}
+          --tag barberflow-${{ matrix.component }}:${{ github.sha }}
+          ${{ matrix.context }}
 
       - name: Scan image
         uses: aquasecurity/trivy-action@v0.36.0

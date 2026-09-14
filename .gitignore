@@ -38,6 +38,7 @@ logs/
 # Docker / local runtime
 docker-data/
 backups/
+.vercel/
 
 # Test and coverage output
 coverage/

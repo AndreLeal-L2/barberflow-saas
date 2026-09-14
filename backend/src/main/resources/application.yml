@@ -65,5 +65,8 @@ app:
   booking:
     customer-cancellation-min-hours: ${BARBERFLOW_CANCELLATION_MIN_HOURS:2}
     personal-data-retention-days: ${BARBERFLOW_RETENTION_DAYS:365}
+    data-retention-cron: ${BARBERFLOW_RETENTION_CRON:0 15 3 * * *}
+  jobs:
+    cron-secret: ${CRON_SECRET:}
   cors:
     allowed-origins: ${BARBERFLOW_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8081}

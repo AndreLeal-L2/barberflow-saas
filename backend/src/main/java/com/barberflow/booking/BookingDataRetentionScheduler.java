@@ -38,7 +38,7 @@ public class BookingDataRetentionScheduler {
         this.retentionDays = retentionDays;
     }
 
-    @Scheduled(cron = "0 15 3 * * *", zone = "${app.time-zone}")
+    @Scheduled(cron = "${app.booking.data-retention-cron}", zone = "${app.time-zone}")
     @Transactional
     public void removeExpiredPersonalData() {
         Instant now = Instant.now(clock);
