@@ -28,7 +28,7 @@ The working MVP includes:
 - Availability calculation and concurrent booking conflict prevention
 - Authenticated agenda with upcoming bookings, history, cancellation, and completion
 - Operational dashboard analytics for daily workload, upcoming value, completions, and cancellations
-- Transactional email outbox with retries and SMTP or Resend delivery adapters
+- Transactional email outbox with retries and SMTP, Brevo, or Resend delivery adapters
 - Customer confirmation, 24-hour and 3-hour reminders, and self-service cancellation
 - Scheduled anonymization of expired booking personal data
 - Simulated `TRIALING` subscription state
@@ -40,7 +40,7 @@ The working MVP includes:
 
 - Java 21 and Spring Boot 4
 - Spring Security and Spring Data JPA
-- Spring Session JDBC, Spring Mail, and the Resend HTTP API
+- Spring Session JDBC, Spring Mail, and Brevo/Resend HTTP APIs
 - PostgreSQL 17 and Flyway
 - Angular 22 and TypeScript
 - Docker and Docker Compose

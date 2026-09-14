@@ -65,6 +65,9 @@ app:
     resend:
       api-key: ${RESEND_API_KEY:}
       base-url: ${RESEND_BASE_URL:https://api.resend.com}
+    brevo:
+      api-key: ${BREVO_API_KEY:}
+      base-url: ${BREVO_BASE_URL:https://api.brevo.com/v3}
   booking:
     customer-cancellation-min-hours: ${BARBERFLOW_CANCELLATION_MIN_HOURS:2}
     personal-data-retention-days: ${BARBERFLOW_RETENTION_DAYS:365}
