@@ -12,10 +12,12 @@ import {
 } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
+import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
 
 @Component({
   selector: 'app-dashboard-layout',
   imports: [
+    ThemeToggle,
     LucideCalendarDays,
     LucideClock,
     LucideExternalLink,

@@ -1,0 +1,24 @@
+<div class="theme-toggle" role="group" aria-label="Tema do site">
+  <button
+    type="button"
+    [class.active]="themes.theme() === 'LIGHT'"
+    [attr.aria-pressed]="themes.theme() === 'LIGHT'"
+    (click)="themes.setTheme('LIGHT')"
+    aria-label="Tema claro"
+    title="Tema claro"
+  >
+    <svg lucideSun [size]="16" aria-hidden="true"></svg>
+    <span>Claro</span>
+  </button>
+  <button
+    type="button"
+    [class.active]="themes.theme() === 'DARK'"
+    [attr.aria-pressed]="themes.theme() === 'DARK'"
+    (click)="themes.setTheme('DARK')"
+    aria-label="Tema escuro"
+    title="Tema escuro"
+  >
+    <svg lucideMoon [size]="16" aria-hidden="true"></svg>
+    <span>Escuro</span>
+  </button>
+</div>
