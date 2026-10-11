@@ -13,6 +13,7 @@ import {
 import { finalize, forkJoin } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
+import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
 import {
   AvailableSlot,
   Booking,
@@ -23,6 +24,7 @@ import {
 @Component({
   selector: 'app-public-booking',
   imports: [
+    ThemeToggle,
     CurrencyPipe,
     LucideCalendarCheck,
     LucideCalendarDays,

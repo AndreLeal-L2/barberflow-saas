@@ -20,7 +20,31 @@
   --danger-soft: #351b19;
   --danger: #ed776d;
   --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.24);
+  --color-scheme: dark;
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+:root[data-theme='light'] {
+  --night: #ffffff;
+  --ink: #18251e;
+  --ink-soft: #59685f;
+  --paper: #ffffff;
+  --canvas: #f4f7f5;
+  --canvas-strong: #e7eee9;
+  --line: #d8e1da;
+  --line-dark: #c5d2c8;
+  --line-strong: #94a89b;
+  --brand: #207a5a;
+  --brand-dark: #176347;
+  --brand-solid: #207a5a;
+  --brand-soft: #e3f5ed;
+  --blue-light: #35617f;
+  --warning-soft: #fff3d6;
+  --warning-ink: #785b13;
+  --danger-soft: #fde8e5;
+  --danger: #b7352b;
+  --shadow-soft: 0 18px 44px rgba(24, 37, 30, 0.08);
+  --color-scheme: light;
 }
 
 * {
@@ -28,7 +52,7 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: var(--color-scheme);
   scroll-behavior: smooth;
 }
 
@@ -4446,7 +4470,7 @@ select {
   color: var(--ink);
   background-color: var(--paper);
   border-color: var(--line);
-  color-scheme: dark;
+  color-scheme: var(--color-scheme);
 }
 
 input::placeholder,
@@ -4609,5 +4633,176 @@ input:-webkit-autofill:focus {
 
   .schedule-preview {
     box-shadow: 10px 10px 0 #1d241f;
+  }
+}
+
+/* Shared appearance controls and light surfaces. */
+app-theme-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--canvas);
+}
+
+.theme-toggle button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  color: var(--ink-soft);
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.theme-toggle button:hover {
+  color: var(--ink);
+  background: var(--canvas-strong);
+}
+
+.theme-toggle button.active {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.theme-toggle button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.header-actions {
+  gap: 14px;
+}
+
+.booking-public-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+:root[data-theme='light'] {
+  .brand {
+    background-image: url('/images/barberflow-logo-light.svg');
+  }
+
+  .hero {
+    color: #f3f2ee;
+  }
+
+  .hero-text-link:hover,
+  .hero-index span:first-child {
+    color: #f3f2ee;
+    border-bottom-color: #f3f2ee;
+  }
+
+  .preview-toolbar span,
+  .decision-section .section-number,
+  .decision-footer p,
+  .dashboard-nav a,
+  .sidebar-logout,
+  .sidebar-user-copy small,
+  .nav-label,
+  .dashboard-topbar .topbar-context > span {
+    color: var(--ink-soft);
+  }
+
+  .preview-count {
+    color: var(--ink-soft) !important;
+  }
+
+  .schedule-preview {
+    box-shadow: 12px 12px 0 var(--canvas-strong);
+  }
+
+  .appointment-row.available,
+  .schedule-row.disabled,
+  .booking-step.step-disabled,
+  .dashboard-nav a.active,
+  .dashboard-nav a:hover,
+  .sidebar-logout:hover:not(:disabled) {
+    background: var(--canvas-strong);
+  }
+
+  .preview-shop-mark,
+  .shop-monogram,
+  .booking-status.status-completed {
+    color: #1b6281;
+    background: #e4f2f8;
+    border-color: #b6d8e8;
+  }
+
+  .verification-banner {
+    border-color: #dec78a;
+  }
+}
+
+@media (max-width: 1100px) {
+  .public-header .header-actions {
+    gap: 10px;
+  }
+
+  .public-header .public-nav {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 800px) {
+  .dashboard-topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .dashboard-topbar .topbar-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .public-header {
+    row-gap: 4px;
+    padding-block: 12px 8px;
+  }
+
+  .public-header .header-actions {
+    display: contents;
+  }
+
+  .public-header .header-actions > .button {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .public-header app-theme-toggle {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+  }
+
+  .booking-public-actions > span {
+    display: none;
+  }
+
+  .booking-public-actions {
+    gap: 0;
+  }
+
+  .booking-public-header .brand {
+    width: 130px;
   }
 }
