@@ -1,6 +1,13 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -20,10 +27,15 @@ import {
   CatalogService,
   PublicBarbershop,
 } from '../../core/booking.models';
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { LanguageService } from '../../core/language.service';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-public-booking',
   imports: [
+    LanguageSwitcher,
+    TranslatePipe,
     ThemeToggle,
     CurrencyPipe,
     LucideCalendarCheck,
@@ -38,6 +50,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicBooking implements OnInit {
+  readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(NonNullableFormBuilder);
@@ -59,7 +72,7 @@ export class PublicBooking implements OnInit {
 
   readonly today = this.toDateInput(new Date());
   readonly maxDate = this.toDateInput(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
-  readonly quickDates = this.buildQuickDates();
+  readonly quickDates = computed(() => this.buildQuickDates());
   readonly form = this.formBuilder.group({
     customerName: ['', [Validators.required, Validators.maxLength(120)]],
     customerPhone: ['', [Validators.required, Validators.maxLength(30)]],
@@ -161,7 +174,7 @@ export class PublicBooking implements OnInit {
   }
 
   dateLabel(date: string): string {
-    return new Intl.DateTimeFormat('pt-PT', {
+    return new Intl.DateTimeFormat(this.i18n.locale(), {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -170,7 +183,7 @@ export class PublicBooking implements OnInit {
   }
 
   timeLabel(dateTime: string): string {
-    return new Intl.DateTimeFormat('pt-PT', {
+    return new Intl.DateTimeFormat(this.i18n.locale(), {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(dateTime));
@@ -224,10 +237,14 @@ export class PublicBooking implements OnInit {
         value: this.toDateInput(date),
         weekday:
           index === 0
-            ? 'Hoje'
-            : new Intl.DateTimeFormat('pt-PT', { weekday: 'short' }).format(date).replace('.', ''),
-        day: new Intl.DateTimeFormat('pt-PT', { day: '2-digit' }).format(date),
-        month: new Intl.DateTimeFormat('pt-PT', { month: 'short' }).format(date).replace('.', ''),
+            ? this.i18n.translate('Hoje')
+            : new Intl.DateTimeFormat(this.i18n.locale(), { weekday: 'short' })
+                .format(date)
+                .replace('.', ''),
+        day: new Intl.DateTimeFormat(this.i18n.locale(), { day: '2-digit' }).format(date),
+        month: new Intl.DateTimeFormat(this.i18n.locale(), { month: 'short' })
+          .format(date)
+          .replace('.', ''),
       };
     });
   }

@@ -1,24 +1,29 @@
 <main class="action-page">
-  <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
-    <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
-    <span class="brand-name">BarberFlow</span>
-  </a>
+  <header class="action-header">
+    <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
+      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
+    </a>
+    <app-language-switcher />
+  </header>
 
   <section class="action-panel" aria-live="polite">
     <svg lucideBadgeCheck [size]="32" aria-hidden="true"></svg>
     @if (loading()) {
-      <p class="section-label">A CONFIRMAR</p>
-      <h1>Estamos a validar o link.</h1>
+      <p class="section-label">{{ 'A CONFIRMAR' | translate }}</p>
+      <h1>{{ 'Estamos a validar o link.' | translate }}</h1>
     } @else if (success()) {
-      <p class="section-label">E-MAIL CONFIRMADO</p>
-      <h1>{{ success() }}</h1>
-      <p>A página da barbearia já pode ser publicada.</p>
-      <a class="button button-primary" routerLink="/dashboard/profile">Abrir o painel</a>
+      <p class="section-label">{{ 'E-MAIL CONFIRMADO' | translate }}</p>
+      <h1>{{ success() | translate }}</h1>
+      <p>{{ 'A página da barbearia já pode ser publicada.' | translate }}</p>
+      <a class="button button-primary" routerLink="/dashboard/profile">{{
+        'Abrir o painel' | translate
+      }}</a>
     } @else {
-      <p class="section-label">LINK INVÁLIDO</p>
-      <h1>Não foi possível confirmar.</h1>
-      <p>{{ error() }}</p>
-      <a class="button button-secondary" routerLink="/login">Voltar ao login</a>
+      <p class="section-label">{{ 'LINK INVÁLIDO' | translate }}</p>
+      <h1>{{ 'Não foi possível confirmar.' | translate }}</h1>
+      <p>{{ error() | translate }}</p>
+      <a class="button button-secondary" routerLink="/login">{{ 'Voltar ao login' | translate }}</a>
     }
   </section>
 </main>

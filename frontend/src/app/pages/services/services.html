@@ -1,25 +1,36 @@
 <div class="dashboard-content">
   <header class="page-heading">
     <div>
-      <p class="section-label">CATÁLOGO</p>
-      <h1>Serviços</h1>
-      <p>Defina o que os clientes podem marcar, a duração e o preço.</p>
+      <p class="section-label">{{ 'CATÁLOGO' | translate }}</p>
+      <h1>{{ 'Serviços' | translate }}</h1>
+      <p>{{ 'Defina o que os clientes podem marcar, a duração e o preço.' | translate }}</p>
     </div>
   </header>
 
   @if (error()) {
-    <div class="form-alert" role="alert">{{ error() }}</div>
+    <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
 
   <div class="management-grid">
     <section class="editor-panel">
       <div class="panel-heading">
         <div>
-          <p class="section-label">{{ editingId() ? 'EDITAR SERVIÇO' : 'NOVO SERVIÇO' }}</p>
-          <h2>{{ editingId() ? 'Atualizar dados' : 'Adicionar ao catálogo' }}</h2>
+          <p class="section-label">
+            {{ editingId() ? ('EDITAR SERVIÇO' | translate) : ('NOVO SERVIÇO' | translate) }}
+          </p>
+          <h2>
+            {{
+              editingId() ? ('Atualizar dados' | translate) : ('Adicionar ao catálogo' | translate)
+            }}
+          </h2>
         </div>
         @if (editingId()) {
-          <button class="icon-button" type="button" (click)="cancelEdit()" title="Cancelar edição">
+          <button
+            class="icon-button"
+            type="button"
+            (click)="cancelEdit()"
+            [title]="'Cancelar edição' | translate"
+          >
             <svg lucideX [size]="18" aria-hidden="true"></svg>
           </button>
         }
@@ -27,28 +38,34 @@
 
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
         <div class="field">
-          <label for="serviceName">Nome</label>
-          <input id="serviceName" type="text" formControlName="name" placeholder="Corte clássico" />
+          <label for="serviceName">{{ 'Nome' | translate }}</label>
+          <input
+            id="serviceName"
+            type="text"
+            formControlName="name"
+            [placeholder]="'Corte clássico' | translate"
+          />
           @if (form.controls.name.touched && form.controls.name.invalid) {
-            <span class="field-error">Introduza um nome para o serviço.</span>
+            <span class="field-error">{{ 'Introduza um nome para o serviço.' | translate }}</span>
           }
         </div>
 
         <div class="field">
           <label for="serviceDescription"
-            >Descrição <span class="optional-label">Opcional</span></label
+            >{{ 'Descrição' | translate }}
+            <span class="optional-label">{{ 'Opcional' | translate }}</span></label
           >
           <textarea
             id="serviceDescription"
             formControlName="description"
             rows="3"
-            placeholder="Inclui lavagem e acabamento"
+            [placeholder]="'Inclui lavagem e acabamento' | translate"
           ></textarea>
         </div>
 
         <div class="form-grid compact-grid">
           <div class="field">
-            <label for="serviceDuration">Duração</label>
+            <label for="serviceDuration">{{ 'Duração' | translate }}</label>
             <div class="input-suffix">
               <input
                 id="serviceDuration"
@@ -61,7 +78,7 @@
             </div>
           </div>
           <div class="field">
-            <label for="servicePrice">Preço</label>
+            <label for="servicePrice">{{ 'Preço' | translate }}</label>
             <div class="input-suffix">
               <input
                 id="servicePrice"
@@ -77,7 +94,13 @@
 
         <button class="button button-primary button-full" type="submit" [disabled]="saving()">
           <svg lucidePlus [size]="18" aria-hidden="true"></svg>
-          {{ saving() ? 'A guardar...' : editingId() ? 'Guardar alterações' : 'Adicionar serviço' }}
+          {{
+            saving()
+              ? ('A guardar...' | translate)
+              : editingId()
+                ? ('Guardar alterações' | translate)
+                : ('Adicionar serviço' | translate)
+          }}
         </button>
       </form>
     </section>
@@ -85,18 +108,18 @@
     <section class="list-panel">
       <div class="panel-heading">
         <div>
-          <p class="section-label">SERVIÇOS ATIVOS</p>
-          <h2>Catálogo atual</h2>
+          <p class="section-label">{{ 'SERVIÇOS ATIVOS' | translate }}</p>
+          <h2>{{ 'Catálogo atual' | translate }}</h2>
         </div>
         <span>{{ services().length }}</span>
       </div>
 
       @if (loading()) {
-        <div class="loading-state">A carregar serviços...</div>
+        <div class="loading-state">{{ 'A carregar serviços...' | translate }}</div>
       } @else if (!services().length) {
         <div class="panel-empty">
-          <strong>Ainda não adicionou serviços.</strong>
-          <p>O primeiro serviço desbloqueia o próximo passo da configuração.</p>
+          <strong>{{ 'Ainda não adicionou serviços.' | translate }}</strong>
+          <p>{{ 'O primeiro serviço desbloqueia o próximo passo da configuração.' | translate }}</p>
         </div>
       } @else {
         <div class="service-list">
@@ -104,19 +127,21 @@
             <article>
               <div class="service-main">
                 <strong>{{ service.name }}</strong>
-                <span>{{ service.description || 'Sem descrição' }}</span>
+                <span>{{ service.description || ('Sem descrição' | translate) }}</span>
               </div>
               <div class="service-meta">
                 <span>{{ service.durationMinutes }} min</span>
                 <strong>{{
-                  service.priceAmount | currency: 'EUR' : 'symbol' : '1.2-2' : 'pt-PT'
+                  service.priceAmount | currency: 'EUR' : 'symbol' : '1.2-2' : i18n.locale()
                 }}</strong>
               </div>
               @if (deletingId() === service.id) {
                 <div class="inline-confirm">
-                  <span>Remover?</span>
-                  <button type="button" (click)="remove(service.id)">Sim</button>
-                  <button type="button" (click)="cancelDelete()">Não</button>
+                  <span>{{ 'Remover?' | translate }}</span>
+                  <button type="button" (click)="remove(service.id)">
+                    {{ 'Sim' | translate }}
+                  </button>
+                  <button type="button" (click)="cancelDelete()">{{ 'Não' | translate }}</button>
                 </div>
               } @else {
                 <div class="row-actions">
@@ -124,7 +149,7 @@
                     class="icon-button"
                     type="button"
                     (click)="edit(service)"
-                    title="Editar serviço"
+                    [title]="'Editar serviço' | translate"
                   >
                     <svg lucidePencil [size]="17" aria-hidden="true"></svg>
                   </button>
@@ -132,7 +157,7 @@
                     class="icon-button danger-action"
                     type="button"
                     (click)="confirmDelete(service.id)"
-                    title="Remover serviço"
+                    [title]="'Remover serviço' | translate"
                   >
                     <svg lucideTrash2 [size]="17" aria-hidden="true"></svg>
                   </button>

@@ -1,0 +1,24 @@
+<div class="language-switcher" role="group" [attr.aria-label]="'Idioma do site' | translate">
+  <button
+    type="button"
+    lang="pt-PT"
+    aria-label="Português (Portugal)"
+    title="Português (Portugal)"
+    [class.active]="i18n.language() === 'pt-PT'"
+    [attr.aria-pressed]="i18n.language() === 'pt-PT'"
+    (click)="changeLanguage('pt-PT')"
+  >
+    PT
+  </button>
+  <button
+    type="button"
+    lang="en-GB"
+    aria-label="English"
+    title="English"
+    [class.active]="i18n.language() === 'en-GB'"
+    [attr.aria-pressed]="i18n.language() === 'en-GB'"
+    (click)="changeLanguage('en-GB')"
+  >
+    EN
+  </button>
+</div>

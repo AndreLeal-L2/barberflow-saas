@@ -1,35 +1,39 @@
 <main class="dashboard-shell">
   <aside class="dashboard-sidebar">
-    <a class="brand dashboard-brand" routerLink="/dashboard" aria-label="BarberFlow, visão geral">
+    <a
+      class="brand dashboard-brand"
+      routerLink="/dashboard"
+      [attr.aria-label]="'BarberFlow, visão geral' | translate"
+    >
       <span class="brand-stripes brand-stripes-dark" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="brand-name">BarberFlow</span>
     </a>
 
-    <nav class="dashboard-nav" aria-label="Navegação do painel">
-      <span class="nav-label">GESTÃO</span>
+    <nav class="dashboard-nav" [attr.aria-label]="'Navegação do painel' | translate">
+      <span class="nav-label">{{ 'GESTÃO' | translate }}</span>
       <a
         routerLink="/dashboard"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
         <svg lucideLayoutDashboard [size]="19" aria-hidden="true"></svg>
-        Visão geral
+        {{ 'Visão geral' | translate }}
       </a>
       <a routerLink="/dashboard/bookings" routerLinkActive="active">
         <svg lucideCalendarDays [size]="19" aria-hidden="true"></svg>
-        Marcações
+        {{ 'Marcações' | translate }}
       </a>
       <a routerLink="/dashboard/services" routerLinkActive="active">
         <svg lucideScissors [size]="19" aria-hidden="true"></svg>
-        Serviços
+        {{ 'Serviços' | translate }}
       </a>
       <a routerLink="/dashboard/availability" routerLinkActive="active">
         <svg lucideClock [size]="19" aria-hidden="true"></svg>
-        Horários
+        {{ 'Horários' | translate }}
       </a>
       <a routerLink="/dashboard/profile" routerLinkActive="active">
         <svg lucideMapPin [size]="19" aria-hidden="true"></svg>
-        Página pública
+        {{ 'Página pública' | translate }}
       </a>
     </nav>
 
@@ -44,8 +48,8 @@
         type="button"
         (click)="logout()"
         [disabled]="loggingOut()"
-        aria-label="Terminar sessão"
-        title="Terminar sessão"
+        [attr.aria-label]="'Terminar sessão' | translate"
+        [title]="'Terminar sessão' | translate"
       >
         <svg lucideLogOut [size]="18" aria-hidden="true"></svg>
       </button>
@@ -55,30 +59,32 @@
   <section class="dashboard-main">
     <header class="dashboard-topbar">
       <div class="topbar-context">
-        <span>BARBEARIA</span>
+        <span>{{ 'BARBEARIA' | translate }}</span>
         <strong>{{ user()?.barbershop?.name }}</strong>
       </div>
       <div class="topbar-actions">
+        <app-language-switcher />
         <app-theme-toggle />
         <a class="topbar-public-link" routerLink="/dashboard/profile">
-          Gerir página
+          {{ 'Gerir página' | translate }}
           <svg lucideExternalLink [size]="15" aria-hidden="true"></svg>
         </a>
-        <span class="status-badge status-trial">Período experimental</span>
+        <span class="status-badge status-trial">{{ 'Período experimental' | translate }}</span>
       </div>
     </header>
 
     @if (logoutError()) {
-      <div class="form-alert dashboard-alert" role="alert">{{ logoutError() }}</div>
+      <div class="form-alert dashboard-alert" role="alert">{{ logoutError() | translate }}</div>
     }
 
     @if (user()?.emailVerificationRequired && !user()?.emailVerified) {
       <aside class="verification-banner">
         <svg lucideMailCheck [size]="20" aria-hidden="true"></svg>
         <div>
-          <strong>Confirme o e-mail de administrador</strong>
+          <strong>{{ 'Confirme o e-mail de administrador' | translate }}</strong>
           <span>{{
-            verificationMessage() || 'É necessário para publicar a página em produção.'
+            (verificationMessage() | translate) ||
+              ('É necessário para publicar a página em produção.' | translate)
           }}</span>
         </div>
         <button
@@ -87,7 +93,9 @@
           [disabled]="sendingVerification()"
           (click)="resendVerification()"
         >
-          {{ sendingVerification() ? 'A enviar...' : 'Reenviar e-mail' }}
+          {{
+            sendingVerification() ? ('A enviar...' | translate) : ('Reenviar e-mail' | translate)
+          }}
         </button>
       </aside>
     }

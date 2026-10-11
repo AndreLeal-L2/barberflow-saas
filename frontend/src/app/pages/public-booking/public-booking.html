@@ -1,21 +1,22 @@
 <main class="public-booking-page">
   <header class="booking-public-header">
-    <a class="brand" href="/" aria-label="BarberFlow, página inicial">
+    <a class="brand" href="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
       <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="brand-name">BarberFlow</span>
     </a>
     <div class="booking-public-actions">
-      <span>Marcação online</span>
+      <span>{{ 'Marcação online' | translate }}</span>
+      <app-language-switcher />
       <app-theme-toggle />
     </div>
   </header>
 
   @if (loading()) {
-    <div class="public-loading">A abrir a agenda...</div>
+    <div class="public-loading">{{ 'A abrir a agenda...' | translate }}</div>
   } @else if (error() && !shop()) {
     <section class="public-unavailable">
-      <h1>Página indisponível</h1>
-      <p>{{ error() }}</p>
+      <h1>{{ 'Página indisponível' | translate }}</h1>
+      <p>{{ error() | translate }}</p>
     </section>
   } @else if (shop(); as currentShop) {
     <section class="shop-intro">
@@ -23,7 +24,7 @@
         {{ currentShop.name.slice(0, 1).toUpperCase() }}
       </div>
       <div>
-        <p class="section-label">AGENDA ONLINE</p>
+        <p class="section-label">{{ 'AGENDA ONLINE' | translate }}</p>
         <h1>{{ currentShop.name }}</h1>
         @if (currentShop.description) {
           <p>{{ currentShop.description }}</p>
@@ -45,29 +46,31 @@
         <span class="confirmation-icon">
           <svg lucideCheck [size]="30" aria-hidden="true"></svg>
         </span>
-        <p class="section-label">MARCAÇÃO CONFIRMADA</p>
-        <h2>Até breve, {{ booking.customerName }}.</h2>
-        <p>A sua marcação ficou registada na agenda de {{ currentShop.name }}.</p>
+        <p class="section-label">{{ 'MARCAÇÃO CONFIRMADA' | translate }}</p>
+        <h2>{{ 'Até breve,' | translate }} {{ booking.customerName }}.</h2>
+        <p>
+          {{ 'A sua marcação ficou registada na agenda de' | translate }} {{ currentShop.name }}.
+        </p>
         <dl class="confirmation-details">
           <div>
-            <dt>Serviço</dt>
+            <dt>{{ 'Serviço' | translate }}</dt>
             <dd>{{ booking.serviceName }}</dd>
           </div>
           <div>
-            <dt>Data</dt>
+            <dt>{{ 'Data' | translate }}</dt>
             <dd>{{ dateLabel(booking.startAt.slice(0, 10)) }}</dd>
           </div>
           <div>
-            <dt>Hora</dt>
+            <dt>{{ 'Hora' | translate }}</dt>
             <dd>{{ timeLabel(booking.startAt) }}</dd>
           </div>
         </dl>
         <button class="button button-secondary" type="button" (click)="startAnotherBooking()">
-          Fazer outra marcação
+          {{ 'Fazer outra marcação' | translate }}
         </button>
       </section>
     } @else {
-      <ol class="booking-progress" aria-label="Progresso da marcação">
+      <ol class="booking-progress" [attr.aria-label]="'Progresso da marcação' | translate">
         <li class="active" [class.complete]="selectedService()">
           <span>
             @if (selectedService()) {
@@ -76,7 +79,7 @@
               1
             }
           </span>
-          <strong>Serviço</strong>
+          <strong>{{ 'Serviço' | translate }}</strong>
         </li>
         <li [class.active]="selectedService()" [class.complete]="selectedSlot()">
           <span>
@@ -86,11 +89,11 @@
               2
             }
           </span>
-          <strong>Horário</strong>
+          <strong>{{ 'Horário' | translate }}</strong>
         </li>
         <li [class.active]="selectedSlot()">
           <span>3</span>
-          <strong>Dados</strong>
+          <strong>{{ 'Dados' | translate }}</strong>
         </li>
       </ol>
 
@@ -106,8 +109,8 @@
             <header>
               <span>1</span>
               <div>
-                <h2>Escolha o serviço</h2>
-                <p>Duração e preço definidos pela barbearia.</p>
+                <h2>{{ 'Escolha o serviço' | translate }}</h2>
+                <p>{{ 'Duração e preço definidos pela barbearia.' | translate }}</p>
               </div>
             </header>
             <div class="public-service-list">
@@ -134,11 +137,16 @@
                     </small>
                   </span>
                   <span class="service-option-price">
-                    {{ service.priceAmount | currency: service.priceCurrency }}
+                    {{
+                      service.priceAmount
+                        | currency: service.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
+                    }}
                   </span>
                 </button>
               } @empty {
-                <p class="inline-empty">Ainda não existem serviços disponíveis.</p>
+                <p class="inline-empty">
+                  {{ 'Ainda não existem serviços disponíveis.' | translate }}
+                </p>
               }
             </div>
           </section>
@@ -147,13 +155,13 @@
             <header>
               <span>2</span>
               <div>
-                <h2>Escolha o dia e a hora</h2>
-                <p>Mostramos apenas os horários que continuam livres.</p>
+                <h2>{{ 'Escolha o dia e a hora' | translate }}</h2>
+                <p>{{ 'Mostramos apenas os horários que continuam livres.' | translate }}</p>
               </div>
             </header>
             <div class="date-and-slots">
-              <div class="quick-date-list" aria-label="Próximos dias">
-                @for (date of quickDates; track date.value) {
+              <div class="quick-date-list" [attr.aria-label]="'Próximos dias' | translate">
+                @for (date of quickDates(); track date.value) {
                   <button
                     type="button"
                     [class.selected]="selectedDate() === date.value"
@@ -170,7 +178,7 @@
               <label class="public-date-field">
                 <span>
                   <svg lucideCalendarDays [size]="15" aria-hidden="true"></svg>
-                  Outra data
+                  {{ 'Outra data' | translate }}
                 </span>
                 <input
                   type="date"
@@ -186,13 +194,15 @@
                 <p class="selected-date-label">{{ dateLabel(selectedDate()) }}</p>
               }
               @if (loadingSlots()) {
-                <div class="slots-loading">A consultar a agenda...</div>
+                <div class="slots-loading">{{ 'A consultar a agenda...' | translate }}</div>
               } @else if (slotError()) {
-                <div class="form-alert" role="alert">{{ slotError() }}</div>
+                <div class="form-alert" role="alert">{{ slotError() | translate }}</div>
               } @else if (selectedDate() && slots().length === 0) {
-                <p class="inline-empty">Não existem horários livres neste dia.</p>
+                <p class="inline-empty">
+                  {{ 'Não existem horários livres neste dia.' | translate }}
+                </p>
               } @else if (slots().length > 0) {
-                <div class="slot-grid" aria-label="Horários disponíveis">
+                <div class="slot-grid" [attr.aria-label]="'Horários disponíveis' | translate">
                   @for (slot of slots(); track slot.startAt) {
                     <button
                       type="button"
@@ -211,40 +221,46 @@
             <header>
               <span>3</span>
               <div>
-                <h2>Os seus dados</h2>
-                <p>Para identificar a marcação e entrar em contacto consigo.</p>
+                <h2>{{ 'Os seus dados' | translate }}</h2>
+                <p>{{ 'Para identificar a marcação e entrar em contacto consigo.' | translate }}</p>
               </div>
             </header>
             <div class="booking-customer-form">
               <div class="customer-fields">
                 <label class="field">
-                  <span>Nome</span>
+                  <span>{{ 'Nome' | translate }}</span>
                   <input formControlName="customerName" type="text" autocomplete="name" />
                   @if (form.controls.customerName.touched && form.controls.customerName.invalid) {
-                    <small class="field-error">Introduza o seu nome.</small>
+                    <small class="field-error">{{ 'Introduza o seu nome.' | translate }}</small>
                   }
                 </label>
                 <label class="field">
-                  <span>Telefone</span>
+                  <span>{{ 'Telefone' | translate }}</span>
                   <input formControlName="customerPhone" type="tel" autocomplete="tel" />
                   @if (form.controls.customerPhone.touched && form.controls.customerPhone.invalid) {
-                    <small class="field-error">Introduza o seu telefone.</small>
+                    <small class="field-error">{{ 'Introduza o seu telefone.' | translate }}</small>
                   }
                 </label>
                 <label class="field customer-email-field">
-                  <span>Email <small>opcional</small></span>
+                  <span
+                    >{{ 'Email' | translate }} <small>{{ 'opcional' | translate }}</small></span
+                  >
                   <input formControlName="customerEmail" type="email" autocomplete="email" />
                   @if (form.controls.customerEmail.touched && form.controls.customerEmail.invalid) {
-                    <small class="field-error">Introduza um email válido.</small>
+                    <small class="field-error">{{
+                      'Introduza um email válido.' | translate
+                    }}</small>
                   }
                 </label>
               </div>
               @if (error()) {
-                <div class="form-alert" role="alert">{{ error() }}</div>
+                <div class="form-alert" role="alert">{{ error() | translate }}</div>
               }
               <p class="booking-privacy-note">
-                Ao confirmar, os dados são tratados para gerir esta marcação.
-                <a routerLink="/privacy" target="_blank" rel="noopener">Privacidade</a>
+                {{ 'Ao confirmar, os dados são tratados para gerir esta marcação.' | translate }}
+                <a routerLink="/privacy" target="_blank" rel="noopener">{{
+                  'Privacidade' | translate
+                }}</a>
               </p>
               <button
                 class="button button-primary booking-submit"
@@ -252,33 +268,44 @@
                 [disabled]="!canSubmit() || submitting()"
               >
                 <svg lucideCalendarCheck [size]="18" aria-hidden="true"></svg>
-                {{ submitting() ? 'A confirmar...' : 'Confirmar marcação' }}
+                {{
+                  submitting() ? ('A confirmar...' | translate) : ('Confirmar marcação' | translate)
+                }}
               </button>
             </div>
           </section>
         </form>
 
         <aside class="booking-summary" aria-live="polite">
-          <p class="section-label">RESUMO</p>
-          <h2>A sua marcação</h2>
+          <p class="section-label">{{ 'RESUMO' | translate }}</p>
+          <h2>{{ 'A sua marcação' | translate }}</h2>
           <dl>
             <div>
-              <dt>Serviço</dt>
-              <dd>{{ selectedService()?.name || 'Por escolher' }}</dd>
+              <dt>{{ 'Serviço' | translate }}</dt>
+              <dd>{{ selectedService()?.name || ('Por escolher' | translate) }}</dd>
             </div>
             <div>
-              <dt>Data</dt>
-              <dd>{{ selectedDate() ? dateLabel(selectedDate()) : 'Por escolher' }}</dd>
+              <dt>{{ 'Data' | translate }}</dt>
+              <dd>
+                {{ selectedDate() ? dateLabel(selectedDate()) : ('Por escolher' | translate) }}
+              </dd>
             </div>
             <div>
-              <dt>Hora</dt>
-              <dd>{{ selectedSlot() ? timeLabel(selectedSlot()!.startAt) : 'Por escolher' }}</dd>
+              <dt>{{ 'Hora' | translate }}</dt>
+              <dd>
+                {{
+                  selectedSlot() ? timeLabel(selectedSlot()!.startAt) : ('Por escolher' | translate)
+                }}
+              </dd>
             </div>
           </dl>
           @if (selectedService(); as service) {
             <div class="booking-summary-total">
-              <span>Total</span>
-              <strong>{{ service.priceAmount | currency: service.priceCurrency }}</strong>
+              <span>{{ 'Total' | translate }}</span>
+              <strong>{{
+                service.priceAmount
+                  | currency: service.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
+              }}</strong>
             </div>
           }
         </aside>

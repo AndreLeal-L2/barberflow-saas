@@ -13,10 +13,11 @@ import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
 import { DashboardBarbershop } from '../../core/booking.models';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-profile',
-  imports: [LucideExternalLink, LucideSave, ReactiveFormsModule],
+  imports: [TranslatePipe, LucideExternalLink, LucideSave, ReactiveFormsModule],
   templateUrl: './profile.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

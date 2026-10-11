@@ -4806,3 +4806,159 @@ app-theme-toggle {
     width: 130px;
   }
 }
+
+app-language-switcher {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.language-switcher {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--canvas);
+}
+
+.language-switcher button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 5px;
+  color: var(--ink-soft);
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.language-switcher button:hover {
+  color: var(--ink);
+  background: var(--canvas-strong);
+}
+
+.language-switcher button.active {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.language-switcher button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.appearance-controls,
+.auth-header-actions,
+.action-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-header-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.action-header {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.public-header {
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+}
+
+.public-header .public-nav {
+  justify-self: center;
+}
+
+.booking-public-actions,
+.dashboard-topbar .topbar-actions {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 1100px) and (min-width: 801px) {
+  .public-header {
+    grid-template-columns: auto 1fr;
+    column-gap: 16px;
+    row-gap: 0;
+    padding-top: 12px;
+  }
+
+  .public-header .public-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 42px;
+  }
+
+  .public-header .header-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 800px) {
+  .public-header {
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+  }
+
+  .public-header {
+    padding-block: 12px 8px;
+  }
+
+  .public-header .header-actions {
+    display: contents;
+  }
+
+  .public-header .header-actions > .button {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .public-header .appearance-controls {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+  }
+
+  .auth-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-block: 12px;
+  }
+
+  .auth-header-actions p {
+    margin: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .public-header .appearance-controls {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+  }
+
+  .public-header .appearance-controls app-theme-toggle {
+    justify-self: auto;
+  }
+
+  .booking-public-header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding-block: 12px;
+  }
+
+  .auth-header-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

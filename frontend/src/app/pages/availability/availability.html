@@ -1,34 +1,34 @@
 <div class="dashboard-content">
   <header class="page-heading page-heading-action">
     <div>
-      <p class="section-label">DISPONIBILIDADE</p>
-      <h1>Horário semanal</h1>
-      <p>Os clientes só poderão escolher horas dentro destes períodos.</p>
+      <p class="section-label">{{ 'DISPONIBILIDADE' | translate }}</p>
+      <h1>{{ 'Horário semanal' | translate }}</h1>
+      <p>{{ 'Os clientes só poderão escolher horas dentro destes períodos.' | translate }}</p>
     </div>
     <button class="button button-primary" type="button" (click)="save()" [disabled]="saving()">
       <svg lucideSave [size]="18" aria-hidden="true"></svg>
-      {{ saving() ? 'A guardar...' : 'Guardar horário' }}
+      {{ saving() ? ('A guardar...' | translate) : ('Guardar horário' | translate) }}
     </button>
   </header>
 
   @if (error()) {
-    <div class="form-alert" role="alert">{{ error() }}</div>
+    <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
   @if (success()) {
-    <div class="success-alert" role="status">{{ success() }}</div>
+    <div class="success-alert" role="status">{{ success() | translate }}</div>
   }
 
   <section class="schedule-panel">
     <div class="panel-heading">
       <div>
-        <p class="section-label">SEMANA</p>
-        <h2>Dias de trabalho</h2>
+        <p class="section-label">{{ 'SEMANA' | translate }}</p>
+        <h2>{{ 'Dias de trabalho' | translate }}</h2>
       </div>
-      <span>Intervalos de 30 minutos</span>
+      <span>{{ 'Intervalos de 30 minutos' | translate }}</span>
     </div>
 
     @if (loading()) {
-      <div class="loading-state">A carregar horários...</div>
+      <div class="loading-state">{{ 'A carregar horários...' | translate }}</div>
     } @else {
       <form [formGroup]="form">
         <div class="schedule-list">
@@ -41,20 +41,20 @@
               <label class="day-toggle">
                 <input type="checkbox" formControlName="enabled" />
                 <span class="toggle-control" aria-hidden="true"></span>
-                <strong>{{ dayLabel(day.controls.dayOfWeek.value) }}</strong>
+                <strong>{{ dayLabel(day.controls.dayOfWeek.value) | translate }}</strong>
               </label>
               <div class="time-range">
                 <label>
-                  <span>Abre</span>
+                  <span>{{ 'Abre' | translate }}</span>
                   <input
                     type="time"
                     formControlName="startTime"
                     [attr.tabindex]="day.controls.enabled.value ? 0 : -1"
                   />
                 </label>
-                <span aria-hidden="true">até</span>
+                <span aria-hidden="true">{{ 'até' | translate }}</span>
                 <label>
-                  <span>Fecha</span>
+                  <span>{{ 'Fecha' | translate }}</span>
                   <input
                     type="time"
                     formControlName="endTime"
@@ -62,7 +62,9 @@
                   />
                 </label>
               </div>
-              <span class="day-state">{{ day.controls.enabled.value ? 'ABERTO' : 'FECHADO' }}</span>
+              <span class="day-state">{{
+                day.controls.enabled.value ? ('ABERTO' | translate) : ('FECHADO' | translate)
+              }}</span>
             </div>
           }
         </div>
@@ -73,9 +75,11 @@
   <section class="availability-exceptions">
     <header class="subsection-heading">
       <div>
-        <p class="section-label">EXCEÇÕES</p>
-        <h2>Indisponibilidades pontuais</h2>
-        <p>Bloqueie férias, compromissos ou períodos em que não aceita marcações.</p>
+        <p class="section-label">{{ 'EXCEÇÕES' | translate }}</p>
+        <h2>{{ 'Indisponibilidades pontuais' | translate }}</h2>
+        <p>
+          {{ 'Bloqueie férias, compromissos ou períodos em que não aceita marcações.' | translate }}
+        </p>
       </div>
     </header>
 
@@ -83,13 +87,13 @@
       <form class="editor-panel" [formGroup]="blockForm" (ngSubmit)="createBlock()">
         <div class="panel-heading">
           <div>
-            <p class="section-label">NOVO BLOQUEIO</p>
-            <h2>Fechar um período</h2>
+            <p class="section-label">{{ 'NOVO BLOQUEIO' | translate }}</p>
+            <h2>{{ 'Fechar um período' | translate }}</h2>
           </div>
         </div>
 
         <label class="field">
-          <span>Data</span>
+          <span>{{ 'Data' | translate }}</span>
           <input type="date" formControlName="date" [min]="today" [max]="maxBlockDate" />
         </label>
 
@@ -97,27 +101,34 @@
           <input type="checkbox" formControlName="fullDay" />
           <span class="toggle-control" aria-hidden="true"></span>
           <span>
-            <strong>Dia completo</strong>
-            <small>Bloqueia todo o horário de trabalho.</small>
+            <strong>{{ 'Dia completo' | translate }}</strong>
+            <small>{{ 'Bloqueia todo o horário de trabalho.' | translate }}</small>
           </span>
         </label>
 
         @if (!blockForm.controls.fullDay.value) {
           <div class="form-grid compact-grid block-time-range">
             <label class="field">
-              <span>Início</span>
+              <span>{{ 'Início' | translate }}</span>
               <input type="time" formControlName="startTime" />
             </label>
             <label class="field">
-              <span>Fim</span>
+              <span>{{ 'Fim' | translate }}</span>
               <input type="time" formControlName="endTime" />
             </label>
           </div>
         }
 
         <label class="field">
-          <span>Motivo <small>opcional</small></span>
-          <input type="text" formControlName="reason" maxlength="255" placeholder="Ex.: Férias" />
+          <span
+            >{{ 'Motivo' | translate }} <small>{{ 'opcional' | translate }}</small></span
+          >
+          <input
+            type="text"
+            formControlName="reason"
+            maxlength="255"
+            [placeholder]="'Ex.: Férias' | translate"
+          />
         </label>
 
         <button
@@ -126,15 +137,19 @@
           [disabled]="creatingBlock()"
         >
           <svg lucidePlus [size]="18" aria-hidden="true"></svg>
-          {{ creatingBlock() ? 'A adicionar...' : 'Adicionar indisponibilidade' }}
+          {{
+            creatingBlock()
+              ? ('A adicionar...' | translate)
+              : ('Adicionar indisponibilidade' | translate)
+          }}
         </button>
       </form>
 
       <section class="list-panel block-list-panel">
         <div class="panel-heading">
           <div>
-            <p class="section-label">PRÓXIMOS PERÍODOS</p>
-            <h2>Agenda bloqueada</h2>
+            <p class="section-label">{{ 'PRÓXIMOS PERÍODOS' | translate }}</p>
+            <h2>{{ 'Agenda bloqueada' | translate }}</h2>
           </div>
           <span>{{ blocks().length }}</span>
         </div>
@@ -142,45 +157,49 @@
         @if (blocks().length === 0) {
           <div class="panel-empty block-empty">
             <svg lucideCalendarOff [size]="28" aria-hidden="true"></svg>
-            <strong>Não existem indisponibilidades.</strong>
-            <p>O horário semanal está aberto sem exceções futuras.</p>
+            <strong>{{ 'Não existem indisponibilidades.' | translate }}</strong>
+            <p>{{ 'O horário semanal está aberto sem exceções futuras.' | translate }}</p>
           </div>
         } @else {
           <div class="block-list">
             @for (block of blocks(); track block.id) {
               <article>
                 <time [attr.datetime]="block.startAt">
-                  <strong>{{ block.startAt | date: 'dd' }}</strong>
-                  <span>{{ block.startAt | date: 'MMM' }}</span>
+                  <strong>{{ block.startAt | date: 'dd' : undefined : i18n.locale() }}</strong>
+                  <span>{{ block.startAt | date: 'MMM' : undefined : i18n.locale() }}</span>
                 </time>
                 <div>
-                  <strong>{{ block.reason || 'Indisponível' }}</strong>
+                  <strong>{{ block.reason || ('Indisponível' | translate) }}</strong>
                   <span>
                     @if (block.fullDay) {
-                      Dia completo
+                      {{ 'Dia completo' | translate }}
                     } @else {
-                      {{ block.startAt | date: 'HH:mm' }}–{{ block.endAt | date: 'HH:mm' }}
+                      {{ block.startAt | date: 'HH:mm' : undefined : i18n.locale() }}–{{
+                        block.endAt | date: 'HH:mm' : undefined : i18n.locale()
+                      }}
                     }
                   </span>
                 </div>
                 @if (confirmingBlockId() === block.id) {
                   <div class="inline-confirm block-confirm">
-                    <span>Remover?</span>
+                    <span>{{ 'Remover?' | translate }}</span>
                     <button
                       type="button"
                       [disabled]="deletingBlockId() === block.id"
                       (click)="deleteBlock(block.id)"
                     >
-                      Sim
+                      {{ 'Sim' | translate }}
                     </button>
-                    <button type="button" (click)="cancelBlockDelete()">Não</button>
+                    <button type="button" (click)="cancelBlockDelete()">
+                      {{ 'Não' | translate }}
+                    </button>
                   </div>
                 } @else {
                   <button
                     class="icon-button danger-action"
                     type="button"
-                    title="Remover indisponibilidade"
-                    aria-label="Remover indisponibilidade"
+                    [title]="'Remover indisponibilidade' | translate"
+                    [attr.aria-label]="'Remover indisponibilidade' | translate"
                     (click)="confirmBlockDelete(block.id)"
                   >
                     <svg lucideTrash2 [size]="17" aria-hidden="true"></svg>

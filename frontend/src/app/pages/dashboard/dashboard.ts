@@ -21,10 +21,13 @@ import { finalize, forkJoin } from 'rxjs';
 import { BookingApiService } from '../../core/booking-api.service';
 import { ApiError } from '../../core/auth.models';
 import { Booking, DashboardAnalytics, DashboardBarbershop } from '../../core/booking.models';
+import { LanguageService } from '../../core/language.service';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-dashboard',
   imports: [
+    TranslatePipe,
     CurrencyPipe,
     DatePipe,
     LucideCalendarDays,
@@ -39,6 +42,7 @@ import { Booking, DashboardAnalytics, DashboardBarbershop } from '../../core/boo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Dashboard implements OnInit {
+  readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
 
   readonly shop = signal<DashboardBarbershop | null>(null);

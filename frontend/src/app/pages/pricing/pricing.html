@@ -2,50 +2,55 @@
 
 <main class="pricing-page">
   <section class="pricing-hero page-container">
-    <p class="section-number">PLANO ÚNICO</p>
+    <p class="section-number">{{ 'PLANO ÚNICO' | translate }}</p>
     <div>
-      <h1>Marcações online.<br />Beta gratuita.</h1>
+      <h1>{{ 'Marcações online.' | translate }}<br />{{ 'Beta gratuita.' | translate }}</h1>
       <p>
-        Acesso sem cobrança durante a validação do produto com os primeiros utilizadores.
+        {{
+          'Acesso sem cobrança durante a validação do produto com os primeiros utilizadores.'
+            | translate
+        }}
       </p>
     </div>
   </section>
 
   <section class="plan-sheet page-container" aria-labelledby="plan-title">
     <div class="plan-summary">
-      <span class="trial-label">ACESSO BETA</span>
-      <h2 id="plan-title">Marcações</h2>
-      <p>Para barbeiros independentes e equipas pequenas.</p>
-      <div class="price"><strong>0 €</strong><span>durante a beta</span></div>
+      <span class="trial-label">{{ 'ACESSO BETA' | translate }}</span>
+      <h2 id="plan-title">{{ 'Marcações' | translate }}</h2>
+      <p>{{ 'Para barbeiros independentes e equipas pequenas.' | translate }}</p>
+      <div class="price">
+        <strong>0 €</strong><span>{{ 'durante a beta' | translate }}</span>
+      </div>
       <a class="button button-primary button-large" routerLink="/register">
-        Criar conta
+        {{ 'Criar conta' | translate }}
         <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
       </a>
-      <p class="price-note">Sem cartão e sem cobrança nesta fase.</p>
+      <p class="price-note">{{ 'Sem cartão e sem cobrança nesta fase.' | translate }}</p>
     </div>
 
     <div class="plan-includes">
-      <p class="plan-list-title">INCLUÍDO NO PLANO</p>
+      <p class="plan-list-title">{{ 'INCLUÍDO NO PLANO' | translate }}</p>
       <ul class="feature-list">
         <li>
           <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>Página pública com o nome e o link da sua barbearia</span>
+          ><span>{{ 'Página pública com o nome e o link da sua barbearia' | translate }}</span>
         </li>
         <li>
           <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>Serviços com preço e duração configuráveis</span>
+          ><span>{{ 'Serviços com preço e duração configuráveis' | translate }}</span>
         </li>
         <li>
           <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>Horários de trabalho e disponibilidade</span>
+          ><span>{{ 'Horários de trabalho e disponibilidade' | translate }}</span>
         </li>
         <li>
           <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>Agenda central para consultar as marcações</span>
+          ><span>{{ 'Agenda central para consultar as marcações' | translate }}</span>
         </li>
         <li>
           <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>Conta de administrador protegida</span>
+          ><span>{{ 'Conta de administrador protegida' | translate }}</span>
         </li>
       </ul>
     </div>
@@ -53,13 +58,14 @@
 
   <section class="billing-note">
     <div class="page-container billing-note-layout">
-      <p class="section-number">NOTA DO MVP</p>
+      <p class="section-number">{{ 'NOTA DO MVP' | translate }}</p>
       <div>
-        <h2>Sem pagamentos nesta fase.</h2>
+        <h2>{{ 'Sem pagamentos nesta fase.' | translate }}</h2>
         <p>
-          Nesta fase pode percorrer o registo e testar a plataforma sem introduzir dados de
-          pagamento. Os preços comerciais só serão apresentados quando a subscrição estiver
-          integrada e testada.
+          {{
+            'Nesta fase pode percorrer o registo e testar a plataforma sem introduzir dados de pagamento. Os preços comerciais só serão apresentados quando a subscrição estiver integrada e testada.'
+              | translate
+          }}
         </p>
       </div>
     </div>

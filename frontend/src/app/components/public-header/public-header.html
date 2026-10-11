@@ -1,19 +1,24 @@
 <header class="public-header">
-  <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
+  <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
     <span class="brand-stripes" aria-hidden="true"> <i></i><i></i><i></i> </span>
     <span class="brand-name">BarberFlow</span>
   </a>
 
-  <nav class="public-nav" aria-label="Navegação principal">
+  <nav class="public-nav" [attr.aria-label]="'Navegação principal' | translate">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      Início
+      {{ 'Início' | translate }}
     </a>
-    <a routerLink="/pricing" routerLinkActive="active">Preço</a>
+    <a routerLink="/pricing" routerLinkActive="active">{{ 'Preço' | translate }}</a>
   </nav>
 
   <div class="header-actions">
-    <app-theme-toggle />
-    <a class="text-link" routerLink="/login">Entrar</a>
-    <a class="button button-small button-primary" routerLink="/register">Começar grátis</a>
+    <div class="appearance-controls">
+      <app-language-switcher />
+      <app-theme-toggle />
+    </div>
+    <a class="text-link" routerLink="/login">{{ 'Entrar' | translate }}</a>
+    <a class="button button-small button-primary" routerLink="/register">{{
+      'Começar grátis' | translate
+    }}</a>
   </div>
 </header>

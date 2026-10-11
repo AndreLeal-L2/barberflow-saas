@@ -5,10 +5,12 @@ import { LucideCalendarX } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-cancel-booking',
-  imports: [LucideCalendarX, RouterLink],
+  imports: [LanguageSwitcher, TranslatePipe, LucideCalendarX, RouterLink],
   templateUrl: './cancel-booking.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

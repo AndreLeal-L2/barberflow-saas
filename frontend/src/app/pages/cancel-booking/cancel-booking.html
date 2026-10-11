@@ -1,22 +1,29 @@
 <main class="action-page">
-  <a class="brand" routerLink="/" aria-label="BarberFlow, página inicial">
-    <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
-    <span class="brand-name">BarberFlow</span>
-  </a>
+  <header class="action-header">
+    <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
+      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-name">BarberFlow</span>
+    </a>
+    <app-language-switcher />
+  </header>
 
   <section class="action-panel">
     <svg lucideCalendarX [size]="32" aria-hidden="true"></svg>
     @if (success()) {
-      <p class="section-label">MARCAÇÃO CANCELADA</p>
-      <h1>{{ success() }}</h1>
-      <p>A barbearia recebeu a atualização e o horário voltou a ficar disponível.</p>
-      <a class="button button-secondary" routerLink="/">Fechar</a>
+      <p class="section-label">{{ 'MARCAÇÃO CANCELADA' | translate }}</p>
+      <h1>{{ success() | translate }}</h1>
+      <p>
+        {{ 'A barbearia recebeu a atualização e o horário voltou a ficar disponível.' | translate }}
+      </p>
+      <a class="button button-secondary" routerLink="/">{{ 'Fechar' | translate }}</a>
     } @else {
-      <p class="section-label">CANCELAMENTO</p>
-      <h1>Cancelar esta marcação?</h1>
-      <p>Esta ação é definitiva. Para alterar o horário, faça uma nova marcação.</p>
+      <p class="section-label">{{ 'CANCELAMENTO' | translate }}</p>
+      <h1>{{ 'Cancelar esta marcação?' | translate }}</h1>
+      <p>
+        {{ 'Esta ação é definitiva. Para alterar o horário, faça uma nova marcação.' | translate }}
+      </p>
       @if (error()) {
-        <div class="form-alert" role="alert">{{ error() }}</div>
+        <div class="form-alert" role="alert">{{ error() | translate }}</div>
       }
       <button
         class="button button-danger"
@@ -24,7 +31,7 @@
         [disabled]="submitting() || !token"
         (click)="cancel()"
       >
-        {{ submitting() ? 'A cancelar...' : 'Confirmar cancelamento' }}
+        {{ submitting() ? ('A cancelar...' | translate) : ('Confirmar cancelamento' | translate) }}
       </button>
     }
   </section>

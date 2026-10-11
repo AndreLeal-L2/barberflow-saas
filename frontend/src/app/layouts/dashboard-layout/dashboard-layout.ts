@@ -13,10 +13,14 @@ import {
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
 import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-dashboard-layout',
   imports: [
+    LanguageSwitcher,
+    TranslatePipe,
     ThemeToggle,
     LucideCalendarDays,
     LucideClock,

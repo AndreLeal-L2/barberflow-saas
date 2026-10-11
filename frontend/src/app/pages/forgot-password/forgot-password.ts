@@ -6,10 +6,19 @@ import { LucideArrowLeft, LucideMail } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [LucideArrowLeft, LucideMail, ReactiveFormsModule, RouterLink],
+  imports: [
+    LanguageSwitcher,
+    TranslatePipe,
+    LucideArrowLeft,
+    LucideMail,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './forgot-password.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
