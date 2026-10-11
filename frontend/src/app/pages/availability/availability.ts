@@ -17,14 +17,25 @@ const WEEK_DAYS: { value: DayOfWeek; label: string }[] = [
   { value: 'SATURDAY', label: 'Sábado' },
   { value: 'SUNDAY', label: 'Domingo' },
 ];
+import { LanguageService } from '../../core/language.service';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-availability',
-  imports: [DatePipe, LucideCalendarOff, LucidePlus, LucideSave, LucideTrash2, ReactiveFormsModule],
+  imports: [
+    TranslatePipe,
+    DatePipe,
+    LucideCalendarOff,
+    LucidePlus,
+    LucideSave,
+    LucideTrash2,
+    ReactiveFormsModule,
+  ],
   templateUrl: './availability.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Availability implements OnInit {
+  readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
 

@@ -1,22 +1,22 @@
 <div class="dashboard-content">
   <header class="page-heading dashboard-page-heading">
     <div>
-      <p class="section-label">VISÃO GERAL</p>
-      <h1>Hoje na barbearia</h1>
-      <p>Clientes, horários e atividade da agenda num só lugar.</p>
+      <p class="section-label">{{ 'VISÃO GERAL' | translate }}</p>
+      <h1>{{ 'Hoje na barbearia' | translate }}</h1>
+      <p>{{ 'Clientes, horários e atividade da agenda num só lugar.' | translate }}</p>
     </div>
     <a class="button button-secondary button-small" routerLink="/dashboard/bookings">
       <svg lucideCalendarDays [size]="17" aria-hidden="true"></svg>
-      Abrir agenda
+      {{ 'Abrir agenda' | translate }}
     </a>
   </header>
 
   @if (error()) {
-    <div class="form-alert" role="alert">{{ error() }}</div>
+    <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
 
   @if (loading()) {
-    <div class="loading-state">A carregar o painel...</div>
+    <div class="loading-state">{{ 'A carregar o painel...' | translate }}</div>
   } @else if (shop(); as currentShop) {
     <section class="activation-banner" [class.published]="currentShop.published">
       <span class="activation-icon" aria-hidden="true">
@@ -24,20 +24,24 @@
       </span>
       <div class="activation-copy">
         <p class="section-number">
-          {{ currentShop.published ? 'PÁGINA ONLINE' : 'PÁGINA POR PUBLICAR' }}
+          {{
+            currentShop.published
+              ? ('PÁGINA ONLINE' | translate)
+              : ('PÁGINA POR PUBLICAR' | translate)
+          }}
         </p>
         <h2>
           {{
             currentShop.published
-              ? 'A agenda está aberta a novas marcações.'
-              : 'Termine a configuração para abrir a agenda.'
+              ? ('A agenda está aberta a novas marcações.' | translate)
+              : ('Termine a configuração para abrir a agenda.' | translate)
           }}
         </h2>
         <p>
           {{
             currentShop.published
-              ? 'Os horários livres já estão disponíveis no seu link público.'
-              : currentShop.completedSetupSteps + ' de 4 passos concluídos.'
+              ? ('Os horários livres já estão disponíveis no seu link público.' | translate)
+              : currentShop.completedSetupSteps + (' de 4 passos concluídos.' | translate)
           }}
         </p>
       </div>
@@ -45,7 +49,8 @@
         @if (!currentShop.published) {
           <div class="activation-progress">
             <div>
-              <span>Configuração</span><strong>{{ progress() }}%</strong>
+              <span>{{ 'Configuração' | translate }}</span
+              ><strong>{{ progress() }}%</strong>
             </div>
             <div class="progress-track"><span [style.width.%]="progress()"></span></div>
           </div>
@@ -61,10 +66,10 @@
           >
             {{
               savingPublication()
-                ? 'A guardar...'
+                ? ('A guardar...' | translate)
                 : currentShop.published
-                  ? 'Pausar marcações'
-                  : 'Publicar página'
+                  ? ('Pausar marcações' | translate)
+                  : ('Publicar página' | translate)
             }}
           </button>
         }
@@ -72,35 +77,42 @@
     </section>
 
     @if (analytics(); as currentAnalytics) {
-      <dl class="analytics-metrics dashboard-kpis" aria-label="Resumo da agenda">
+      <dl
+        class="analytics-metrics dashboard-kpis"
+        [attr.aria-label]="'Resumo da agenda' | translate"
+      >
         <div>
-          <dt>Marcações hoje</dt>
+          <dt>{{ 'Marcações hoje' | translate }}</dt>
           <dd>{{ currentAnalytics.bookingsToday }}</dd>
           <span>{{
-            currentAnalytics.bookingsToday === 1 ? 'cliente confirmado' : 'clientes confirmados'
+            currentAnalytics.bookingsToday === 1
+              ? ('cliente confirmado' | translate)
+              : ('clientes confirmados' | translate)
           }}</span>
         </div>
         <div>
-          <dt>Próximos 30 dias</dt>
+          <dt>{{ 'Próximos 30 dias' | translate }}</dt>
           <dd>{{ currentAnalytics.upcomingBookings }}</dd>
           <span>{{
-            currentAnalytics.upcomingBookings === 1 ? 'marcação futura' : 'marcações futuras'
+            currentAnalytics.upcomingBookings === 1
+              ? ('marcação futura' | translate)
+              : ('marcações futuras' | translate)
           }}</span>
         </div>
         <div>
-          <dt>Concluídas</dt>
+          <dt>{{ 'Concluídas' | translate }}</dt>
           <dd>{{ currentAnalytics.completedLast30Days }}</dd>
-          <span>nos últimos 30 dias</span>
+          <span>{{ 'nos últimos 30 dias' | translate }}</span>
         </div>
         <div>
-          <dt>Valor agendado</dt>
+          <dt>{{ 'Valor agendado' | translate }}</dt>
           <dd>
             {{
               currentAnalytics.scheduledValue
-                | currency: currentAnalytics.priceCurrency : 'symbol' : '1.2-2' : 'pt-PT'
+                | currency: currentAnalytics.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
             }}
           </dd>
-          <span>próximas marcações</span>
+          <span>{{ 'próximas marcações' | translate }}</span>
         </div>
       </dl>
 
@@ -109,18 +121,24 @@
           <section class="agenda-section">
             <div class="dashboard-section-heading">
               <div>
-                <p class="section-label">A SEGUIR</p>
-                <h2>Próximas marcações</h2>
+                <p class="section-label">{{ 'A SEGUIR' | translate }}</p>
+                <h2>{{ 'Próximas marcações' | translate }}</h2>
               </div>
-              <a class="section-link" routerLink="/dashboard/bookings">Ver agenda completa</a>
+              <a class="section-link" routerLink="/dashboard/bookings">{{
+                'Ver agenda completa' | translate
+              }}</a>
             </div>
             @if (nextBookings().length) {
               <div class="compact-booking-list">
                 @for (booking of nextBookings(); track booking.id) {
                   <article>
                     <time [attr.datetime]="booking.startAt">
-                      <strong>{{ booking.startAt | date: 'HH:mm' }}</strong>
-                      <span>{{ booking.startAt | date: 'dd MMM' }}</span>
+                      <strong>{{
+                        booking.startAt | date: 'HH:mm' : undefined : i18n.locale()
+                      }}</strong>
+                      <span>{{
+                        booking.startAt | date: 'dd MMM' : undefined : i18n.locale()
+                      }}</span>
                     </time>
                     <span class="booking-list-marker" aria-hidden="true"></span>
                     <div>
@@ -129,7 +147,7 @@
                         >{{ booking.serviceName }} · {{ booking.serviceDurationMinutes }} min</span
                       >
                     </div>
-                    <span class="booking-status confirmed">Confirmada</span>
+                    <span class="booking-status confirmed">{{ 'Confirmada' | translate }}</span>
                   </article>
                 }
               </div>
@@ -137,8 +155,8 @@
               <div class="agenda-empty">
                 <svg lucideCalendarDays [size]="24" aria-hidden="true"></svg>
                 <div>
-                  <strong>A agenda está livre.</strong>
-                  <p>As próximas marcações aparecem aqui automaticamente.</p>
+                  <strong>{{ 'A agenda está livre.' | translate }}</strong>
+                  <p>{{ 'As próximas marcações aparecem aqui automaticamente.' | translate }}</p>
                 </div>
               </div>
             }
@@ -147,40 +165,51 @@
           <section class="analytics-section" aria-labelledby="analytics-title">
             <header class="analytics-heading">
               <div>
-                <p class="section-label">PRÓXIMOS 14 DIAS</p>
-                <h2 id="analytics-title">Ocupação da agenda</h2>
+                <p class="section-label">{{ 'PRÓXIMOS 14 DIAS' | translate }}</p>
+                <h2 id="analytics-title">{{ 'Ocupação da agenda' | translate }}</h2>
               </div>
-              <p>Até {{ currentAnalytics.upcomingPeriodEnd | date: 'dd MMM yyyy' }}</p>
+              <p>
+                {{ 'Até' | translate }}
+                {{
+                  currentAnalytics.upcomingPeriodEnd
+                    | date: 'dd MMM yyyy' : undefined : i18n.locale()
+                }}
+              </p>
             </header>
             <div class="activity-panel">
               <div class="activity-summary">
                 @if (currentAnalytics.topUpcomingService; as topService) {
-                  <span>Serviço mais marcado</span>
+                  <span>{{ 'Serviço mais marcado' | translate }}</span>
                   <h3>{{ topService.name }}</h3>
                   <p>
                     {{ topService.bookingCount }}
                     {{
                       topService.bookingCount === 1
-                        ? 'marcação confirmada'
-                        : 'marcações confirmadas'
+                        ? ('marcação confirmada' | translate)
+                        : ('marcações confirmadas' | translate)
                     }}
-                    no próximo mês.
+                    {{ 'no próximo mês.' | translate }}
                   </p>
                 } @else {
-                  <span>Serviço mais marcado</span>
-                  <h3>Sem dados ainda</h3>
-                  <p>Este resumo será preenchido com as próximas marcações.</p>
+                  <span>{{ 'Serviço mais marcado' | translate }}</span>
+                  <h3>{{ 'Sem dados ainda' | translate }}</h3>
+                  <p>{{ 'Este resumo será preenchido com as próximas marcações.' | translate }}</p>
                 }
               </div>
 
-              <ol class="activity-bars" aria-label="Marcações confirmadas por dia">
+              <ol
+                class="activity-bars"
+                [attr.aria-label]="'Marcações confirmadas por dia' | translate"
+              >
                 @for (day of activityDays(); track day.date) {
                   <li>
                     <span
                       class="activity-bar-track"
                       [attr.aria-label]="
                         day.bookingCount +
-                        (day.bookingCount === 1 ? ' marcação em ' : ' marcações em ') +
+                        (day.bookingCount === 1
+                          ? (' marcação em ' | translate)
+                          : (' marcações em ' | translate)) +
                         day.date
                       "
                     >
@@ -190,13 +219,17 @@
                         [style.height.%]="day.height"
                         [attr.title]="
                           day.bookingCount +
-                          (day.bookingCount === 1 ? ' marcação em ' : ' marcações em ') +
+                          (day.bookingCount === 1
+                            ? (' marcação em ' | translate)
+                            : (' marcações em ' | translate)) +
                           day.date
                         "
                       ></span>
                     </span>
-                    <time [attr.datetime]="day.date">{{ day.date | date: 'dd' }}</time>
-                    <small>{{ day.date | date: 'EEE' }}</small>
+                    <time [attr.datetime]="day.date">{{
+                      day.date | date: 'dd' : undefined : i18n.locale()
+                    }}</time>
+                    <small>{{ day.date | date: 'EEE' : undefined : i18n.locale() }}</small>
                   </li>
                 }
               </ol>
@@ -209,27 +242,35 @@
             <div class="public-link-heading">
               <span class="publication-dot" [class.active]="currentShop.published"></span>
               <div>
-                <p class="section-label">LINK DE MARCAÇÃO</p>
-                <h2>{{ currentShop.published ? 'Página ativa' : 'Página inativa' }}</h2>
+                <p class="section-label">{{ 'LINK DE MARCAÇÃO' | translate }}</p>
+                <h2>
+                  {{
+                    currentShop.published
+                      ? ('Página ativa' | translate)
+                      : ('Página inativa' | translate)
+                  }}
+                </h2>
               </div>
             </div>
-            <p>Partilhe este endereço no Instagram, WhatsApp ou perfil do Google.</p>
+            <p>
+              {{ 'Partilhe este endereço no Instagram, WhatsApp ou perfil do Google.' | translate }}
+            </p>
             <div class="link-copy-field">
               <span>{{ publicUrl() }}</span>
               <button
                 class="icon-button"
                 type="button"
                 (click)="copyPublicUrl()"
-                title="Copiar link"
-                aria-label="Copiar link"
+                [title]="'Copiar link' | translate"
+                [attr.aria-label]="'Copiar link' | translate"
               >
                 <svg lucideCopy [size]="18"></svg>
               </button>
             </div>
-            <span class="copy-feedback">{{ copied() ? 'Link copiado.' : '' }}</span>
+            <span class="copy-feedback">{{ copied() ? ('Link copiado.' | translate) : '' }}</span>
             @if (currentShop.published) {
               <a class="button button-secondary button-full" [href]="publicUrl()" target="_blank">
-                Abrir como cliente
+                {{ 'Abrir como cliente' | translate }}
                 <svg lucideExternalLink [size]="16" aria-hidden="true"></svg>
               </a>
             }
@@ -239,15 +280,18 @@
             <section class="setup-section compact-setup-section">
               <div class="dashboard-section-heading">
                 <div>
-                  <p class="section-label">CONFIGURAÇÃO</p>
-                  <h2>Preparar a página</h2>
+                  <p class="section-label">{{ 'CONFIGURAÇÃO' | translate }}</p>
+                  <h2>{{ 'Preparar a página' | translate }}</h2>
                 </div>
                 <span>{{ currentShop.completedSetupSteps }}/4</span>
               </div>
               <ol class="setup-list">
                 <li class="complete">
                   <svg lucideCircleCheck [size]="20"></svg>
-                  <div><strong>Conta criada</strong><span>Dados principais registados.</span></div>
+                  <div>
+                    <strong>{{ 'Conta criada' | translate }}</strong
+                    ><span>{{ 'Dados principais registados.' | translate }}</span>
+                  </div>
                 </li>
                 <li [class.complete]="currentShop.serviceCount > 0">
                   @if (currentShop.serviceCount > 0) {
@@ -256,8 +300,10 @@
                     <svg lucideCircle [size]="20"></svg>
                   }
                   <div>
-                    <a routerLink="/dashboard/services"><strong>Adicionar serviços</strong></a>
-                    <span>Nome, duração e preço.</span>
+                    <a routerLink="/dashboard/services"
+                      ><strong>{{ 'Adicionar serviços' | translate }}</strong></a
+                    >
+                    <span>{{ 'Nome, duração e preço.' | translate }}</span>
                   </div>
                 </li>
                 <li [class.complete]="currentShop.availabilityDayCount > 0">
@@ -267,28 +313,36 @@
                     <svg lucideCircle [size]="20"></svg>
                   }
                   <div>
-                    <a routerLink="/dashboard/availability"><strong>Definir horários</strong></a>
-                    <span>Dias e horas disponíveis.</span>
+                    <a routerLink="/dashboard/availability"
+                      ><strong>{{ 'Definir horários' | translate }}</strong></a
+                    >
+                    <span>{{ 'Dias e horas disponíveis.' | translate }}</span>
                   </div>
                 </li>
               </ol>
             </section>
           } @else {
             <section class="account-section">
-              <p class="section-label">ÚLTIMOS 30 DIAS</p>
-              <h2>Resumo</h2>
+              <p class="section-label">{{ 'ÚLTIMOS 30 DIAS' | translate }}</p>
+              <h2>{{ 'Resumo' | translate }}</h2>
               <dl>
                 <div>
-                  <dt>Concluídas</dt>
+                  <dt>{{ 'Concluídas' | translate }}</dt>
                   <dd>{{ currentAnalytics.completedLast30Days }}</dd>
                 </div>
                 <div>
-                  <dt>Canceladas</dt>
+                  <dt>{{ 'Canceladas' | translate }}</dt>
                   <dd>{{ currentAnalytics.cancelledLast30Days }}</dd>
                 </div>
                 <div>
-                  <dt>Estado</dt>
-                  <dd>{{ currentShop.published ? 'A aceitar marcações' : 'Em preparação' }}</dd>
+                  <dt>{{ 'Estado' | translate }}</dt>
+                  <dd>
+                    {{
+                      currentShop.published
+                        ? ('A aceitar marcações' | translate)
+                        : ('Em preparação' | translate)
+                    }}
+                  </dd>
                 </div>
               </dl>
             </section>

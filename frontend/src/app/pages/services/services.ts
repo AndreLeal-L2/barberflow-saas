@@ -7,14 +7,25 @@ import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
 import { CatalogService } from '../../core/booking.models';
+import { LanguageService } from '../../core/language.service';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-services',
-  imports: [CurrencyPipe, LucidePencil, LucidePlus, LucideTrash2, LucideX, ReactiveFormsModule],
+  imports: [
+    TranslatePipe,
+    CurrencyPipe,
+    LucidePencil,
+    LucidePlus,
+    LucideTrash2,
+    LucideX,
+    ReactiveFormsModule,
+  ],
   templateUrl: './services.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Services implements OnInit {
+  readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
 

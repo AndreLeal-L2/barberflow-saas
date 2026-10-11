@@ -47,6 +47,7 @@ Each business has a public booking page and a private owner dashboard. The API e
 The working MVP includes:
 
 - Responsive landing and pricing pages
+- Site-wide Portuguese (Portugal) and English selection with saved preference and localized dates/prices
 - Barbershop owner registration
 - Login, authenticated session recovery, and logout
 - Email verification and one-time password recovery links

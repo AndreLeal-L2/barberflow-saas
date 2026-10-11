@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideArrowRight, LucideCheck } from '@lucide/angular';
 import { PublicHeader } from '../../components/public-header/public-header';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-pricing',
-  imports: [LucideArrowRight, LucideCheck, PublicHeader, RouterLink],
+  imports: [TranslatePipe, LucideArrowRight, LucideCheck, PublicHeader, RouterLink],
   templateUrl: './pricing.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

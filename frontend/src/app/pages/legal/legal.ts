@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PublicHeader } from '../../components/public-header/public-header';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-legal',
-  imports: [PublicHeader, RouterLink],
+  imports: [TranslatePipe, PublicHeader, RouterLink],
   templateUrl: './legal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

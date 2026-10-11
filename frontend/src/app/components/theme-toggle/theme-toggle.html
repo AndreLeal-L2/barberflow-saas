@@ -1,24 +1,24 @@
-<div class="theme-toggle" role="group" aria-label="Tema do site">
+<div class="theme-toggle" role="group" [attr.aria-label]="'Tema do site' | translate">
   <button
     type="button"
     [class.active]="themes.theme() === 'LIGHT'"
     [attr.aria-pressed]="themes.theme() === 'LIGHT'"
     (click)="themes.setTheme('LIGHT')"
-    aria-label="Tema claro"
-    title="Tema claro"
+    [attr.aria-label]="'Tema claro' | translate"
+    [title]="'Tema claro' | translate"
   >
     <svg lucideSun [size]="16" aria-hidden="true"></svg>
-    <span>Claro</span>
+    <span>{{ 'Claro' | translate }}</span>
   </button>
   <button
     type="button"
     [class.active]="themes.theme() === 'DARK'"
     [attr.aria-pressed]="themes.theme() === 'DARK'"
     (click)="themes.setTheme('DARK')"
-    aria-label="Tema escuro"
-    title="Tema escuro"
+    [attr.aria-label]="'Tema escuro' | translate"
+    [title]="'Tema escuro' | translate"
   >
     <svg lucideMoon [size]="16" aria-hidden="true"></svg>
-    <span>Escuro</span>
+    <span>{{ 'Escuro' | translate }}</span>
   </button>
 </div>

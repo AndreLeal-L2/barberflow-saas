@@ -18,10 +18,20 @@ function matchingPasswords(control: AbstractControl): ValidationErrors | null {
   const confirmation = control.get('confirmPassword')?.value;
   return password === confirmation ? null : { passwordsDoNotMatch: true };
 }
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-register',
-  imports: [LucideArrowLeft, LucideEye, LucideEyeOff, ReactiveFormsModule, RouterLink],
+  imports: [
+    LanguageSwitcher,
+    TranslatePipe,
+    LucideArrowLeft,
+    LucideEye,
+    LucideEyeOff,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './register.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -6,10 +6,20 @@ import { LucideArrowLeft, LucideEye, LucideEyeOff } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-login',
-  imports: [LucideArrowLeft, LucideEye, LucideEyeOff, ReactiveFormsModule, RouterLink],
+  imports: [
+    LanguageSwitcher,
+    TranslatePipe,
+    LucideArrowLeft,
+    LucideEye,
+    LucideEyeOff,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './login.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

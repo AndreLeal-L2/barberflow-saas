@@ -18,10 +18,20 @@ function matchingPasswords(control: AbstractControl): ValidationErrors | null {
     ? null
     : { passwordsDoNotMatch: true };
 }
+import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [LucideEye, LucideEyeOff, LucideKeyRound, ReactiveFormsModule, RouterLink],
+  imports: [
+    LanguageSwitcher,
+    TranslatePipe,
+    LucideEye,
+    LucideEyeOff,
+    LucideKeyRound,
+    ReactiveFormsModule,
+    RouterLink,
+  ],
   templateUrl: './reset-password.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

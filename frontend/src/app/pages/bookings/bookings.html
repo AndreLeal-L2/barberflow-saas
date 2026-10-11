@@ -1,54 +1,60 @@
 <div class="dashboard-content">
   <header class="page-heading">
     <div>
-      <p class="section-label">AGENDA</p>
-      <h1>Marcações</h1>
-      <p>Consulte os próximos clientes e mantenha o histórico organizado.</p>
+      <p class="section-label">{{ 'AGENDA' | translate }}</p>
+      <h1>{{ 'Marcações' | translate }}</h1>
+      <p>{{ 'Consulte os próximos clientes e mantenha o histórico organizado.' | translate }}</p>
     </div>
   </header>
 
   @if (error()) {
-    <div class="form-alert" role="alert">{{ error() }}</div>
+    <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
 
   <section class="list-panel booking-panel">
     <div class="panel-heading booking-toolbar">
       <div>
-        <h2>Agenda da barbearia</h2>
+        <h2>{{ 'Agenda da barbearia' | translate }}</h2>
         <p>
           {{ bookings().length }}
-          {{ bookings().length === 1 ? 'marcação registada' : 'marcações registadas' }}
+          {{
+            bookings().length === 1
+              ? ('marcação registada' | translate)
+              : ('marcações registadas' | translate)
+          }}
         </p>
       </div>
-      <div class="segmented-control" aria-label="Filtrar marcações">
+      <div class="segmented-control" [attr.aria-label]="'Filtrar marcações' | translate">
         <button
           type="button"
           [class.active]="filter() === 'UPCOMING'"
           (click)="setFilter('UPCOMING')"
         >
-          Próximas
+          {{ 'Próximas' | translate }}
         </button>
         <button
           type="button"
           [class.active]="filter() === 'HISTORY'"
           (click)="setFilter('HISTORY')"
         >
-          Histórico
+          {{ 'Histórico' | translate }}
         </button>
       </div>
     </div>
 
     @if (loading()) {
-      <div class="panel-loading">A carregar marcações...</div>
+      <div class="panel-loading">{{ 'A carregar marcações...' | translate }}</div>
     } @else if (visibleBookings().length === 0) {
       <div class="panel-empty booking-empty">
         <svg lucideCalendarCheck [size]="30" aria-hidden="true"></svg>
-        <strong>{{ filter() === 'UPCOMING' ? 'Agenda livre' : 'Sem histórico' }}</strong>
+        <strong>{{
+          filter() === 'UPCOMING' ? ('Agenda livre' | translate) : ('Sem histórico' | translate)
+        }}</strong>
         <span>
           {{
             filter() === 'UPCOMING'
-              ? 'As novas marcações surgem aqui assim que os clientes reservarem.'
-              : 'As marcações concluídas ou canceladas aparecem aqui.'
+              ? ('As novas marcações surgem aqui assim que os clientes reservarem.' | translate)
+              : ('As marcações concluídas ou canceladas aparecem aqui.' | translate)
           }}
         </span>
       </div>
@@ -57,12 +63,12 @@
         @for (booking of visibleBookings(); track booking.id) {
           <article class="booking-row-full">
             <time [attr.datetime]="booking.startAt" class="booking-date-block">
-              <strong>{{ booking.startAt | date: 'dd' }}</strong>
-              <span>{{ booking.startAt | date: 'MMM' }}</span>
+              <strong>{{ booking.startAt | date: 'dd' : undefined : i18n.locale() }}</strong>
+              <span>{{ booking.startAt | date: 'MMM' : undefined : i18n.locale() }}</span>
             </time>
 
             <div class="booking-time-block">
-              <strong>{{ booking.startAt | date: 'HH:mm' }}</strong>
+              <strong>{{ booking.startAt | date: 'HH:mm' : undefined : i18n.locale() }}</strong>
               <span>{{ booking.serviceDurationMinutes }} min</span>
             </div>
 
@@ -73,14 +79,17 @@
 
             <div class="booking-service">
               <strong>{{ booking.serviceName }}</strong>
-              <span>{{ booking.servicePrice | currency: booking.priceCurrency }}</span>
+              <span>{{
+                booking.servicePrice
+                  | currency: booking.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
+              }}</span>
             </div>
 
             <span
               class="booking-status"
               [class]="'booking-status status-' + booking.status.toLowerCase()"
             >
-              {{ statusLabel(booking.status) }}
+              {{ statusLabel(booking.status) | translate }}
             </span>
 
             @if (booking.status === 'CONFIRMED') {
@@ -88,8 +97,8 @@
                 <button
                   class="icon-button"
                   type="button"
-                  title="Cancelar marcação"
-                  aria-label="Cancelar marcação"
+                  [title]="'Cancelar marcação' | translate"
+                  [attr.aria-label]="'Cancelar marcação' | translate"
                   [disabled]="updatingId() === booking.id"
                   (click)="updateStatus(booking, 'CANCELLED')"
                 >
@@ -98,8 +107,8 @@
                 <button
                   class="icon-button complete-button"
                   type="button"
-                  title="Marcar como concluída"
-                  aria-label="Marcar como concluída"
+                  [title]="'Marcar como concluída' | translate"
+                  [attr.aria-label]="'Marcar como concluída' | translate"
                   [disabled]="!canComplete(booking) || updatingId() === booking.id"
                   (click)="updateStatus(booking, 'COMPLETED')"
                 >

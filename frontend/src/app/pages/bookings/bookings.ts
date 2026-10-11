@@ -15,14 +15,17 @@ import { BookingApiService } from '../../core/booking-api.service';
 import { Booking, BookingStatus } from '../../core/booking.models';
 
 type BookingFilter = 'UPCOMING' | 'HISTORY';
+import { LanguageService } from '../../core/language.service';
+import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
   selector: 'app-bookings',
-  imports: [CurrencyPipe, DatePipe, LucideCalendarCheck, LucideCheck, LucideX],
+  imports: [TranslatePipe, CurrencyPipe, DatePipe, LucideCalendarCheck, LucideCheck, LucideX],
   templateUrl: './bookings.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Bookings implements OnInit {
+  readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
 
   readonly bookings = signal<Booking[]>([]);

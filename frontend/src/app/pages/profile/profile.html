@@ -1,93 +1,109 @@
 <div class="dashboard-content">
   <header class="page-heading">
     <div>
-      <p class="section-label">PÁGINA PÚBLICA</p>
-      <h1>Perfil da barbearia</h1>
-      <p>Complete os dados que os clientes veem antes de fazer uma marcação.</p>
+      <p class="section-label">{{ 'PÁGINA PÚBLICA' | translate }}</p>
+      <h1>{{ 'Perfil da barbearia' | translate }}</h1>
+      <p>{{ 'Complete os dados que os clientes veem antes de fazer uma marcação.' | translate }}</p>
     </div>
     @if (shop()?.published) {
       <a class="button button-secondary" [href]="publicUrl()" target="_blank" rel="noopener">
         <svg lucideExternalLink [size]="17" aria-hidden="true"></svg>
-        Abrir página
+        {{ 'Abrir página' | translate }}
       </a>
     }
   </header>
 
   @if (error()) {
-    <div class="form-alert" role="alert">{{ error() }}</div>
+    <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
   @if (success()) {
-    <div class="success-alert" role="status">{{ success() }}</div>
+    <div class="success-alert" role="status">{{ success() | translate }}</div>
   }
 
   @if (loading()) {
-    <div class="loading-state">A carregar perfil...</div>
+    <div class="loading-state">{{ 'A carregar perfil...' | translate }}</div>
   } @else if (shop(); as currentShop) {
     <div class="profile-grid">
       <form class="editor-panel profile-editor" [formGroup]="form" (ngSubmit)="save()">
         <div class="panel-heading">
           <div>
-            <h2>Informação pública</h2>
-            <p>Uma apresentação curta ajuda o cliente a confirmar que está no sítio certo.</p>
+            <h2>{{ 'Informação pública' | translate }}</h2>
+            <p>
+              {{
+                'Uma apresentação curta ajuda o cliente a confirmar que está no sítio certo.'
+                  | translate
+              }}
+            </p>
           </div>
         </div>
 
         <label class="field">
-          <span>Descrição <small>opcional</small></span>
+          <span
+            >{{ 'Descrição' | translate }} <small>{{ 'opcional' | translate }}</small></span
+          >
           <textarea
             formControlName="publicDescription"
             rows="5"
             maxlength="500"
-            placeholder="Ex.: Cortes clássicos e modernos no centro de Lisboa."
+            [placeholder]="'Ex.: Cortes clássicos e modernos no centro de Lisboa.' | translate"
           ></textarea>
         </label>
 
         <label class="field">
-          <span>Morada <small>opcional</small></span>
+          <span
+            >{{ 'Morada' | translate }} <small>{{ 'opcional' | translate }}</small></span
+          >
           <input
             formControlName="publicAddress"
             type="text"
             maxlength="255"
-            placeholder="Rua, número e localidade"
+            [placeholder]="'Rua, número e localidade' | translate"
           />
         </label>
 
         <div class="readonly-fields">
           <div>
-            <span>Telefone</span>
+            <span>{{ 'Telefone' | translate }}</span>
             <strong>{{ currentShop.phone }}</strong>
           </div>
           <div>
-            <span>Email</span>
+            <span>{{ 'Email' | translate }}</span>
             <strong>{{ currentShop.email }}</strong>
           </div>
         </div>
 
         <button class="button button-primary" type="submit" [disabled]="saving()">
           <svg lucideSave [size]="17" aria-hidden="true"></svg>
-          {{ saving() ? 'A guardar...' : 'Guardar alterações' }}
+          {{ saving() ? ('A guardar...' | translate) : ('Guardar alterações' | translate) }}
         </button>
       </form>
 
       <aside class="public-preview-panel">
-        <p class="section-label">PRÉ-VISUALIZAÇÃO</p>
+        <p class="section-label">{{ 'PRÉ-VISUALIZAÇÃO' | translate }}</p>
         <div class="preview-shop-mark">{{ currentShop.name.slice(0, 1).toUpperCase() }}</div>
         <h2>{{ currentShop.name }}</h2>
         <p>
-          {{ form.controls.publicDescription.value || 'A descrição da barbearia aparece aqui.' }}
+          {{
+            form.controls.publicDescription.value ||
+              ('A descrição da barbearia aparece aqui.' | translate)
+          }}
         </p>
         <dl>
           <div>
-            <dt>Morada</dt>
-            <dd>{{ form.controls.publicAddress.value || 'Por preencher' }}</dd>
+            <dt>{{ 'Morada' | translate }}</dt>
+            <dd>{{ form.controls.publicAddress.value || ('Por preencher' | translate) }}</dd>
           </div>
           <div>
-            <dt>Link</dt>
+            <dt>{{ 'Link' | translate }}</dt>
             <dd>/b/{{ currentShop.slug }}</dd>
           </div>
         </dl>
         <span class="publication-state" [class.active]="currentShop.published">
-          {{ currentShop.published ? 'Página publicada' : 'Página por publicar' }}
+          {{
+            currentShop.published
+              ? ('Página publicada' | translate)
+              : ('Página por publicar' | translate)
+          }}
         </span>
       </aside>
     </div>
