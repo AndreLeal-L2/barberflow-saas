@@ -1,10 +1,10 @@
 FROM node:24-alpine AS build
 
-RUN corepack enable
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=barberflow-pnpm,target=/pnpm/store \
+    npm install --global "$(node --print 'require("./package.json").packageManager')" && \
     pnpm config set store-dir /pnpm/store && \
     pnpm install --frozen-lockfile
 
