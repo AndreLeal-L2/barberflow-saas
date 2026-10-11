@@ -1,5 +1,12 @@
 # BarberFlow SaaS
 
+[![CI](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml)
+[![Security](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml)
+
+**[Live demo](https://barberflow-saas-delta.vercel.app/)** · [Architecture](ARCHITECTURE.md) · [Local setup](#run-locally)
+
+**Built at the request of a client who is a barber**, BarberFlow turns a real appointment-management need into a full-stack web application.
+
 Multi-tenant booking SaaS for independent barbers and small barbershops. BarberFlow gives each business a public booking link and a private dashboard for managing its operation.
 
 The project is a full-stack Java portfolio application with a separated Angular
@@ -7,7 +14,35 @@ frontend and Spring Boot REST API. Its engineering focus is secure browser
 authentication, tenant isolation, explicit database migrations, automated tests,
 and reproducible local environments.
 
+## Screenshots
+
+Real captures of the deployed public website:
+
+### Landing page
+
+![BarberFlow landing page](docs/screenshots/barberflow-home.jpg)
+
+### Product and agenda preview
+
+![BarberFlow public product section with an illustrative daily agenda](docs/screenshots/barberflow-product.jpg)
+
+The agenda shown above is the illustrative preview on the public landing page, not a capture of a signed-in owner's dashboard.
+
+## Architecture at a Glance
+
+```mermaid
+flowchart TD
+    Web["Angular 22 · TypeScript"] -->|"REST API · session cookie · CSRF"| API["Java 21 · Spring Boot 4"]
+    API -->|"JPA · Flyway · tenant-scoped data"| DB[("PostgreSQL")]
+    Worker["Scheduled email worker · Spring Boot"] -->|"Read outbox · update delivery state"| DB
+    Worker -->|"Confirmations · reminders"| Email["SMTP · Brevo · Resend"]
+```
+
+Each business has a public booking page and a private owner dashboard. The API enforces tenant isolation and booking conflict rules; PostgreSQL stores application data, sessions and the email outbox. The email worker retries delivery through the configured provider.
+
 ## Current Status
+
+**Functional MVP for a controlled beta.** Subscriptions are simulated; real payments, WhatsApp/SMS notifications and full multi-barber team management are planned. This is not a completed commercial rollout.
 
 The working MVP includes:
 
