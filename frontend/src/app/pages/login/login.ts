@@ -43,10 +43,15 @@ export class Login {
   }
 
   submit(): void {
+    if (this.submitting()) {
+      return;
+    }
+
     this.serverError.set(null);
+    this.form.controls.email.setValue(this.form.controls.email.value.trim());
     this.form.markAllAsTouched();
 
-    if (this.form.invalid || this.submitting()) {
+    if (this.form.invalid) {
       return;
     }
 

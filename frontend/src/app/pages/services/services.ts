@@ -1,6 +1,13 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucidePencil, LucidePlus, LucideTrash2, LucideX } from '@lucide/angular';
 import { finalize } from 'rxjs';
@@ -34,10 +41,12 @@ export class Services implements OnInit {
   readonly saving = signal(false);
   readonly editingId = signal<string | null>(null);
   readonly deletingId = signal<string | null>(null);
+  readonly removingId = signal<string | null>(null);
+  readonly mutating = computed(() => this.saving() || this.removingId() !== null);
   readonly error = signal<string | null>(null);
 
   readonly form = this.formBuilder.group({
-    name: ['', [Validators.required, Validators.maxLength(120)]],
+    name: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(120)]],
     description: ['', Validators.maxLength(500)],
     durationMinutes: [30, [Validators.required, Validators.min(15), Validators.max(480)]],
     priceAmount: [15, [Validators.required, Validators.min(0)]],
@@ -54,6 +63,9 @@ export class Services implements OnInit {
   }
 
   edit(service: CatalogService): void {
+    if (this.mutating()) {
+      return;
+    }
     this.editingId.set(service.id);
     this.deletingId.set(null);
     this.form.setValue({
@@ -65,13 +77,16 @@ export class Services implements OnInit {
   }
 
   cancelEdit(): void {
+    if (this.mutating()) {
+      return;
+    }
     this.editingId.set(null);
     this.resetForm();
   }
 
   save(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid || this.saving()) {
+    if (this.form.invalid || this.loading() || this.mutating()) {
       return;
     }
 
@@ -79,42 +94,64 @@ export class Services implements OnInit {
     this.saving.set(true);
     const id = this.editingId();
     const request = this.form.getRawValue();
+    this.form.disable({ emitEvent: false });
     const operation = id ? this.api.updateService(id, request) : this.api.createService(request);
 
-    operation.pipe(finalize(() => this.saving.set(false))).subscribe({
-      next: (saved) => {
-        this.services.update((current) =>
-          [...current.filter((service) => service.id !== saved.id), saved].sort((a, b) =>
-            a.name.localeCompare(b.name, 'pt'),
-          ),
-        );
-        this.editingId.set(null);
-        this.resetForm();
-      },
-      error: (error: HttpErrorResponse) => this.error.set(this.errorMessage(error)),
-    });
+    operation
+      .pipe(
+        finalize(() => {
+          this.form.enable({ emitEvent: false });
+          this.saving.set(false);
+        }),
+      )
+      .subscribe({
+        next: (saved) => {
+          this.services.update((current) =>
+            [...current.filter((service) => service.id !== saved.id), saved].sort((a, b) =>
+              a.name.localeCompare(b.name, 'pt'),
+            ),
+          );
+          this.editingId.set(null);
+          this.resetForm();
+        },
+        error: (error: HttpErrorResponse) => this.error.set(this.errorMessage(error)),
+      });
   }
 
   confirmDelete(id: string): void {
+    if (this.mutating()) {
+      return;
+    }
     this.deletingId.set(id);
   }
 
   cancelDelete(): void {
+    if (this.mutating()) {
+      return;
+    }
     this.deletingId.set(null);
   }
 
   remove(id: string): void {
+    if (this.mutating()) {
+      return;
+    }
     this.error.set(null);
-    this.api.deleteService(id).subscribe({
-      next: () => {
-        this.services.update((current) => current.filter((service) => service.id !== id));
-        this.deletingId.set(null);
-        if (this.editingId() === id) {
-          this.cancelEdit();
-        }
-      },
-      error: (error: HttpErrorResponse) => this.error.set(this.errorMessage(error)),
-    });
+    this.removingId.set(id);
+    this.api
+      .deleteService(id)
+      .pipe(finalize(() => this.removingId.set(null)))
+      .subscribe({
+        next: () => {
+          this.services.update((current) => current.filter((service) => service.id !== id));
+          this.deletingId.set(null);
+          if (this.editingId() === id) {
+            this.editingId.set(null);
+            this.resetForm();
+          }
+        },
+        error: (error: HttpErrorResponse) => this.error.set(this.errorMessage(error)),
+      });
   }
 
   private resetForm(): void {

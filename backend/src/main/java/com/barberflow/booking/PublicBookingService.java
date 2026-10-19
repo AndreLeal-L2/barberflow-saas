@@ -212,11 +212,12 @@ public class PublicBookingService {
     ) {
         LocalDateTime workStart = LocalDateTime.of(startAt.toLocalDate(), rule.getStartTime());
         LocalDateTime workEnd = LocalDateTime.of(startAt.toLocalDate(), rule.getEndTime());
-        long offsetMinutes = Duration.between(workStart, startAt).toMinutes();
+        Duration offset = Duration.between(workStart, startAt);
 
         boolean outsideSchedule = startAt.isBefore(workStart) || endAt.isAfter(workEnd);
-        boolean invalidIncrement = offsetMinutes < 0
-                || offsetMinutes % SLOT_INTERVAL_MINUTES != 0;
+        boolean invalidIncrement = offset.isNegative()
+                || offset.getNano() != 0
+                || offset.getSeconds() % (SLOT_INTERVAL_MINUTES * 60L) != 0;
         if (outsideSchedule || invalidIncrement || !startAt.isAfter(LocalDateTime.now(clock))) {
             throw slotUnavailable();
         }

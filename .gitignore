@@ -43,3 +43,7 @@ backups/
 # Test and coverage output
 coverage/
 .nyc_output/
+
+# Browser regression artifacts
+playwright-report/
+test-results/

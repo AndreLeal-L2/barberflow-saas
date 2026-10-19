@@ -3,7 +3,7 @@
 [![CI](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml)
 [![Security](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml)
 
-**[Live demo](https://barberflow-saas-delta.vercel.app/)** · [Architecture](ARCHITECTURE.md) · [Local setup](#run-locally)
+**[Live demo](https://barberflow-saas-delta.vercel.app/)** · [Architecture](ARCHITECTURE.md) · [Local setup](#run-locally) · [Tests and regressions](docs/TESTING.md)
 
 **Built at the request of a client who is a barber**, BarberFlow turns a real appointment-management need into a full-stack web application.
 
@@ -81,7 +81,7 @@ The working MVP includes:
 - Angular 22 and TypeScript
 - Docker and Docker Compose
 - OpenAPI/Swagger
-- JUnit, Mockito, Testcontainers, and Vitest
+- JUnit, Mockito, Testcontainers, Vitest, and Playwright
 
 ## Run Locally
 
@@ -127,6 +127,10 @@ pnpm test --watch=false
 ```
 
 The Angular development server proxies `/api` and `/actuator` to the backend at port `8080`.
+
+## Automated regression tests
+
+Run `./scripts/test-all.sh` with Java 21, Node.js 24, pnpm and Docker available. The complete suite covers backend integration, frontend behavior, browser account/booking journeys and responsive layout against a dedicated temporary database. Every bug fix must first have a failing regression test, followed by the fix and a passing run. See [the testing guide](docs/TESTING.md) and [regression evidence](docs/REGRESSION_LOG.md).
 
 ## Main Product Flow
 
@@ -193,4 +197,4 @@ chore: configure docker compose
 
 ## Image Credit
 
-Landing page photograph by [John Karlo Mendoza on Unsplash](https://unsplash.com/photos/barber-cutting-mans-hair-idzUojjazCg).
+Landing page photograph by [Nathon Oski on Unsplash](https://unsplash.com/photos/black-leather-barber-chair-near-brown-brick-wall-EW_rqoSdDes).
