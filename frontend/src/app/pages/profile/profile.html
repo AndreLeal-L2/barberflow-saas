@@ -97,7 +97,7 @@
                 <button
                   type="button"
                   (click)="resendVerification()"
-                  [disabled]="sendingVerification()"
+                  [disabled]="sendingVerification() || checkingVerification()"
                 >
                   {{
                     sendingVerification()
@@ -113,6 +113,18 @@
           <p class="profile-publication-note">
             {{ 'Confirme o e-mail de administrador antes de publicar a página.' | translate }}
           </p>
+          <button
+            class="button button-secondary button-small profile-verification-recheck"
+            type="button"
+            (click)="recheckVerification()"
+            [disabled]="checkingVerification() || sendingVerification()"
+          >
+            {{
+              checkingVerification()
+                ? ('A verificar...' | translate)
+                : ('Já confirmei o e-mail' | translate)
+            }}
+          </button>
         }
         @if (!subscriptionAllowsPublication()) {
           <p class="profile-publication-note">

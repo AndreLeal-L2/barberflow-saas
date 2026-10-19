@@ -1,4 +1,12 @@
 export const ENGLISH: Readonly<Record<string, string>> = {
+  'Já confirmei o e-mail': 'I have verified my email',
+  'A verificar...': 'Checking...',
+  'A confirmação continua pendente. Abra o link enviado para o seu e-mail e tente novamente.':
+    'Verification is still pending. Open the link sent to your email and try again.',
+  'A confirmação de e-mail não é necessária.': 'Email verification is not required.',
+  'A sessão expirou. Entre novamente.': 'Your session has expired. Sign in again.',
+  'Não foi possível atualizar a confirmação do e-mail. Tente novamente.':
+    'Unable to refresh your email verification status. Try again.',
   PUBLICAÇÃO: 'PUBLICATION',
   'A sua página está online.': 'Your page is online.',
   'Publique a página de marcações.': 'Publish your booking page.',

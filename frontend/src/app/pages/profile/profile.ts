@@ -42,6 +42,7 @@ export class Profile implements OnInit {
   readonly saving = signal(false);
   readonly savingPublication = signal(false);
   readonly sendingVerification = signal(false);
+  readonly checkingVerification = signal(false);
   readonly error = signal<string | null>(null);
   readonly success = signal<string | null>(null);
   readonly publicationError = signal<string | null>(null);
@@ -58,7 +59,7 @@ export class Profile implements OnInit {
     return status === 'TRIALING' || status === 'ACTIVE';
   });
   readonly canPublish = computed(
-    () => Boolean(this.shop()?.canPublish) && !this.emailVerificationPending(),
+    () => Boolean(this.auth.user() && this.shop()?.canPublish) && !this.emailVerificationPending(),
   );
   readonly publicUrl = computed(() => {
     const slug = this.shop()?.slug;
@@ -150,7 +151,11 @@ export class Profile implements OnInit {
   }
 
   resendVerification(): void {
-    if (!this.emailVerificationPending() || this.sendingVerification()) {
+    if (
+      !this.emailVerificationPending() ||
+      this.sendingVerification() ||
+      this.checkingVerification()
+    ) {
       return;
     }
 
@@ -165,6 +170,46 @@ export class Profile implements OnInit {
         error: (error: HttpErrorResponse) =>
           this.publicationError.set(
             this.errorMessage(error, 'Não foi possível enviar um novo link.'),
+          ),
+      });
+  }
+
+  recheckVerification(): void {
+    if (
+      !this.emailVerificationPending() ||
+      this.checkingVerification() ||
+      this.sendingVerification()
+    ) {
+      return;
+    }
+
+    this.verificationMessage.set(null);
+    this.publicationError.set(null);
+    this.checkingVerification.set(true);
+    this.auth
+      .loadCurrentUser(true)
+      .pipe(finalize(() => this.checkingVerification.set(false)))
+      .subscribe({
+        next: (user) => {
+          if (!user) {
+            this.publicationError.set('A sessão expirou. Entre novamente.');
+            return;
+          }
+
+          this.verificationMessage.set(
+            user.emailVerified
+              ? 'E-mail confirmado com sucesso.'
+              : user.emailVerificationRequired
+                ? 'A confirmação continua pendente. Abra o link enviado para o seu e-mail e tente novamente.'
+                : 'A confirmação de e-mail não é necessária.',
+          );
+        },
+        error: (error: HttpErrorResponse) =>
+          this.publicationError.set(
+            this.errorMessage(
+              error,
+              'Não foi possível atualizar a confirmação do e-mail. Tente novamente.',
+            ),
           ),
       });
   }

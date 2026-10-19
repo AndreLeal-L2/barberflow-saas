@@ -44,9 +44,7 @@ export class AuthService {
 
   verifyEmail(token: string): Observable<MessageResponse> {
     return this.csrf
-      .execute(() =>
-        this.http.post<MessageResponse>('/api/auth/verification/confirm', { token }),
-      )
+      .execute(() => this.http.post<MessageResponse>('/api/auth/verification/confirm', { token }))
       .pipe(
         tap(() =>
           this.currentUser.update((user) => (user ? { ...user, emailVerified: true } : null)),
@@ -84,8 +82,8 @@ export class AuthService {
       );
   }
 
-  loadCurrentUser(): Observable<AuthUser | null> {
-    if (this.sessionChecked) {
+  loadCurrentUser(forceRefresh = false): Observable<AuthUser | null> {
+    if (this.sessionChecked && !forceRefresh) {
       return of(this.currentUser());
     }
 

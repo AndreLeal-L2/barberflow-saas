@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, Subject, throwError } from 'rxjs';
+import { of, Subject, tap, throwError } from 'rxjs';
 import { AuthUser } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
 import { BookingApiService } from '../../core/booking-api.service';
@@ -43,6 +43,7 @@ describe('Profile publication', () => {
   const auth = {
     user: signal<AuthUser | null>(owner),
     resendVerification: vi.fn(() => of({ message: 'E-mail enviado.' })),
+    loadCurrentUser: vi.fn((_forceRefresh = false) => of<AuthUser | null>(owner)),
   };
   const api = {
     getBarbershop: vi.fn(() => of(shop)),
@@ -54,6 +55,7 @@ describe('Profile publication', () => {
     vi.resetAllMocks();
     auth.user.set(owner);
     auth.resendVerification.mockReturnValue(of({ message: 'E-mail enviado.' }));
+    auth.loadCurrentUser.mockImplementation(() => of(auth.user()));
     api.getBarbershop.mockReturnValue(of(shop));
     api.updateProfile.mockReturnValue(of(shop));
     api.updatePublication.mockImplementation((published) => of({ ...shop, published }));
@@ -215,5 +217,90 @@ describe('Profile publication', () => {
     );
     fixture.componentInstance.togglePublication();
     expect(api.updatePublication).not.toHaveBeenCalled();
+  });
+
+  it('forces a verification refresh and enables publication when another tab confirmed the email', () => {
+    auth.user.set({ ...owner, emailVerified: false });
+    const pending = new Subject<AuthUser | null>();
+    auth.loadCurrentUser.mockReturnValueOnce(pending.pipe(tap((user) => auth.user.set(user))));
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+    const recheck = fixture.nativeElement.querySelector(
+      '.profile-verification-recheck',
+    ) as HTMLButtonElement;
+
+    recheck.click();
+    fixture.detectChanges();
+    fixture.componentInstance.recheckVerification();
+
+    expect(auth.loadCurrentUser).toHaveBeenCalledExactlyOnceWith(true);
+    expect(fixture.componentInstance.checkingVerification()).toBe(true);
+    expect(recheck.disabled).toBe(true);
+    expect(recheck.textContent).toContain('A verificar...');
+    expect(fixture.nativeElement.querySelector('.profile-publication-action').disabled).toBe(true);
+
+    pending.next(owner);
+    pending.complete();
+    fixture.detectChanges();
+
+    expect(auth.user()?.emailVerified).toBe(true);
+    expect(fixture.componentInstance.checkingVerification()).toBe(false);
+    expect(fixture.componentInstance.emailVerificationPending()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.profile-publication-action').disabled).toBe(false);
+    expect(fixture.nativeElement.querySelector('.profile-verification-recheck')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('E-mail confirmado com sucesso.');
+  });
+
+  it('preserves the verification gate and allows another check after a refresh error', () => {
+    auth.user.set({ ...owner, emailVerified: false });
+    auth.loadCurrentUser.mockReturnValueOnce(
+      throwError(() => new HttpErrorResponse({ status: 503 })),
+    );
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+
+    fixture.componentInstance.recheckVerification();
+    fixture.detectChanges();
+
+    expect(auth.loadCurrentUser).toHaveBeenCalledExactlyOnceWith(true);
+    expect(auth.user()?.emailVerified).toBe(false);
+    expect(fixture.componentInstance.emailVerificationPending()).toBe(true);
+    expect(fixture.componentInstance.checkingVerification()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.profile-publication-action').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('.profile-verification-recheck').disabled).toBe(
+      false,
+    );
+    expect(
+      fixture.nativeElement.querySelector('.profile-publication [role="alert"]')?.textContent,
+    ).toContain('Não foi possível atualizar a confirmação do e-mail. Tente novamente.');
+  });
+
+  it('keeps publication blocked when the server still reports pending verification', () => {
+    auth.user.set({ ...owner, emailVerified: false });
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+
+    fixture.componentInstance.recheckVerification();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.emailVerificationPending()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.profile-publication-action').disabled).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('A confirmação continua pendente.');
+  });
+
+  it('does not enable publication if the verification refresh finds an expired session', () => {
+    auth.user.set({ ...owner, emailVerified: false });
+    auth.loadCurrentUser.mockReturnValueOnce(of(null).pipe(tap(() => auth.user.set(null))));
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+
+    fixture.componentInstance.recheckVerification();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.canPublish()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.profile-publication-action').disabled).toBe(true);
+    expect(
+      fixture.nativeElement.querySelector('.profile-publication [role="alert"]')?.textContent,
+    ).toContain('A sessão expirou. Entre novamente.');
   });
 });
