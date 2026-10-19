@@ -1,4 +1,37 @@
 export const ENGLISH: Readonly<Record<string, string>> = {
+  'Já confirmei o e-mail': 'I have verified my email',
+  'A verificar...': 'Checking...',
+  'A confirmação continua pendente. Abra o link enviado para o seu e-mail e tente novamente.':
+    'Verification is still pending. Open the link sent to your email and try again.',
+  'A confirmação de e-mail não é necessária.': 'Email verification is not required.',
+  'A sessão expirou. Entre novamente.': 'Your session has expired. Sign in again.',
+  'Não foi possível atualizar a confirmação do e-mail. Tente novamente.':
+    'Unable to refresh your email verification status. Try again.',
+  PUBLICAÇÃO: 'PUBLICATION',
+  'A sua página está online.': 'Your page is online.',
+  'Publique a página de marcações.': 'Publish your booking page.',
+  'Os clientes podem marcar através do seu link.': 'Customers can book using your link.',
+  'Configure os serviços e horários e publique o seu link.':
+    'Set up services and working hours, then publish your link.',
+  'A pausar...': 'Pausing...',
+  'A publicar...': 'Publishing...',
+  'Antes de publicar': 'Before publishing',
+  'Pelo menos um serviço ativo': 'At least one active service',
+  'Gerir serviços': 'Manage services',
+  'Pelo menos um dia com horário definido': 'Working hours set for at least one day',
+  'E-mail de administrador confirmado': 'Administrator email verified',
+  'A descrição e a morada são opcionais.': 'The description and address are optional.',
+  'Página publicada. Já pode partilhar o seu link.': 'Page published. You can now share your link.',
+  'Marcações pausadas.': 'Bookings paused.',
+  'Não foi possível carregar as indisponibilidades.': 'Could not load blocked times.',
+  'Não foi possível carregar as estatísticas.': 'Unable to load statistics.',
+  'Não foi possível carregar as próximas marcações.': 'Unable to load upcoming bookings.',
+  'Consulte novamente a agenda para atualizar as marcações.':
+    'Open the calendar again to refresh your bookings.',
+  'A carregar estatísticas...': 'Loading statistics...',
+  'Pode continuar a configurar e publicar a página.':
+    'You can continue setting up and publishing your page.',
+  'Ative o link para receber marcações.': 'Activate your link to receive bookings.',
   'A agenda da sua barbearia. Em ordem.': 'Your barbershop schedule. Organised.',
   'A agenda num só lugar': 'Your schedule in one place',
   'A próxima marcação começa aqui.': 'Your next booking starts here.',

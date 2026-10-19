@@ -115,59 +115,68 @@
           <span>{{ 'próximas marcações' | translate }}</span>
         </div>
       </dl>
+    }
 
-      <div class="dashboard-workspace">
-        <div class="workspace-primary">
-          <section class="agenda-section">
-            <div class="dashboard-section-heading">
-              <div>
-                <p class="section-label">{{ 'A SEGUIR' | translate }}</p>
-                <h2>{{ 'Próximas marcações' | translate }}</h2>
-              </div>
-              <a class="section-link" routerLink="/dashboard/bookings">{{
-                'Ver agenda completa' | translate
-              }}</a>
+    <div class="dashboard-workspace">
+      <div class="workspace-primary">
+        <section class="agenda-section">
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="section-label">{{ 'A SEGUIR' | translate }}</p>
+              <h2>{{ 'Próximas marcações' | translate }}</h2>
             </div>
-            @if (nextBookings().length) {
-              <div class="compact-booking-list">
-                @for (booking of nextBookings(); track booking.id) {
-                  <article>
-                    <time [attr.datetime]="booking.startAt">
-                      <strong>{{
-                        booking.startAt | date: 'HH:mm' : undefined : i18n.locale()
-                      }}</strong>
-                      <span>{{
-                        booking.startAt | date: 'dd MMM' : undefined : i18n.locale()
-                      }}</span>
-                    </time>
-                    <span class="booking-list-marker" aria-hidden="true"></span>
-                    <div>
-                      <strong>{{ booking.customerName }}</strong>
-                      <span
-                        >{{ booking.serviceName }} · {{ booking.serviceDurationMinutes }} min</span
-                      >
-                    </div>
-                    <span class="booking-status confirmed">{{ 'Confirmada' | translate }}</span>
-                  </article>
-                }
-              </div>
-            } @else {
-              <div class="agenda-empty">
-                <svg lucideCalendarDays [size]="24" aria-hidden="true"></svg>
-                <div>
-                  <strong>{{ 'A agenda está livre.' | translate }}</strong>
-                  <p>{{ 'As próximas marcações aparecem aqui automaticamente.' | translate }}</p>
-                </div>
-              </div>
-            }
-          </section>
-
-          <section class="analytics-section" aria-labelledby="analytics-title">
-            <header class="analytics-heading">
+            <a class="section-link" routerLink="/dashboard/bookings">{{
+              'Ver agenda completa' | translate
+            }}</a>
+          </div>
+          @if (bookingsLoading()) {
+            <div class="panel-loading" role="status">
+              {{ 'A carregar marcações...' | translate }}
+            </div>
+          } @else if (bookingsError()) {
+            <div class="panel-empty" role="status">
+              <strong>{{ bookingsError() | translate }}</strong>
+              <p>{{ 'Consulte novamente a agenda para atualizar as marcações.' | translate }}</p>
+            </div>
+          } @else if (nextBookings().length) {
+            <div class="compact-booking-list">
+              @for (booking of nextBookings(); track booking.id) {
+                <article>
+                  <time [attr.datetime]="booking.startAt">
+                    <strong>{{
+                      booking.startAt | date: 'HH:mm' : undefined : i18n.locale()
+                    }}</strong>
+                    <span>{{ booking.startAt | date: 'dd MMM' : undefined : i18n.locale() }}</span>
+                  </time>
+                  <span class="booking-list-marker" aria-hidden="true"></span>
+                  <div>
+                    <strong>{{ booking.customerName }}</strong>
+                    <span
+                      >{{ booking.serviceName }} · {{ booking.serviceDurationMinutes }} min</span
+                    >
+                  </div>
+                  <span class="booking-status confirmed">{{ 'Confirmada' | translate }}</span>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="agenda-empty">
+              <svg lucideCalendarDays [size]="24" aria-hidden="true"></svg>
               <div>
-                <p class="section-label">{{ 'PRÓXIMOS 14 DIAS' | translate }}</p>
-                <h2 id="analytics-title">{{ 'Ocupação da agenda' | translate }}</h2>
+                <strong>{{ 'A agenda está livre.' | translate }}</strong>
+                <p>{{ 'As próximas marcações aparecem aqui automaticamente.' | translate }}</p>
               </div>
+            </div>
+          }
+        </section>
+
+        <section class="analytics-section" aria-labelledby="analytics-title">
+          <header class="analytics-heading">
+            <div>
+              <p class="section-label">{{ 'PRÓXIMOS 14 DIAS' | translate }}</p>
+              <h2 id="analytics-title">{{ 'Ocupação da agenda' | translate }}</h2>
+            </div>
+            @if (analytics(); as currentAnalytics) {
               <p>
                 {{ 'Até' | translate }}
                 {{
@@ -175,7 +184,18 @@
                     | date: 'dd MMM yyyy' : undefined : i18n.locale()
                 }}
               </p>
-            </header>
+            }
+          </header>
+          @if (analyticsLoading()) {
+            <div class="panel-loading" role="status">
+              {{ 'A carregar estatísticas...' | translate }}
+            </div>
+          } @else if (analyticsError()) {
+            <div class="panel-empty" role="status">
+              <strong>{{ analyticsError() | translate }}</strong>
+              <p>{{ 'Pode continuar a configurar e publicar a página.' | translate }}</p>
+            </div>
+          } @else if (analytics(); as currentAnalytics) {
             <div class="activity-panel">
               <div class="activity-summary">
                 @if (currentAnalytics.topUpcomingService; as topService) {
@@ -234,98 +254,117 @@
                 }
               </ol>
             </div>
-          </section>
-        </div>
+          }
+        </section>
+      </div>
 
-        <aside class="workspace-rail">
-          <section class="public-link-section">
-            <div class="public-link-heading">
-              <span class="publication-dot" [class.active]="currentShop.published"></span>
+      <aside class="workspace-rail">
+        <section class="public-link-section">
+          <div class="public-link-heading">
+            <span class="publication-dot" [class.active]="currentShop.published"></span>
+            <div>
+              <p class="section-label">{{ 'LINK DE MARCAÇÃO' | translate }}</p>
+              <h2>
+                {{
+                  currentShop.published
+                    ? ('Página ativa' | translate)
+                    : ('Página inativa' | translate)
+                }}
+              </h2>
+            </div>
+          </div>
+          <p>
+            {{ 'Partilhe este endereço no Instagram, WhatsApp ou perfil do Google.' | translate }}
+          </p>
+          <div class="link-copy-field">
+            <span>{{ publicUrl() }}</span>
+            <button
+              class="icon-button"
+              type="button"
+              (click)="copyPublicUrl()"
+              [title]="'Copiar link' | translate"
+              [attr.aria-label]="'Copiar link' | translate"
+            >
+              <svg lucideCopy [size]="18"></svg>
+            </button>
+          </div>
+          <span class="copy-feedback">{{ copied() ? ('Link copiado.' | translate) : '' }}</span>
+          @if (currentShop.published) {
+            <a class="button button-secondary button-full" [href]="publicUrl()" target="_blank">
+              {{ 'Abrir como cliente' | translate }}
+              <svg lucideExternalLink [size]="16" aria-hidden="true"></svg>
+            </a>
+          }
+        </section>
+
+        @if (currentShop.completedSetupSteps < 4) {
+          <section class="setup-section compact-setup-section">
+            <div class="dashboard-section-heading">
               <div>
-                <p class="section-label">{{ 'LINK DE MARCAÇÃO' | translate }}</p>
-                <h2>
-                  {{
-                    currentShop.published
-                      ? ('Página ativa' | translate)
-                      : ('Página inativa' | translate)
-                  }}
-                </h2>
+                <p class="section-label">{{ 'CONFIGURAÇÃO' | translate }}</p>
+                <h2>{{ 'Preparar a página' | translate }}</h2>
               </div>
+              <span>{{ currentShop.completedSetupSteps }}/4</span>
             </div>
-            <p>
-              {{ 'Partilhe este endereço no Instagram, WhatsApp ou perfil do Google.' | translate }}
-            </p>
-            <div class="link-copy-field">
-              <span>{{ publicUrl() }}</span>
-              <button
-                class="icon-button"
-                type="button"
-                (click)="copyPublicUrl()"
-                [title]="'Copiar link' | translate"
-                [attr.aria-label]="'Copiar link' | translate"
-              >
-                <svg lucideCopy [size]="18"></svg>
-              </button>
-            </div>
-            <span class="copy-feedback">{{ copied() ? ('Link copiado.' | translate) : '' }}</span>
-            @if (currentShop.published) {
-              <a class="button button-secondary button-full" [href]="publicUrl()" target="_blank">
-                {{ 'Abrir como cliente' | translate }}
-                <svg lucideExternalLink [size]="16" aria-hidden="true"></svg>
-              </a>
-            }
-          </section>
-
-          @if (currentShop.completedSetupSteps < 4) {
-            <section class="setup-section compact-setup-section">
-              <div class="dashboard-section-heading">
+            <ol class="setup-list">
+              <li class="complete">
+                <svg lucideCircleCheck [size]="20"></svg>
                 <div>
-                  <p class="section-label">{{ 'CONFIGURAÇÃO' | translate }}</p>
-                  <h2>{{ 'Preparar a página' | translate }}</h2>
+                  <strong>{{ 'Conta criada' | translate }}</strong
+                  ><span>{{ 'Dados principais registados.' | translate }}</span>
                 </div>
-                <span>{{ currentShop.completedSetupSteps }}/4</span>
-              </div>
-              <ol class="setup-list">
-                <li class="complete">
+              </li>
+              <li [class.complete]="currentShop.serviceCount > 0">
+                @if (currentShop.serviceCount > 0) {
                   <svg lucideCircleCheck [size]="20"></svg>
-                  <div>
-                    <strong>{{ 'Conta criada' | translate }}</strong
-                    ><span>{{ 'Dados principais registados.' | translate }}</span>
-                  </div>
-                </li>
-                <li [class.complete]="currentShop.serviceCount > 0">
-                  @if (currentShop.serviceCount > 0) {
-                    <svg lucideCircleCheck [size]="20"></svg>
-                  } @else {
-                    <svg lucideCircle [size]="20"></svg>
-                  }
-                  <div>
-                    <a routerLink="/dashboard/services"
-                      ><strong>{{ 'Adicionar serviços' | translate }}</strong></a
-                    >
-                    <span>{{ 'Nome, duração e preço.' | translate }}</span>
-                  </div>
-                </li>
-                <li [class.complete]="currentShop.availabilityDayCount > 0">
-                  @if (currentShop.availabilityDayCount > 0) {
-                    <svg lucideCircleCheck [size]="20"></svg>
-                  } @else {
-                    <svg lucideCircle [size]="20"></svg>
-                  }
-                  <div>
-                    <a routerLink="/dashboard/availability"
-                      ><strong>{{ 'Definir horários' | translate }}</strong></a
-                    >
-                    <span>{{ 'Dias e horas disponíveis.' | translate }}</span>
-                  </div>
-                </li>
-              </ol>
-            </section>
-          } @else {
-            <section class="account-section">
-              <p class="section-label">{{ 'ÚLTIMOS 30 DIAS' | translate }}</p>
-              <h2>{{ 'Resumo' | translate }}</h2>
-              <dl>
+                } @else {
+                  <svg lucideCircle [size]="20"></svg>
+                }
+                <div>
+                  <a routerLink="/dashboard/services"
+                    ><strong>{{ 'Adicionar serviços' | translate }}</strong></a
+                  >
+                  <span>{{ 'Nome, duração e preço.' | translate }}</span>
+                </div>
+              </li>
+              <li [class.complete]="currentShop.availabilityDayCount > 0">
+                @if (currentShop.availabilityDayCount > 0) {
+                  <svg lucideCircleCheck [size]="20"></svg>
+                } @else {
+                  <svg lucideCircle [size]="20"></svg>
+                }
+                <div>
+                  <a routerLink="/dashboard/availability"
+                    ><strong>{{ 'Definir horários' | translate }}</strong></a
+                  >
+                  <span>{{ 'Dias e horas disponíveis.' | translate }}</span>
+                </div>
+              </li>
+              <li [class.complete]="currentShop.published">
+                @if (currentShop.published) {
+                  <svg lucideCircleCheck [size]="20"></svg>
+                } @else {
+                  <svg lucideCircle [size]="20"></svg>
+                }
+                <div>
+                  <a routerLink="/dashboard/profile"
+                    ><strong>{{
+                      currentShop.published
+                        ? ('Página publicada' | translate)
+                        : ('Publicar página' | translate)
+                    }}</strong></a
+                  >
+                  <span>{{ 'Ative o link para receber marcações.' | translate }}</span>
+                </div>
+              </li>
+            </ol>
+          </section>
+        } @else {
+          <section class="account-section">
+            <p class="section-label">{{ 'ÚLTIMOS 30 DIAS' | translate }}</p>
+            <h2>{{ 'Resumo' | translate }}</h2>
+            <dl>
+              @if (analytics(); as currentAnalytics) {
                 <div>
                   <dt>{{ 'Concluídas' | translate }}</dt>
                   <dd>{{ currentAnalytics.completedLast30Days }}</dd>
@@ -334,21 +373,21 @@
                   <dt>{{ 'Canceladas' | translate }}</dt>
                   <dd>{{ currentAnalytics.cancelledLast30Days }}</dd>
                 </div>
-                <div>
-                  <dt>{{ 'Estado' | translate }}</dt>
-                  <dd>
-                    {{
-                      currentShop.published
-                        ? ('A aceitar marcações' | translate)
-                        : ('Em preparação' | translate)
-                    }}
-                  </dd>
-                </div>
-              </dl>
-            </section>
-          }
-        </aside>
-      </div>
-    }
+              }
+              <div>
+                <dt>{{ 'Estado' | translate }}</dt>
+                <dd>
+                  {{
+                    currentShop.published
+                      ? ('A aceitar marcações' | translate)
+                      : ('Em preparação' | translate)
+                  }}
+                </dd>
+              </div>
+            </dl>
+          </section>
+        }
+      </aside>
+    </div>
   }
 </div>

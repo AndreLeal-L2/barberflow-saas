@@ -23,6 +23,136 @@
   @if (loading()) {
     <div class="loading-state">{{ 'A carregar perfil...' | translate }}</div>
   } @else if (shop(); as currentShop) {
+    <section class="profile-publication" aria-labelledby="publication-heading">
+      <div class="profile-publication-heading">
+        <div>
+          <p class="section-label">{{ 'PUBLICAÇÃO' | translate }}</p>
+          <h2 id="publication-heading">
+            {{
+              currentShop.published
+                ? ('A sua página está online.' | translate)
+                : ('Publique a página de marcações.' | translate)
+            }}
+          </h2>
+          <p>
+            {{
+              currentShop.published
+                ? ('Os clientes podem marcar através do seu link.' | translate)
+                : ('Configure os serviços e horários e publique o seu link.' | translate)
+            }}
+          </p>
+        </div>
+        <button
+          class="button profile-publication-action"
+          [class.button-primary]="!currentShop.published"
+          [class.button-secondary]="currentShop.published"
+          type="button"
+          (click)="togglePublication()"
+          [disabled]="saving() || savingPublication() || (!currentShop.published && !canPublish())"
+        >
+          {{
+            savingPublication()
+              ? currentShop.published
+                ? ('A pausar...' | translate)
+                : ('A publicar...' | translate)
+              : currentShop.published
+                ? ('Pausar marcações' | translate)
+                : ('Publicar página' | translate)
+          }}
+        </button>
+      </div>
+
+      @if (!currentShop.published) {
+        <ul
+          class="profile-publication-checklist"
+          [attr.aria-label]="'Antes de publicar' | translate"
+        >
+          <li [class.complete]="currentShop.serviceCount > 0">
+            @if (currentShop.serviceCount > 0) {
+              <svg lucideCircleCheck [size]="18" aria-hidden="true"></svg>
+            } @else {
+              <svg lucideCircle [size]="18" aria-hidden="true"></svg>
+            }
+            <span>{{ 'Pelo menos um serviço ativo' | translate }}</span>
+            <a routerLink="/dashboard/services">{{ 'Gerir serviços' | translate }}</a>
+          </li>
+          <li [class.complete]="currentShop.availabilityDayCount > 0">
+            @if (currentShop.availabilityDayCount > 0) {
+              <svg lucideCircleCheck [size]="18" aria-hidden="true"></svg>
+            } @else {
+              <svg lucideCircle [size]="18" aria-hidden="true"></svg>
+            }
+            <span>{{ 'Pelo menos um dia com horário definido' | translate }}</span>
+            <a routerLink="/dashboard/availability">{{ 'Definir horários' | translate }}</a>
+          </li>
+          @if (verificationRequired()) {
+            <li [class.complete]="!emailVerificationPending()">
+              @if (emailVerificationPending()) {
+                <svg lucideCircle [size]="18" aria-hidden="true"></svg>
+              } @else {
+                <svg lucideCircleCheck [size]="18" aria-hidden="true"></svg>
+              }
+              <span>{{ 'E-mail de administrador confirmado' | translate }}</span>
+              @if (emailVerificationPending()) {
+                <button
+                  type="button"
+                  (click)="resendVerification()"
+                  [disabled]="sendingVerification() || checkingVerification()"
+                >
+                  {{
+                    sendingVerification()
+                      ? ('A enviar...' | translate)
+                      : ('Reenviar e-mail' | translate)
+                  }}
+                </button>
+              }
+            </li>
+          }
+        </ul>
+        @if (emailVerificationPending()) {
+          <p class="profile-publication-note">
+            {{ 'Confirme o e-mail de administrador antes de publicar a página.' | translate }}
+          </p>
+          <button
+            class="button button-secondary button-small profile-verification-recheck"
+            type="button"
+            (click)="recheckVerification()"
+            [disabled]="checkingVerification() || sendingVerification()"
+          >
+            {{
+              checkingVerification()
+                ? ('A verificar...' | translate)
+                : ('Já confirmei o e-mail' | translate)
+            }}
+          </button>
+        }
+        @if (!subscriptionAllowsPublication()) {
+          <p class="profile-publication-note">
+            {{ 'A subscrição não permite publicar a página.' | translate }}
+          </p>
+        }
+        <p class="profile-publication-note">
+          {{ 'A descrição e a morada são opcionais.' | translate }}
+        </p>
+      }
+
+      @if (publicationError()) {
+        <div class="form-alert profile-publication-feedback" role="alert">
+          {{ publicationError() | translate }}
+        </div>
+      }
+      @if (publicationSuccess()) {
+        <div class="success-alert profile-publication-feedback" role="status">
+          {{ publicationSuccess() | translate }}
+        </div>
+      }
+      @if (verificationMessage()) {
+        <p class="profile-publication-note" role="status">
+          {{ verificationMessage() | translate }}
+        </p>
+      }
+    </section>
+
     <div class="profile-grid">
       <form class="editor-panel profile-editor" [formGroup]="form" (ngSubmit)="save()">
         <div class="panel-heading">
@@ -72,7 +202,11 @@
           </div>
         </div>
 
-        <button class="button button-primary" type="submit" [disabled]="saving()">
+        <button
+          class="button button-primary"
+          type="submit"
+          [disabled]="saving() || savingPublication()"
+        >
           <svg lucideSave [size]="17" aria-hidden="true"></svg>
           {{ saving() ? ('A guardar...' | translate) : ('Guardar alterações' | translate) }}
         </button>

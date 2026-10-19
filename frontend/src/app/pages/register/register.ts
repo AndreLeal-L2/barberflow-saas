@@ -61,10 +61,21 @@ export class Register {
   }
 
   submit(): void {
+    if (this.submitting()) {
+      return;
+    }
+
     this.serverError.set(null);
+    const values = this.form.getRawValue();
+    this.form.patchValue({
+      ownerName: values.ownerName.trim(),
+      barbershopName: values.barbershopName.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+    });
     this.form.markAllAsTouched();
 
-    if (this.form.invalid || this.submitting()) {
+    if (this.form.invalid) {
       return;
     }
 
@@ -76,7 +87,16 @@ export class Register {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => void this.router.navigateByUrl('/dashboard'),
-        error: (error: HttpErrorResponse) => this.serverError.set(this.errorMessage(error)),
+        error: (error: HttpErrorResponse) => {
+          const details = (error.error as Partial<ApiError> | null)?.details;
+          for (const [field, message] of Object.entries(details ?? {})) {
+            const control = this.form.get(field);
+            if (control && typeof message === 'string') {
+              control.setErrors({ ...control.errors, server: message });
+            }
+          }
+          this.serverError.set(this.errorMessage(error));
+        },
       });
   }
 

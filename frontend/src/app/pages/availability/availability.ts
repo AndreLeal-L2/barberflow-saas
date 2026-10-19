@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideCalendarOff, LucidePlus, LucideSave, LucideTrash2 } from '@lucide/angular';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
 import { AvailabilityDay, BlockedTime, DayOfWeek } from '../../core/booking.models';
@@ -40,6 +40,8 @@ export class Availability implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
   readonly loading = signal(true);
+  readonly scheduleLoaded = signal(false);
+  readonly scheduleLoadError = signal<string | null>(null);
   readonly saving = signal(false);
   readonly creatingBlock = signal(false);
   readonly deletingBlockId = signal<string | null>(null);
@@ -71,18 +73,21 @@ export class Availability implements OnInit {
   readonly dayControls = this.form.controls.days.controls;
 
   ngOnInit(): void {
-    forkJoin({
-      schedule: this.api.getAvailability(),
-      blocks: this.api.listBlockedTimes(),
-    })
+    this.api
+      .getAvailability()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: ({ schedule, blocks }) => {
+        next: (schedule) => {
           this.applySchedule(schedule);
-          this.blocks.set(blocks);
+          this.scheduleLoaded.set(true);
         },
-        error: () => this.error.set('Não foi possível carregar os horários.'),
+        error: () => this.scheduleLoadError.set('Não foi possível carregar os horários.'),
       });
+
+    this.api.listBlockedTimes().subscribe({
+      next: (blocks) => this.blocks.set(blocks),
+      error: () => this.error.set('Não foi possível carregar as indisponibilidades.'),
+    });
   }
 
   dayLabel(day: DayOfWeek): string {
@@ -90,7 +95,7 @@ export class Availability implements OnInit {
   }
 
   save(): void {
-    if (this.saving()) {
+    if (this.loading() || !this.scheduleLoaded() || this.saving()) {
       return;
     }
 
