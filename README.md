@@ -197,4 +197,4 @@ chore: configure docker compose
 
 ## Image Credit
 
-Landing page photograph by [Nathon Oski on Unsplash](https://unsplash.com/photos/black-leather-barber-chair-near-brown-brick-wall-EW_rqoSdDes).
+Landing page photograph by [Matt Connor on Unsplash](https://unsplash.com/photos/a-couple-of-men-standing-next-to-each-other-in-a-room-tmd97rYqtGU).
