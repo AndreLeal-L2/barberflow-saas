@@ -17,7 +17,7 @@ import {
   LucideExternalLink,
   LucideGlobe2,
 } from '@lucide/angular';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize } from 'rxjs';
 import { BookingApiService } from '../../core/booking-api.service';
 import { ApiError } from '../../core/auth.models';
 import { Booking, DashboardAnalytics, DashboardBarbershop } from '../../core/booking.models';
@@ -49,6 +49,10 @@ export class Dashboard implements OnInit {
   readonly analytics = signal<DashboardAnalytics | null>(null);
   readonly bookings = signal<Booking[]>([]);
   readonly loading = signal(true);
+  readonly analyticsLoading = signal(true);
+  readonly bookingsLoading = signal(true);
+  readonly analyticsError = signal<string | null>(null);
+  readonly bookingsError = signal<string | null>(null);
   readonly savingPublication = signal(false);
   readonly copied = signal(false);
   readonly error = signal<string | null>(null);
@@ -115,19 +119,28 @@ export class Dashboard implements OnInit {
   private load(): void {
     this.loading.set(true);
     this.error.set(null);
-    forkJoin({
-      shop: this.api.getBarbershop(),
-      analytics: this.api.getDashboardAnalytics(),
-      bookings: this.api.listBookings(),
-    })
+    this.api
+      .getBarbershop()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: ({ shop, analytics, bookings }) => {
-          this.shop.set(shop);
-          this.analytics.set(analytics);
-          this.bookings.set(bookings);
-        },
+        next: (shop) => this.shop.set(shop),
         error: () => this.error.set('Não foi possível carregar o painel.'),
+      });
+
+    this.api
+      .getDashboardAnalytics()
+      .pipe(finalize(() => this.analyticsLoading.set(false)))
+      .subscribe({
+        next: (analytics) => this.analytics.set(analytics),
+        error: () => this.analyticsError.set('Não foi possível carregar as estatísticas.'),
+      });
+
+    this.api
+      .listBookings()
+      .pipe(finalize(() => this.bookingsLoading.set(false)))
+      .subscribe({
+        next: (bookings) => this.bookings.set(bookings),
+        error: () => this.bookingsError.set('Não foi possível carregar as próximas marcações.'),
       });
   }
 

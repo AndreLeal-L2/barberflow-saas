@@ -5,7 +5,12 @@
       <h1>{{ 'Horário semanal' | translate }}</h1>
       <p>{{ 'Os clientes só poderão escolher horas dentro destes períodos.' | translate }}</p>
     </div>
-    <button class="button button-primary" type="button" (click)="save()" [disabled]="saving()">
+    <button
+      class="button button-primary"
+      type="button"
+      (click)="save()"
+      [disabled]="loading() || !scheduleLoaded() || saving()"
+    >
       <svg lucideSave [size]="18" aria-hidden="true"></svg>
       {{ saving() ? ('A guardar...' | translate) : ('Guardar horário' | translate) }}
     </button>
@@ -29,7 +34,9 @@
 
     @if (loading()) {
       <div class="loading-state">{{ 'A carregar horários...' | translate }}</div>
-    } @else {
+    } @else if (scheduleLoadError()) {
+      <div class="form-alert" role="alert">{{ scheduleLoadError() | translate }}</div>
+    } @else if (scheduleLoaded()) {
       <form [formGroup]="form">
         <div class="schedule-list">
           @for (day of dayControls; track day.controls.dayOfWeek.value) {
