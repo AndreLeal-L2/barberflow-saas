@@ -32,7 +32,11 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
   await expect(page.getByRole('button', { name: 'Guardar horário', exact: true })).toBeEnabled();
   const days = page.locator('.schedule-row input[type="checkbox"]');
   await expect(days).toHaveCount(7);
-  for (const day of await days.all()) await day.check();
+  const toggles = page.locator('.schedule-row .day-toggle');
+  for (let index = 0; index < 7; index++) {
+    await toggles.nth(index).click();
+    await expect(days.nth(index)).toBeChecked();
+  }
   await page.getByRole('button', { name: 'Guardar horário', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Horário semanal guardado.');
 

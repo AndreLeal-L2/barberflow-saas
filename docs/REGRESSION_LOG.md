@@ -73,4 +73,4 @@ O teste consulta os horários realmente oferecidos, confirma que `09:00:01` não
 
 **Correção:** validar o desvio completo, incluindo segundos e nanossegundos, relativamente à abertura configurada. O teste RED original foi mantido sem alterações. Acrescentada cobertura para frações de segundo e para a aceitação do horário exato oferecido quando a abertura tem segundos.
 
-O resultado GREEN desta regressão e da bateria completa é registado depois da execução final do CI.
+**GREEN comprovado no CI:** [Backend, execução 39327199114](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39327199114/job/118316000780), commit `ec5e014e`: **47 testes passaram, 0 falhas, 0 erros e 0 ignorados**, incluindo os 12 testes de segurança/regressão de marcações. O teste RED original passou sem alterar a sua expectativa.
