@@ -48,3 +48,29 @@ pnpm test --watch=false \
 ## Regressões anteriores mantidas
 
 Os testes já existentes continuam a proteger validação do registo, confirmação de e-mail noutro separador, publicação/pausa no Perfil, preservação de edições, horário ainda não carregado e falhas parciais do painel. Esses problemas tinham sido corrigidos antes desta regra RED → GREEN; não são apresentados aqui como novos ciclos RED comprovados.
+
+## 2026-10-19 — Confirmação de e-mail e resposta antiga de sessão
+
+**RED:** um teste novo falhou e nove passaram antes da alteração: depois de confirmar o e-mail, a resposta antiga de `/me` substituía `emailVerified: true` por `false`.
+
+```bash
+cd frontend
+pnpm test --watch=false --include='src/app/core/auth.service.spec.ts'
+```
+
+**Correção:** a confirmação bem-sucedida também avança a versão da sessão. **GREEN:** o mesmo teste passou, juntamente com os outros nove cenários de sessão, sem alterar a sua expectativa.
+
+## 2026-10-19 — Horário não oferecido aceite pela API
+
+**RED comprovado no CI:** [Backend, execução 39326779566](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39326779566/job/118314564528), commit `32ed382b`. O comando `mvn --batch-mode --no-transfer-progress verify` executou 45 testes: **1 falhou, 44 passaram, 0 erros e 0 ignorados**.
+
+```text
+BookingSecurityIntegrationTests.rejectsBookingWithSecondsThatWasNeverOfferedAsAnAvailableSlot
+Status expected:<409> but was:<201>
+```
+
+O teste consulta os horários realmente oferecidos, confirma que `09:00:01` não existe nessa lista, tenta marcar esse início e exige rejeição sem criar uma marcação. A implementação convertia o desvio em minutos e truncava os segundos.
+
+**Correção:** validar o desvio completo, incluindo segundos e nanossegundos, relativamente à abertura configurada. O teste RED original foi mantido sem alterações. Acrescentada cobertura para frações de segundo e para a aceitação do horário exato oferecido quando a abertura tem segundos.
+
+O resultado GREEN desta regressão e da bateria completa é registado depois da execução final do CI.

@@ -245,6 +245,27 @@ class BookingSecurityIntegrationTests {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
     }
 
+    @Test
+    void rejectsFractionalSecondOffsetsWithoutCreatingABooking() throws Exception {
+        Fixture fixture = publishedFixture();
+        book(fixture, bookingDate().atTime(9, 0, 0, 1))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("BOOKING_SLOT_UNAVAILABLE"));
+        mockMvc.perform(get("/api/dashboard/bookings").cookie(fixture.owner().session()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void acceptsTheExactAdvertisedSlotRelativeToTheConfiguredOpeningTime() throws Exception {
+        Fixture fixture = publishedFixture();
+        setSchedule(fixture.owner(), "09:00:30", "12:00:30");
+        mockMvc.perform(get(publicPath(fixture.owner()) + "/available-slots")
+                        .param("serviceId", fixture.serviceId()).param("date", bookingDate().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].startAt").value(bookingDate() + "T09:00:30"));
+        book(fixture, bookingDate().atTime(9, 0, 30)).andExpect(status().isCreated());
+    }
+
     private Owner register() throws Exception {
         int client = CLIENT_SEQUENCE.incrementAndGet();
         String email = "regression-" + UUID.randomUUID() + "@example.test";

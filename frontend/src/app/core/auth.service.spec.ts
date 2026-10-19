@@ -190,4 +190,20 @@ describe('AuthService current user refresh', () => {
     expect(auth.user()).toEqual({ ...user, emailVerified: true });
     expect(auth.isAuthenticated()).toBe(true);
   });
+
+  it('keeps email verification confirmed when an older current-user refresh returns late', () => {
+    auth.loadCurrentUser().subscribe();
+    http.expectOne('/api/auth/me').flush(user);
+    const refreshed = vi.fn();
+    auth.loadCurrentUser(true).subscribe(refreshed);
+    const oldRefresh = http.expectOne('/api/auth/me');
+
+    auth.verifyEmail('one-use-verification-token').subscribe();
+    http.expectOne('/api/auth/verification/confirm').flush({ message: 'E-mail confirmado.' });
+    oldRefresh.flush(user);
+
+    const verified = { ...user, emailVerified: true };
+    expect(auth.user()).toEqual(verified);
+    expect(refreshed).toHaveBeenCalledExactlyOnceWith(verified);
+  });
 });

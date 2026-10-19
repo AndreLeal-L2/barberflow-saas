@@ -37,9 +37,12 @@ export class AuthService {
     return this.csrf
       .execute(() => this.http.post<MessageResponse>('/api/auth/verification/confirm', { token }))
       .pipe(
-        tap(() =>
-          this.currentUser.update((user) => (user ? { ...user, emailVerified: true } : null)),
-        ),
+        tap(() => {
+          const user = this.currentUser();
+          if (user) {
+            this.setSession({ ...user, emailVerified: true });
+          }
+        }),
       );
   }
 
