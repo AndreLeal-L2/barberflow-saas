@@ -28,6 +28,7 @@
           <button
             class="icon-button"
             type="button"
+            [disabled]="mutating()"
             (click)="cancelEdit()"
             [title]="'Cancelar edição' | translate"
           >
@@ -92,7 +93,11 @@
           </div>
         </div>
 
-        <button class="button button-primary button-full" type="submit" [disabled]="saving()">
+        <button
+          class="button button-primary button-full"
+          type="submit"
+          [disabled]="loading() || mutating()"
+        >
           <svg lucidePlus [size]="18" aria-hidden="true"></svg>
           {{
             saving()
@@ -138,16 +143,19 @@
               @if (deletingId() === service.id) {
                 <div class="inline-confirm">
                   <span>{{ 'Remover?' | translate }}</span>
-                  <button type="button" (click)="remove(service.id)">
+                  <button type="button" [disabled]="mutating()" (click)="remove(service.id)">
                     {{ 'Sim' | translate }}
                   </button>
-                  <button type="button" (click)="cancelDelete()">{{ 'Não' | translate }}</button>
+                  <button type="button" [disabled]="mutating()" (click)="cancelDelete()">
+                    {{ 'Não' | translate }}
+                  </button>
                 </div>
               } @else {
                 <div class="row-actions">
                   <button
                     class="icon-button"
                     type="button"
+                    [disabled]="mutating()"
                     (click)="edit(service)"
                     [title]="'Editar serviço' | translate"
                   >
@@ -156,6 +164,7 @@
                   <button
                     class="icon-button danger-action"
                     type="button"
+                    [disabled]="mutating()"
                     (click)="confirmDelete(service.id)"
                     [title]="'Remover serviço' | translate"
                   >

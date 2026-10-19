@@ -31,6 +31,21 @@ jobs:
       - name: Test backend
         run: mvn --batch-mode --no-transfer-progress verify
 
+      - name: Save backend test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: backend/target/surefire-reports/
+          retention-days: 7
+
+      - name: Save application for browser tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-e2e-application
+          path: backend/target/backend-*.jar
+          retention-days: 1
+
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
@@ -57,7 +72,87 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Test frontend
-        run: pnpm test --watch=false
+        run: pnpm test:unit:report
+
+      - name: Save frontend test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-report
+          path: frontend/test-results/unit.xml
+          retention-days: 7
 
       - name: Build frontend
         run: pnpm build
+
+  e2e:
+    name: Browser regression tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: [backend, frontend]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: barberflow_e2e
+          POSTGRES_USER: barberflow_e2e
+          POSTGRES_PASSWORD: barberflow_e2e
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U barberflow_e2e -d barberflow_e2e"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.19.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Download tested backend
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-e2e-application
+          path: backend/target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Check browser test types
+        run: pnpm test:e2e:types
+
+      - name: Test full account and booking journeys
+        run: pnpm test:e2e
+
+      - name: Save browser report and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-regression-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7

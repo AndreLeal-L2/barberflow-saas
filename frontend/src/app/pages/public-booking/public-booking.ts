@@ -74,8 +74,8 @@ export class PublicBooking implements OnInit {
   readonly maxDate = this.toDateInput(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
   readonly quickDates = computed(() => this.buildQuickDates());
   readonly form = this.formBuilder.group({
-    customerName: ['', [Validators.required, Validators.maxLength(120)]],
-    customerPhone: ['', [Validators.required, Validators.maxLength(30)]],
+    customerName: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(120)]],
+    customerPhone: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(30)]],
     customerEmail: ['', [Validators.email, Validators.maxLength(255)]],
   });
 
@@ -116,7 +116,7 @@ export class PublicBooking implements OnInit {
   }
 
   selectDate(date: string): void {
-    if (!date || date === this.selectedDate()) {
+    if (date === this.selectedDate()) {
       return;
     }
 
@@ -124,6 +124,8 @@ export class PublicBooking implements OnInit {
     this.selectedSlot.set(null);
     this.slots.set([]);
     this.slotError.set(null);
+    this.slotRequestId += 1;
+    this.loadingSlots.set(false);
     if (date && this.selectedService()) {
       this.loadSlots();
     }
@@ -156,7 +158,14 @@ export class PublicBooking implements OnInit {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: (booking) => this.confirmation.set(booking),
-        error: (error: HttpErrorResponse) => this.error.set(this.errorMessage(error)),
+        error: (error: HttpErrorResponse) => {
+          this.error.set(this.errorMessage(error));
+          if ((error.error as Partial<ApiError> | null)?.code === 'BOOKING_SLOT_UNAVAILABLE') {
+            this.selectedSlot.set(null);
+            this.slots.set([]);
+            this.loadSlots();
+          }
+        },
       });
   }
 
