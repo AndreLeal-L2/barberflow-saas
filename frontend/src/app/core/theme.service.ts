@@ -29,19 +29,18 @@ export class ThemeService {
   private applyTheme(): void {
     const light = this.theme() === 'LIGHT';
     this.document.documentElement.dataset['theme'] = light ? 'light' : 'dark';
-    this.document.querySelector('meta[name="theme-color"]')?.setAttribute(
-      'content',
-      light ? '#ffffff' : '#090c0a',
-    );
+    this.document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', light ? '#ffffff' : '#161b24');
   }
 
   private readTheme(): Theme {
     try {
       const storage = this.document.defaultView?.localStorage;
       const saved = storage?.getItem(THEME_KEY) ?? storage?.getItem(LEGACY_THEME_KEY);
-      return saved === 'LIGHT' ? 'LIGHT' : 'DARK';
+      return saved === 'DARK' ? 'DARK' : 'LIGHT';
     } catch {
-      return 'DARK';
+      return 'LIGHT';
     }
   }
 }

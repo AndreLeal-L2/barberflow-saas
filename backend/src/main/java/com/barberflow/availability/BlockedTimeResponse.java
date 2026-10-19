@@ -6,6 +6,8 @@ import java.util.UUID;
 
 public record BlockedTimeResponse(
         UUID id,
+        UUID barberId,
+        String barberName,
         LocalDateTime startAt,
         LocalDateTime endAt,
         String reason,
@@ -18,6 +20,8 @@ public record BlockedTimeResponse(
                         .isAfter(blockedTime.getStartAt().toLocalDate());
         return new BlockedTimeResponse(
                 blockedTime.getId(),
+                blockedTime.getBarber().getId(),
+                blockedTime.getBarber().getName(),
                 blockedTime.getStartAt(),
                 blockedTime.getEndAt(),
                 blockedTime.getReason(),

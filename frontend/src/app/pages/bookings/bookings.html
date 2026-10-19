@@ -1,9 +1,38 @@
-<div class="dashboard-content">
-  <header class="page-heading">
+<div
+  class="dashboard-content booking-page"
+  [class.booking-theme-dark]="theme() === 'DARK'"
+  [class.booking-theme-light]="theme() === 'LIGHT'"
+>
+  <header class="page-heading booking-page-heading">
     <div>
       <p class="section-label">{{ 'AGENDA' | translate }}</p>
       <h1>{{ 'Marcações' | translate }}</h1>
-      <p>{{ 'Consulte os próximos clientes e mantenha o histórico organizado.' | translate }}</p>
+      <p>{{ 'Consulte a agenda por calendário diário ou pela lista operacional.' | translate }}</p>
+    </div>
+
+    <div class="booking-header-controls">
+      <div class="segmented-control icon-segmented" [attr.aria-label]="'Escolher vista de marcações' | translate">
+        <button
+          type="button"
+          [class.active]="view() === 'CALENDAR'"
+          [attr.aria-pressed]="view() === 'CALENDAR'"
+          (click)="setView('CALENDAR')"
+        >
+          <svg lucideCalendarDays [size]="16" aria-hidden="true"></svg>
+          {{ 'Calendário' | translate }}
+        </button>
+        <button
+          type="button"
+          [class.active]="view() === 'LIST'"
+          [attr.aria-pressed]="view() === 'LIST'"
+          (click)="setView('LIST')"
+        >
+          <svg lucideList [size]="16" aria-hidden="true"></svg>
+          {{ 'Lista' | translate }}
+        </button>
+      </div>
+
+      <app-theme-toggle />
     </div>
   </header>
 
@@ -11,45 +40,164 @@
     <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
 
-  <section class="list-panel booking-panel">
+  <section class="list-panel booking-panel" [class.booking-calendar-panel]="view() === 'CALENDAR'">
     <div class="panel-heading booking-toolbar">
       <div>
-        <h2>{{ 'Agenda da barbearia' | translate }}</h2>
-        <p>
-          {{ bookings().length }}
-          {{
-            bookings().length === 1
-              ? ('marcação registada' | translate)
-              : ('marcações registadas' | translate)
-          }}
-        </p>
+        <h2>{{ view() === 'CALENDAR' ? ('Calendário diário' | translate) : ('Agenda da barbearia' | translate) }}</h2>
+        @if (view() === 'CALENDAR') {
+          <p>{{ selectedDateSummary() }}</p>
+        } @else {
+          <p>
+            {{ bookings().length }}
+            {{ bookings().length === 1 ? ('marcação registada' | translate) : ('marcações registadas' | translate) }}
+          </p>
+        }
       </div>
-      <div class="segmented-control" [attr.aria-label]="'Filtrar marcações' | translate">
-        <button
-          type="button"
-          [class.active]="filter() === 'UPCOMING'"
-          (click)="setFilter('UPCOMING')"
-        >
-          {{ 'Próximas' | translate }}
-        </button>
-        <button
-          type="button"
-          [class.active]="filter() === 'HISTORY'"
-          (click)="setFilter('HISTORY')"
-        >
-          {{ 'Histórico' | translate }}
-        </button>
-      </div>
+
+      @if (view() === 'LIST') {
+        <div class="segmented-control" [attr.aria-label]="'Filtrar marcações' | translate">
+          <button
+            type="button"
+            [class.active]="filter() === 'UPCOMING'"
+            (click)="setFilter('UPCOMING')"
+          >
+            {{ 'Próximas' | translate }}
+          </button>
+          <button
+            type="button"
+            [class.active]="filter() === 'HISTORY'"
+            (click)="setFilter('HISTORY')"
+          >
+            {{ 'Histórico' | translate }}
+          </button>
+        </div>
+      } @else {
+        <span class="calendar-date-pill">{{ selectedDateLabel() }}</span>
+      }
     </div>
 
     @if (loading()) {
       <div class="panel-loading">{{ 'A carregar marcações...' | translate }}</div>
+    } @else if (view() === 'CALENDAR') {
+      <div class="booking-calendar-controls">
+        <div class="calendar-date-switcher">
+          <button
+            class="icon-button"
+            type="button"
+            [title]="'Dia anterior' | translate"
+            [attr.aria-label]="'Dia anterior' | translate"
+            (click)="moveDate(-1)"
+          >
+            <svg lucideChevronLeft [size]="19" aria-hidden="true"></svg>
+          </button>
+
+          <label class="calendar-date-field">
+            <span>{{ 'Data' | translate }}</span>
+            <input type="date" [value]="selectedDate()" (change)="selectDate($event)" />
+          </label>
+
+          <button
+            class="icon-button"
+            type="button"
+            [title]="'Dia seguinte' | translate"
+            [attr.aria-label]="'Dia seguinte' | translate"
+            (click)="moveDate(1)"
+          >
+            <svg lucideChevronRight [size]="19" aria-hidden="true"></svg>
+          </button>
+
+          <button
+            class="button button-secondary button-small"
+            type="button"
+            (click)="selectToday()"
+          >
+            {{ 'Hoje' | translate }}
+          </button>
+        </div>
+
+        <div class="calendar-day-summary">
+          <strong>{{ selectedDateLabel() }}</strong>
+          <span>{{ calendarItemCount() }} {{ 'eventos na grelha' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="booking-calendar-shell">
+        <div class="booking-calendar-scroll" tabindex="0" [attr.aria-label]="'Calendário diário' | translate">
+          <div
+            class="booking-calendar-grid"
+            [style.--calendar-intervals]="calendarIntervals()"
+            [style.grid-template-columns]="calendarGridColumns()"
+          >
+            <div class="calendar-corner">{{ 'Horas' | translate }}</div>
+
+            @for (lane of calendarLanes(); track lane.id) {
+              <div class="calendar-lane-header">
+                <span class="calendar-lane-avatar" aria-hidden="true">{{ lane.initials }}</span>
+                <div>
+                  <strong>{{ lane.label }}</strong>
+                  <span
+                    >{{ lane.items.length }}
+                    {{ lane.items.length === 1 ? ('evento' | translate) : ('eventos' | translate) }}</span
+                  >
+                </div>
+              </div>
+            }
+
+            <div class="calendar-time-axis">
+              @for (slot of timeSlots(); track slot.minutes) {
+                <span [class.hour-mark]="slot.isHour" [style.top.%]="slot.top">
+                  {{ slot.label }}
+                </span>
+              }
+            </div>
+
+            @for (lane of calendarLanes(); track lane.id) {
+              <div class="calendar-lane-body">
+                @for (slot of timeSlots(); track slot.minutes) {
+                  <span
+                    class="calendar-grid-line"
+                    [class.hour-mark]="slot.isHour"
+                    [style.top.%]="slot.top"
+                    aria-hidden="true"
+                  ></span>
+                }
+
+                @for (item of lane.items; track item.id) {
+                  <article
+                    class="calendar-event"
+                    [class.event-block]="item.kind === 'block'"
+                    [class.status-confirmed]="item.status === 'CONFIRMED'"
+                    [class.status-cancelled]="item.status === 'CANCELLED'"
+                    [class.status-completed]="item.status === 'COMPLETED'"
+                    [style.top.%]="item.top"
+                    [style.height.%]="item.height"
+                    [attr.title]="item.title + ' · ' + item.subtitle + ' · ' + item.meta"
+                  >
+                    <span class="calendar-event-time">{{ item.meta }}</span>
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ item.subtitle }}</span>
+                    <em>{{ calendarStatusLabel(item) | translate }}</em>
+                  </article>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (calendarItemCount() === 0) {
+          <div class="calendar-empty-note">
+            <svg lucideCalendarCheck [size]="24" aria-hidden="true"></svg>
+            <div>
+              <strong>{{ 'Sem eventos neste dia' | translate }}</strong>
+              <span>{{ 'Use o seletor de data para navegar para outro dia da agenda.' | translate }}</span>
+            </div>
+          </div>
+        }
+      </div>
     } @else if (visibleBookings().length === 0) {
       <div class="panel-empty booking-empty">
         <svg lucideCalendarCheck [size]="30" aria-hidden="true"></svg>
-        <strong>{{
-          filter() === 'UPCOMING' ? ('Agenda livre' | translate) : ('Sem histórico' | translate)
-        }}</strong>
+        <strong>{{ filter() === 'UPCOMING' ? ('Agenda livre' | translate) : ('Sem histórico' | translate) }}</strong>
         <span>
           {{
             filter() === 'UPCOMING'
@@ -79,10 +227,7 @@
 
             <div class="booking-service">
               <strong>{{ booking.serviceName }}</strong>
-              <span>{{
-                booking.servicePrice
-                  | currency: booking.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
-              }}</span>
+              <span>{{ booking.servicePrice | currency: booking.priceCurrency : 'symbol' : '1.2-2' : i18n.locale() }}</span>
             </div>
 
             <span

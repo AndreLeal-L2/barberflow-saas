@@ -70,6 +70,8 @@ export interface AvailabilityDay {
 
 export interface BlockedTime {
   id: string;
+  barberId?: string;
+  barberName?: string;
   startAt: string;
   endAt: string;
   reason: string | null;
@@ -84,6 +86,8 @@ export interface CreateBlockedTimeRequest {
 
 export interface Booking {
   id: string;
+  barberId?: string;
+  barberName?: string;
   customerName: string;
   customerPhone: string;
   customerEmail: string | null;

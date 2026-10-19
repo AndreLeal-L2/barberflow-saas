@@ -14,7 +14,14 @@ import org.springframework.data.repository.query.Param;
 
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
-    List<Booking> findAllByBarbershopIdOrderByStartAtAsc(UUID barbershopId);
+    @Query("""
+            select booking
+            from Booking booking
+            join fetch booking.barber
+            where booking.barbershop.id = :barbershopId
+            order by booking.startAt asc
+            """)
+    List<Booking> findAllByBarbershopIdOrderByStartAtAsc(@Param("barbershopId") UUID barbershopId);
 
     Optional<Booking> findByIdAndBarbershopId(UUID bookingId, UUID barbershopId);
 
