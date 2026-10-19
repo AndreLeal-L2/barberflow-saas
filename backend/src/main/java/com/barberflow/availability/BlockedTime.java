@@ -84,6 +84,10 @@ public class BlockedTime {
         return id;
     }
 
+    public Barber getBarber() {
+        return barber;
+    }
+
     public LocalDateTime getStartAt() {
         return startAt;
     }

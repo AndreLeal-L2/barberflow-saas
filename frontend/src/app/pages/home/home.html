@@ -1,179 +1,122 @@
 <app-public-header />
 
-<main>
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-content page-container">
-      <div class="hero-overline">
-        <p class="hero-kicker">{{ 'Software de marcações para barbearias' | translate }}</p>
-        <span>{{ 'AGENDA / 01' | translate }}</span>
+<main class="landing-page">
+  <app-home-hero />
+
+  <section id="produto" class="landing-product" aria-labelledby="product-title">
+    <div class="page-container">
+      <div class="landing-product-layout">
+        <div class="landing-product-copy">
+          <div class="landing-section-heading">
+            <p class="section-label">{{ 'O essencial, bem organizado' | translate }}</p>
+            <h2 id="product-title">{{ 'Menos tempo a combinar horários.' | translate }}</h2>
+            <p>
+              {{ 'Uma ferramenta dedicada às tarefas do dia a dia da sua barbearia.' | translate }}
+            </p>
+          </div>
+          <div class="landing-features">
+            <article>
+              <span class="feature-icon"
+                ><svg lucideCalendarDays [size]="21" aria-hidden="true"></svg
+              ></span>
+              <h3>{{ 'A agenda num só lugar' | translate }}</h3>
+              <p>
+                {{
+                  'Consulte as marcações, os serviços escolhidos e os dados de cada cliente, sem procurar em conversas.'
+                    | translate
+                }}
+              </p>
+            </article>
+            <article>
+              <span class="feature-icon"
+                ><svg lucideClock [size]="21" aria-hidden="true"></svg
+              ></span>
+              <h3>{{ 'Horários definidos por si' | translate }}</h3>
+              <p>
+                {{
+                  'Configure os dias de trabalho, as pausas e a duração dos serviços. O cliente vê os horários disponíveis.'
+                    | translate
+                }}
+              </p>
+            </article>
+            <article>
+              <span class="feature-icon"
+                ><svg lucideScissors [size]="21" aria-hidden="true"></svg
+              ></span>
+              <h3>{{ 'Uma página da sua barbearia' | translate }}</h3>
+              <p>
+                {{
+                  'Apresente os serviços e partilhe o seu link de marcações no Instagram, no WhatsApp ou com os clientes habituais.'
+                    | translate
+                }}
+              </p>
+            </article>
+          </div>
+        </div>
+        <app-home-agenda-preview />
       </div>
+    </div>
+  </section>
 
-      <h1 id="hero-title">BarberFlow</h1>
-
-      <div class="hero-bottom">
-        <p class="hero-statement">{{ 'Enquanto corta, a agenda trabalha.' | translate }}</p>
-        <div class="hero-details">
-          <p class="hero-copy">
+  <section class="landing-setup page-container" aria-labelledby="setup-title">
+    <div class="landing-section-heading">
+      <p class="section-label">{{ 'Como começar' | translate }}</p>
+      <h2 id="setup-title">{{ 'Da configuração à primeira marcação.' | translate }}</h2>
+    </div>
+    <ol class="landing-steps">
+      <li>
+        <span class="step-index">1</span>
+        <div>
+          <h3>{{ 'Crie a sua conta' | translate }}</h3>
+          <p>{{ 'Registe a barbearia e confirme o e-mail de administrador.' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-index">2</span>
+        <div>
+          <h3>{{ 'Defina serviços e horários' | translate }}</h3>
+          <p>
             {{
-              'Um link próprio para os clientes escolherem o serviço, encontrarem um horário livre e confirmarem a marcação.'
+              'Adicione os serviços, os preços e a disponibilidade para receber clientes.'
                 | translate
             }}
           </p>
-          <div class="hero-actions">
-            <a class="button button-primary button-large" routerLink="/register">
-              {{ 'Começar grátis' | translate }}
-              <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
-            </a>
-            <a class="hero-text-link" href="#produto">{{ 'Ver o produto' | translate }}</a>
-          </div>
         </div>
-      </div>
-    </div>
+      </li>
+      <li>
+        <span class="step-index">3</span>
+        <div>
+          <h3>{{ 'Partilhe o seu link' | translate }}</h3>
+          <p>
+            {{ 'Publique a página da barbearia e comece a receber marcações online.' | translate }}
+          </p>
+        </div>
+      </li>
+    </ol>
   </section>
 
-  <section id="produto" class="product-section" aria-labelledby="product-title">
-    <div class="page-container product-intro">
-      <p class="section-number">{{ 'O PRODUTO / 02' | translate }}</p>
-      <div>
-        <h2 id="product-title">{{ 'A sua agenda, sempre a trabalhar.' | translate }}</h2>
-        <p>
-          {{
-            'Serviços, horários e marcações ficam no mesmo lugar. O cliente reserva sozinho e cada novo atendimento aparece diretamente no seu painel.'
-              | translate
-          }}
-        </p>
-      </div>
+  <section class="landing-closing page-container" aria-labelledby="closing-title">
+    <div>
+      <h2 id="closing-title">{{ 'A próxima marcação começa aqui.' | translate }}</h2>
+      <p>{{ 'Experimente o BarberFlow durante a beta gratuita.' | translate }}</p>
     </div>
-
-    <div class="page-container product-layout">
-      <div
-        class="schedule-preview"
-        [attr.aria-label]="'Demonstração da agenda diária BarberFlow' | translate"
-      >
-        <div class="preview-toolbar">
-          <div>
-            <span>{{ 'BARBERFLOW / AGENDA' | translate }}</span>
-            <strong>{{ 'Quinta-feira, 17' | translate }}</strong>
-          </div>
-          <span class="preview-count">{{ '3 marcações' | translate }}</span>
-        </div>
-
-        <div class="appointment-row">
-          <time>09:00</time>
-          <span class="appointment-line confirmed" aria-hidden="true"></span>
-          <div>
-            <strong>Miguel Santos</strong>
-            <span>{{ 'Corte clássico · 45 min' | translate }}</span>
-          </div>
-          <span class="appointment-status">{{ 'Confirmada' | translate }}</span>
-        </div>
-        <div class="appointment-row">
-          <time>10:00</time>
-          <span class="appointment-line confirmed" aria-hidden="true"></span>
-          <div>
-            <strong>Rui Almeida</strong>
-            <span>{{ 'Barba · 30 min' | translate }}</span>
-          </div>
-          <span class="appointment-status">{{ 'Confirmada' | translate }}</span>
-        </div>
-        <div class="appointment-row available">
-          <time>11:00</time>
-          <span class="appointment-line" aria-hidden="true"></span>
-          <div>
-            <strong>{{ 'Horário disponível' | translate }}</strong>
-            <span>{{ 'Visível na página de marcações' | translate }}</span>
-          </div>
-          <span class="appointment-status">{{ 'Livre' | translate }}</span>
-        </div>
-        <div class="appointment-row">
-          <time>12:00</time>
-          <span class="appointment-line confirmed" aria-hidden="true"></span>
-          <div>
-            <strong>André Costa</strong>
-            <span>{{ 'Corte + barba · 60 min' | translate }}</span>
-          </div>
-          <span class="appointment-status">{{ 'Confirmada' | translate }}</span>
-        </div>
-      </div>
-
-      <ol class="workflow-list">
-        <li>
-          <span>01</span>
-          <div>
-            <strong>{{ 'Agenda online' | translate }}</strong>
-            <p>
-              {{
-                'Consulte num só lugar quem marcou, o serviço escolhido e a hora de cada cliente.'
-                  | translate
-              }}
-            </p>
-          </div>
-        </li>
-        <li>
-          <span>02</span>
-          <div>
-            <strong>{{ 'Horários sob controlo' | translate }}</strong>
-            <p>
-              {{
-                'Defina os dias de trabalho e os intervalos que podem receber marcações.'
-                  | translate
-              }}
-            </p>
-          </div>
-        </li>
-        <li>
-          <span>03</span>
-          <div>
-            <strong>{{ 'Um link que é seu' | translate }}</strong>
-            <p>
-              {{
-                'Partilhe a página da barbearia no Instagram, WhatsApp ou perfil do Google.'
-                  | translate
-              }}
-            </p>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <section class="decision-section" aria-labelledby="decision-title">
-    <div class="page-container decision-layout">
-      <p class="section-number">{{ 'COMEÇAR / 03' | translate }}</p>
-      <div>
-        <h2 id="decision-title">
-          {{ 'Menos conversa sobre horários. Mais tempo para o próximo corte.' | translate }}
-        </h2>
-        <div class="decision-footer">
-          <p>{{ 'Configure os serviços, abra os horários e partilhe o seu link.' | translate }}</p>
-          <a class="button button-light button-large" routerLink="/register"
-            >{{ 'Criar a minha página' | translate }}
-            <svg lucideArrowRight [size]="18" aria-hidden="true"></svg
-          ></a>
-        </div>
-      </div>
-    </div>
+    <a class="button button-primary button-large" routerLink="/register"
+      >{{ 'Criar conta gratuita' | translate
+      }}<svg lucideArrowRight [size]="17" aria-hidden="true"></svg
+    ></a>
   </section>
 </main>
 
-<footer class="site-footer">
-  <div class="page-container footer-content">
-    <a
-      class="brand brand-light"
-      routerLink="/"
-      [attr.aria-label]="'BarberFlow, página inicial' | translate"
+<footer class="landing-footer">
+  <div class="page-container landing-footer-inner">
+    <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate"
+      ><span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span
+      ><span class="brand-name">BarberFlow</span></a
     >
-      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="brand-name">BarberFlow</span>
-    </a>
-    <div class="footer-meta">
-      <span>{{
-        'Marcações online para barbeiros independentes e pequenas barbearias.' | translate
-      }}</span>
-      <nav [attr.aria-label]="'Informação legal' | translate">
-        <a routerLink="/privacy">{{ 'Privacidade' | translate }}</a>
-        <a routerLink="/terms">{{ 'Termos' | translate }}</a>
-      </nav>
-    </div>
+    <p>{{ 'Marcações online para a sua barbearia.' | translate }}</p>
+    <nav [attr.aria-label]="'Informação legal' | translate">
+      <a routerLink="/privacy">{{ 'Privacidade' | translate }}</a
+      ><a routerLink="/terms">{{ 'Termos' | translate }}</a>
+    </nav>
   </div>
 </footer>

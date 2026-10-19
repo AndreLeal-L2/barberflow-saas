@@ -6,6 +6,8 @@ import java.util.UUID;
 
 public record BookingResponse(
         UUID id,
+        UUID barberId,
+        String barberName,
         String customerName,
         String customerPhone,
         String customerEmail,
@@ -20,6 +22,8 @@ public record BookingResponse(
     public static BookingResponse from(Booking booking) {
         return new BookingResponse(
                 booking.getId(),
+                booking.getBarber().getId(),
+                booking.getBarber().getName(),
                 booking.getCustomerName(),
                 booking.getCustomerPhone(),
                 booking.getCustomerEmail(),

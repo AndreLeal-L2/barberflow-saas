@@ -8,6 +8,7 @@ import { TranslatePipe } from '../../core/translate.pipe';
   selector: 'app-pricing',
   imports: [TranslatePipe, LucideArrowRight, LucideCheck, PublicHeader, RouterLink],
   templateUrl: './pricing.html',
+  styleUrl: './pricing.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Pricing {}

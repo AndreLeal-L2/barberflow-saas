@@ -1,73 +1,89 @@
 <app-public-header />
 
-<main class="pricing-page">
-  <section class="pricing-hero page-container">
-    <p class="section-number">{{ 'PLANO ÚNICO' | translate }}</p>
-    <div>
-      <h1>{{ 'Marcações online.' | translate }}<br />{{ 'Beta gratuita.' | translate }}</h1>
+<main class="plans-page">
+  <div class="plans-container">
+    <header class="plans-heading">
+      <p class="section-label">{{ 'Preço' | translate }}</p>
+      <h1>{{ 'Comece com a beta gratuita.' | translate }}</h1>
       <p>
         {{
-          'Acesso sem cobrança durante a validação do produto com os primeiros utilizadores.'
+          'Conheça a plataforma e organize as marcações da sua barbearia, sem custos durante esta fase.'
             | translate
         }}
       </p>
-    </div>
-  </section>
+    </header>
 
-  <section class="plan-sheet page-container" aria-labelledby="plan-title">
-    <div class="plan-summary">
-      <span class="trial-label">{{ 'ACESSO BETA' | translate }}</span>
-      <h2 id="plan-title">{{ 'Marcações' | translate }}</h2>
-      <p>{{ 'Para barbeiros independentes e equipas pequenas.' | translate }}</p>
-      <div class="price">
-        <strong>0 €</strong><span>{{ 'durante a beta' | translate }}</span>
+    <section class="beta-plan" aria-labelledby="plan-title">
+      <div class="beta-plan-summary">
+        <span class="beta-plan-label">{{ 'Acesso beta' | translate }}</span>
+        <h2 id="plan-title">BarberFlow</h2>
+        <p>{{ 'Para barbeiros independentes e equipas pequenas.' | translate }}</p>
+        <div class="beta-plan-price">
+          <strong>0 €</strong><span>{{ 'durante a beta' | translate }}</span>
+        </div>
+        <a class="button button-primary button-full" routerLink="/register"
+          >{{ 'Criar conta gratuita' | translate
+          }}<svg lucideArrowRight [size]="17" aria-hidden="true"></svg
+        ></a>
+        <p class="beta-plan-caption">{{ 'Sem cartão e sem cobrança nesta fase.' | translate }}</p>
       </div>
-      <a class="button button-primary button-large" routerLink="/register">
-        {{ 'Criar conta' | translate }}
-        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
-      </a>
-      <p class="price-note">{{ 'Sem cartão e sem cobrança nesta fase.' | translate }}</p>
-    </div>
-
-    <div class="plan-includes">
-      <p class="plan-list-title">{{ 'INCLUÍDO NO PLANO' | translate }}</p>
-      <ul class="feature-list">
-        <li>
-          <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>{{ 'Página pública com o nome e o link da sua barbearia' | translate }}</span>
-        </li>
-        <li>
-          <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>{{ 'Serviços com preço e duração configuráveis' | translate }}</span>
-        </li>
-        <li>
-          <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>{{ 'Horários de trabalho e disponibilidade' | translate }}</span>
-        </li>
-        <li>
-          <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>{{ 'Agenda central para consultar as marcações' | translate }}</span>
-        </li>
-        <li>
-          <svg lucideCheck [size]="18" aria-hidden="true"></svg
-          ><span>{{ 'Conta de administrador protegida' | translate }}</span>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="billing-note">
-    <div class="page-container billing-note-layout">
-      <p class="section-number">{{ 'NOTA DO MVP' | translate }}</p>
-      <div>
-        <h2>{{ 'Sem pagamentos nesta fase.' | translate }}</h2>
-        <p>
-          {{
-            'Nesta fase pode percorrer o registo e testar a plataforma sem introduzir dados de pagamento. Os preços comerciais só serão apresentados quando a subscrição estiver integrada e testada.'
-              | translate
-          }}
-        </p>
+      <div class="beta-plan-details">
+        <h3>{{ 'Tudo o que precisa para começar' | translate }}</h3>
+        <ul>
+          <li>
+            <svg lucideCheck [size]="17" aria-hidden="true"></svg
+            ><span>{{ 'Página pública com o nome e o link da sua barbearia' | translate }}</span>
+          </li>
+          <li>
+            <svg lucideCheck [size]="17" aria-hidden="true"></svg
+            ><span>{{ 'Serviços com preço e duração configuráveis' | translate }}</span>
+          </li>
+          <li>
+            <svg lucideCheck [size]="17" aria-hidden="true"></svg
+            ><span>{{ 'Horários de trabalho e disponibilidade' | translate }}</span>
+          </li>
+          <li>
+            <svg lucideCheck [size]="17" aria-hidden="true"></svg
+            ><span>{{ 'Agenda central para consultar as marcações' | translate }}</span>
+          </li>
+          <li>
+            <svg lucideCheck [size]="17" aria-hidden="true"></svg
+            ><span>{{
+              'Gestão de marcações confirmadas, concluídas e canceladas' | translate
+            }}</span>
+          </li>
+        </ul>
       </div>
+    </section>
+
+    <section class="plans-transparency" aria-labelledby="beta-note-title">
+      <h2 id="beta-note-title">{{ 'O que significa estar em beta?' | translate }}</h2>
+      <p>
+        {{
+          'O BarberFlow está a ser validado com os primeiros utilizadores. Algumas funcionalidades podem evoluir e podem ocorrer interrupções durante esta fase.'
+            | translate
+        }}
+      </p>
+      <h3>{{ 'E depois da beta?' | translate }}</h3>
+      <p>
+        {{
+          'Os preços comerciais serão apresentados quando a subscrição estiver integrada e testada. Esta versão não pede dados de pagamento nem efetua cobranças.'
+            | translate
+        }}
+      </p>
+    </section>
+    <div class="plans-return">
+      <a routerLink="/">{{ 'Voltar ao início' | translate }}</a>
     </div>
-  </section>
+  </div>
 </main>
+
+<footer class="plans-footer">
+  <div class="page-container">
+    <span>BarberFlow</span>
+    <nav [attr.aria-label]="'Informação legal' | translate">
+      <a routerLink="/privacy">{{ 'Privacidade' | translate }}</a
+      ><a routerLink="/terms">{{ 'Termos' | translate }}</a>
+    </nav>
+  </div>
+</footer>

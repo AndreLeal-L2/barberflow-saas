@@ -1,0 +1,33 @@
+<section class="photographic-hero" aria-labelledby="hero-title">
+  <img
+    class="hero-photograph"
+    src="/images/barber-working.jpg"
+    alt=""
+    width="2000"
+    height="1333"
+    fetchpriority="high"
+  />
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="hero-content page-container">
+    <div class="hero-intro">
+      <p class="hero-eyebrow">{{ 'Software de marcações para barbearias' | translate }}</p>
+      <h1 id="hero-title">{{ 'A agenda da sua barbearia. Em ordem.' | translate }}</h1>
+      <p class="hero-description">
+        {{
+          'Os clientes escolhem um horário. Acompanhe tudo numa agenda simples, com os serviços e a disponibilidade da sua barbearia.'
+            | translate
+        }}
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary button-large" routerLink="/register">
+          {{ 'Criar conta gratuita' | translate }}
+          <svg lucideArrowRight [size]="17" aria-hidden="true"></svg>
+        </a>
+        <a class="hero-product-link" href="#produto">
+          {{ 'Conhecer o produto' | translate }}
+        </a>
+      </div>
+      <p class="hero-beta-note">{{ 'Beta gratuita. Sem cartão de crédito.' | translate }}</p>
+    </div>
+  </div>
+</section>

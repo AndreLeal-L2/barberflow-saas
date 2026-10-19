@@ -1,4 +1,53 @@
 export const ENGLISH: Readonly<Record<string, string>> = {
+  'A agenda da sua barbearia. Em ordem.': 'Your barbershop schedule. Organised.',
+  'A agenda num só lugar': 'Your schedule in one place',
+  'A próxima marcação começa aqui.': 'Your next booking starts here.',
+  'Acesso beta': 'Beta access',
+  'Adicione os serviços, os preços e a disponibilidade para receber clientes.':
+    'Add your services, prices and availability for clients.',
+  'Apresente os serviços e partilhe o seu link de marcações no Instagram, no WhatsApp ou com os clientes habituais.':
+    'Showcase your services and share your booking link on Instagram, WhatsApp or with regular clients.',
+  'Beta gratuita. Sem cartão de crédito.': 'Free beta. No credit card required.',
+  'Comece com a beta gratuita.': 'Start with the free beta.',
+  'Como começar': 'Getting started',
+  'Configure os dias de trabalho, as pausas e a duração dos serviços. O cliente vê os horários disponíveis.':
+    'Set your working days, breaks and service durations. Clients see your available times.',
+  'Conhecer o produto': 'Explore the product',
+  'Conheça a plataforma e organize as marcações da sua barbearia, sem custos durante esta fase.':
+    'Explore the platform and organise your barbershop bookings, free of charge during this phase.',
+  'Consulte as marcações, os serviços escolhidos e os dados de cada cliente, sem procurar em conversas.':
+    'View bookings, selected services and client details without searching through messages.',
+  'Criar conta gratuita': 'Create a free account',
+  'Crie a sua conta': 'Create your account',
+  'Da configuração à primeira marcação.': 'From setup to your first booking.',
+  'Defina serviços e horários': 'Set services and working hours',
+  'E depois da beta?': 'What happens after the beta?',
+  'Experimente o BarberFlow durante a beta gratuita.': 'Try BarberFlow during the free beta.',
+  'Gestão de marcações confirmadas, concluídas e canceladas':
+    'Manage confirmed, completed and cancelled bookings',
+  'Horários definidos por si': 'Working hours set by you',
+  'Marcações online para a sua barbearia.': 'Online bookings for your barbershop.',
+  'Menos tempo a combinar horários.': 'Less time arranging appointments.',
+  'O BarberFlow está a ser validado com os primeiros utilizadores. Algumas funcionalidades podem evoluir e podem ocorrer interrupções durante esta fase.':
+    'BarberFlow is being validated with its first users. Some features may change and interruptions may occur during this phase.',
+  'O essencial, bem organizado': 'The essentials, well organised',
+  'O que significa estar em beta?': 'What does being in beta mean?',
+  'Os clientes escolhem um horário. Acompanhe tudo numa agenda simples, com os serviços e a disponibilidade da sua barbearia.':
+    'Clients choose a time. Keep track of everything in a simple schedule, with your barbershop services and availability.',
+  'Os preços comerciais serão apresentados quando a subscrição estiver integrada e testada. Esta versão não pede dados de pagamento nem efetua cobranças.':
+    'Commercial prices will be presented once subscriptions have been integrated and tested. This version does not request payment details or charge you.',
+  'Partilhe o seu link': 'Share your link',
+  'Pré-visualização · Dados ilustrativos': 'Preview · Sample data',
+  'Publique a página da barbearia e comece a receber marcações online.':
+    'Publish your barbershop page and start receiving online bookings.',
+  'Registe a barbearia e confirme o e-mail de administrador.':
+    'Register your barbershop and verify the administrator email.',
+  'Tudo o que precisa para começar': 'Everything you need to get started',
+  'Uma ferramenta dedicada às tarefas do dia a dia da sua barbearia.':
+    'A tool built for the day-to-day work of your barbershop.',
+  'Uma página da sua barbearia': 'A page for your barbershop',
+  'Vista diária': 'Day view',
+
   'Consulte os próximos clientes e mantenha o histórico organizado.':
     'View upcoming clients and keep your booking history organised.',
   Início: 'Home',

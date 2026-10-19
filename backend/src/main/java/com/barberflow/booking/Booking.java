@@ -196,6 +196,10 @@ public class Booking {
         return barbershop;
     }
 
+    public Barber getBarber() {
+        return barber;
+    }
+
     public String getCustomerName() {
         return customerName;
     }
