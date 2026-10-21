@@ -108,7 +108,7 @@ Os dois casos `rejects malformed $field before submitting a booking` falharam co
 | `BookingSecurityIntegrationTests.rejectsAStaleBookingUpdateAfterPersonalDataWasAnonymized` | `Expecting code to raise a throwable.` A atualização antiga passou após a anonimização. | A operação em massa também avança a versão da marcação. |
 | `NotificationDeliveryServiceTest.doesNotLogOrStoreSensitiveProviderErrorDetails` | Log continha `private-owner@example.test` e `synthetic-secret-token` vindos da exceção do fornecedor. | Mensagem genérica persistida e apenas classe da exceção no log. |
 
-**GREEN:** pendente da execução CI com as correções.
+**GREEN comprovado no CI:** [Backend, execução 39594803717](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39594803717/job/119204358707), commit `8aa67708`: **56 testes passaram, 0 falhas, 0 erros e 0 ignorados**, incluindo os mesmos dois testes sem alterar as expectativas.
 
 ## 2026-10-21 — Privilégios antigos do papel `service_role`
 
@@ -119,4 +119,4 @@ SupabaseDefaultPrivilegesIntegrationTests.existingApplicationTablesAreNotReadabl
 Expecting value to be false but was true
 ```
 
-O teste simula os privilégios por omissão do Supabase, consulta a tabela `bookings` após as migrações e confirma que o papel `service_role` não pode ler os dados. **Correção:** nova migração revoga privilégios antigos em todas as tabelas e sequências da aplicação para esse papel. **GREEN:** pendente da execução CI com a correção.
+O teste simula os privilégios por omissão do Supabase, consulta a tabela `bookings` após as migrações e confirma que o papel `service_role` não pode ler os dados. **Correção:** nova migração revoga privilégios antigos em todas as tabelas e sequências da aplicação para esse papel. **GREEN comprovado no CI:** [Backend, execução 39594803717](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39594803717/job/119204358707), commit `8aa67708`: **56 testes passaram, 0 falhas, 0 erros e 0 ignorados**, incluindo o mesmo teste sem alteração.

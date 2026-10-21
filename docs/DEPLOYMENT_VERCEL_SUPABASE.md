@@ -33,8 +33,11 @@ it a worse default for the Spring JDBC and Hibernate application.
 
 Flyway creates the application schema during the first backend start. Migration
 `V9__protect_supabase_public_tables.sql` enables row-level security and removes
-Data API privileges from Supabase's public client roles. The Spring application
-connects directly to PostgreSQL and does not use the Supabase Data API.
+Data API privileges from Supabase's public client roles. Migrations `V11` and
+`V12` also remove default grants on future objects and existing grants to
+`service_role`. The Spring application connects directly to PostgreSQL and does
+not use the Supabase Data API. Check that all three migrations have run before
+accepting any real customer data.
 
 ## 2. Configure The Vercel Project
 
@@ -58,6 +61,14 @@ BARBERFLOW_TIME_ZONE=Europe/Lisbon
 
 CRON_SECRET=GENERATED_RANDOM_SECRET
 ```
+
+This beta configuration uses the privileged `postgres.PROJECT_REF` connection
+for both Flyway migrations and application requests. It can bypass RLS, so a
+compromised backend would still have broad database access. Before storing real
+customer data, provision a separate runtime role with only the required table
+and sequence permissions, keep the migration credentials separate, and verify
+the actual production grants and RLS state in Supabase. The current deployment
+must remain synthetic-data-only until that work is complete.
 
 The Vercel-specific backend image already sets `PORT=8080` and
 `SPRING_PROFILES_ACTIVE=prod,vercel`. Generate the cron secret locally with:
