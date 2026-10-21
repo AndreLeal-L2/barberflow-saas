@@ -13,6 +13,22 @@ permissions:
   contents: read
 
 jobs:
+  secret-scan:
+    name: Scan repository for exposed secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Scan tracked files for secrets
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret
+          format: table
+          exit-code: "1"
+
   codeql:
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-latest

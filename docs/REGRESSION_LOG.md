@@ -74,3 +74,49 @@ O teste consulta os horários realmente oferecidos, confirma que `09:00:01` não
 **Correção:** validar o desvio completo, incluindo segundos e nanossegundos, relativamente à abertura configurada. O teste RED original foi mantido sem alterações. Acrescentada cobertura para frações de segundo e para a aceitação do horário exato oferecido quando a abertura tem segundos.
 
 **GREEN comprovado no CI:** [Backend, execução 39327199114](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39327199114/job/118316000780), commit `ec5e014e`: **47 testes passaram, 0 falhas, 0 erros e 0 ignorados**, incluindo os 12 testes de segurança/regressão de marcações. O teste RED original passou sem alterar a sua expectativa.
+
+## 2026-10-21 — Reforço de segurança da API e da base de dados
+
+**RED comprovado no CI:** [Backend, execução 39593186563](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39593186563/job/119198969410), commit `762f69c`. Comando `mvn --batch-mode --no-transfer-progress verify`: **53 testes executados, 6 falhas de asserção, 0 erros**.
+
+| Teste | Falha observada antes da correção | Correção |
+| --- | --- | --- |
+| `BookingSecurityIntegrationTests.rejectsOneOfTwoConcurrentOwnerStatusChangesAfterBothReadConfirmed` | As duas alterações simultâneas foram gravadas; só uma devia ser aceite. | Versão otimista em `bookings` e resposta HTTP 409 para conflito. |
+| `CreateBookingRequestValidationTest.rejectsControlCharactersAndMalformedCustomerPhoneNumbers` | Nome com controlo e telefone inválido não produziram violações de validação. | Restrições de formato na entrada da API. |
+| `DistributedRateLimiterIntegrationTests.sharesAccountLimitsAcrossIndependentApplicationInstances` | A segunda instância não bloqueou uma conta já limitada pela primeira. | Baldes de rate limit partilhados e atualizados atomicamente no PostgreSQL. |
+| `MaintenanceJobSecurityIntegrationTests.acceptsTheConfiguredCronSecretWithoutAUserSession` | O cron com segredo válido recebeu 401 em vez de 204. | Passagem pela cadeia de segurança até à verificação do segredo no controller. |
+| `SupabaseDefaultPrivilegesIntegrationTests.futureApplicationTablesDoNotBecomePublicThroughSupabaseDefaults` | Uma tabela futura herdou acesso do papel `anon`. | Revogação de privilégios por omissão para papéis públicos do Supabase. |
+| `LoggingNotificationSenderTest.doesNotWriteRecipientsOrActionTokensToApplicationLogs` | Destinatário e token apareceram no log. | Registo apenas de tipo e ID da notificação. |
+
+**GREEN comprovado no CI:** [Backend, execução 39593817722](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39593817722/job/119201090426), commit `01740ddd`: **53 testes passaram, 0 falhas, 0 erros e 0 ignorados**. A bateria do frontend e o build também passaram nessa execução.
+
+**RED local do frontend:**
+
+```bash
+cd frontend
+pnpm test --watch=false --include='src/app/pages/public-booking/public-booking.spec.ts'
+```
+
+Os dois casos `rejects malformed $field before submitting a booking` falharam com `expected false to be true`: o formulário aceitava nome com quebra de linha e telefone `call me maybe`. **GREEN:** o mesmo comando passou **16/16 testes** após alinhar a validação com a API.
+
+## 2026-10-21 — Corrida com anonimização e detalhes sensíveis do fornecedor
+
+**RED comprovado no CI:** [Backend, execução 39594256961](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39594256961/job/119202542986), commit `263cd71`. Comando `mvn --batch-mode --no-transfer-progress verify`: **55 testes executados, 2 falhas de asserção, 0 erros**.
+
+| Teste | Falha observada antes da correção | Correção |
+| --- | --- | --- |
+| `BookingSecurityIntegrationTests.rejectsAStaleBookingUpdateAfterPersonalDataWasAnonymized` | `Expecting code to raise a throwable.` A atualização antiga passou após a anonimização. | A operação em massa também avança a versão da marcação. |
+| `NotificationDeliveryServiceTest.doesNotLogOrStoreSensitiveProviderErrorDetails` | Log continha `private-owner@example.test` e `synthetic-secret-token` vindos da exceção do fornecedor. | Mensagem genérica persistida e apenas classe da exceção no log. |
+
+**GREEN comprovado no CI:** [Backend, execução 39594803717](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39594803717/job/119204358707), commit `8aa67708`: **56 testes passaram, 0 falhas, 0 erros e 0 ignorados**, incluindo os mesmos dois testes sem alterar as expectativas.
+
+## 2026-10-21 — Privilégios antigos do papel `service_role`
+
+**RED comprovado no CI:** [Backend, execução 39594574877](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39594574877/job/119203589924), commit `7246e09`. Comando `mvn --batch-mode --no-transfer-progress verify`: **56 testes executados, 3 falhas de asserção, 0 erros** (as duas regressões ainda não corrigidas acima e a nova).
+
+```text
+SupabaseDefaultPrivilegesIntegrationTests.existingApplicationTablesAreNotReadableThroughTheSupabaseServiceRole
+Expecting value to be false but was true
+```
+
+O teste simula os privilégios por omissão do Supabase, consulta a tabela `bookings` após as migrações e confirma que o papel `service_role` não pode ler os dados. **Correção:** nova migração revoga privilégios antigos em todas as tabelas e sequências da aplicação para esse papel. **GREEN comprovado no CI:** [Backend, execução 39594803717](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/39594803717/job/119204358707), commit `8aa67708`: **56 testes passaram, 0 falhas, 0 erros e 0 ignorados**, incluindo o mesmo teste sem alteração.

@@ -3,29 +3,31 @@ package com.barberflow.config;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.barberflow.shared.error.BusinessRuleException;
-import com.barberflow.shared.security.SecureTokenGenerator;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
+import com.barberflow.TestcontainersConfiguration;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+@Import(TestcontainersConfiguration.class)
+@SpringBootTest
 class RequestRateLimiterTest {
+
+    @Autowired private RequestRateLimiter limiter;
 
     @Test
     void shouldLimitRepeatedLoginAttemptsForTheSameAccount() {
-        RequestRateLimiter limiter = new RequestRateLimiter(
-                Clock.fixed(Instant.parse("2026-09-11T00:00:00Z"), ZoneOffset.UTC),
-                new SecureTokenGenerator()
-        );
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("203.0.113.10");
+        String account = UUID.randomUUID() + "@example.test";
 
         for (int attempt = 0; attempt < 8; attempt++) {
-            limiter.checkLogin(request, "owner@example.test");
+            limiter.checkLogin(request, account);
         }
 
-        assertThatThrownBy(() -> limiter.checkLogin(request, "OWNER@example.test"))
+        assertThatThrownBy(() -> limiter.checkLogin(request, account.toUpperCase()))
                 .isInstanceOf(BusinessRuleException.class)
                 .extracting("code")
                 .isEqualTo("RATE_LIMIT_EXCEEDED");
