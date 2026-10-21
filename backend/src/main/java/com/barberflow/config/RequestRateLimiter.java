@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.Locale;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +91,7 @@ public class RequestRateLimiter {
         long now = clock.millis();
         boolean allowed = jdbc.query(
                 CONSUME_SQL,
-                resultSet -> resultSet.next(),
+                (ResultSetExtractor<Boolean>) resultSet -> resultSet.next(),
                 key,
                 capacity,
                 refillPeriod.toMillis(),
