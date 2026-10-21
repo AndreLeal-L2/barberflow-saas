@@ -18,16 +18,19 @@ public class MaintenanceJobController {
 
     private final BookingDataRetentionScheduler dataRetentionScheduler;
     private final NotificationOutboxScheduler notificationOutboxScheduler;
+    private final RequestRateLimiter requestRateLimiter;
     private final byte[] expectedAuthorization;
     private final boolean enabled;
 
     public MaintenanceJobController(
             BookingDataRetentionScheduler dataRetentionScheduler,
             NotificationOutboxScheduler notificationOutboxScheduler,
+            RequestRateLimiter requestRateLimiter,
             @Value("${app.jobs.cron-secret:}") String cronSecret
     ) {
         this.dataRetentionScheduler = dataRetentionScheduler;
         this.notificationOutboxScheduler = notificationOutboxScheduler;
+        this.requestRateLimiter = requestRateLimiter;
         this.enabled = !cronSecret.isBlank();
         this.expectedAuthorization = ("Bearer " + cronSecret)
                 .getBytes(StandardCharsets.UTF_8);
@@ -44,6 +47,7 @@ public class MaintenanceJobController {
 
         notificationOutboxScheduler.deliverPending();
         dataRetentionScheduler.removeExpiredPersonalData();
+        requestRateLimiter.removeExpired();
         return ResponseEntity.noContent().build();
     }
 
@@ -57,6 +61,7 @@ public class MaintenanceJobController {
         }
 
         dataRetentionScheduler.removeExpiredPersonalData();
+        requestRateLimiter.removeExpired();
         return ResponseEntity.noContent().build();
     }
 

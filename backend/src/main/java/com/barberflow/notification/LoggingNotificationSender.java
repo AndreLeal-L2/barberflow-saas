@@ -13,13 +13,8 @@ public class LoggingNotificationSender implements NotificationSender {
 
     @Override
     public NotificationSendResult send(NotificationOutbox notification) {
-        LOGGER.info(
-                "Development email type={} recipient={} subject={} body={}",
-                notification.getNotificationType(),
-                notification.getRecipient(),
-                notification.getSubject(),
-                notification.getBody()
-        );
+        LOGGER.info("Development email queued type={} id={}",
+                notification.getNotificationType(), notification.getId());
         return NotificationSendResult.sent(null);
     }
 }

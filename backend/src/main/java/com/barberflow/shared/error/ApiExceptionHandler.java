@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -73,6 +74,15 @@ public class ApiExceptionHandler {
                 HttpStatus.CONFLICT.value(),
                 "RESOURCE_CONFLICT",
                 "Já existe um registo com estes dados."
+        ));
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ResponseEntity<ApiError> handleConcurrentUpdate() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of(
+                HttpStatus.CONFLICT.value(),
+                "CONCURRENT_UPDATE",
+                "Este registo foi alterado por outro pedido. Atualize a página e tente novamente."
         ));
     }
 }

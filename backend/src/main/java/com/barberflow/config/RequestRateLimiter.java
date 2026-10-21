@@ -2,29 +2,48 @@ package com.barberflow.config;
 
 import com.barberflow.shared.error.BusinessRuleException;
 import com.barberflow.shared.security.SecureTokenGenerator;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Locale;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RequestRateLimiter {
 
-    private static final int MAX_TRACKED_SUBJECTS = 100_000;
+    private static final String CONSUME_SQL = """
+            INSERT INTO request_rate_limits
+                (bucket_key, capacity, refill_period_ms, tokens, last_refill_ms, expires_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT (bucket_key) DO UPDATE SET
+                capacity = EXCLUDED.capacity,
+                refill_period_ms = EXCLUDED.refill_period_ms,
+                tokens = LEAST(EXCLUDED.capacity,
+                    request_rate_limits.tokens
+                    + GREATEST(0, EXCLUDED.last_refill_ms - request_rate_limits.last_refill_ms)
+                      * (EXCLUDED.capacity::double precision / EXCLUDED.refill_period_ms)) - 1,
+                last_refill_ms = EXCLUDED.last_refill_ms,
+                expires_at = EXCLUDED.expires_at
+            WHERE LEAST(EXCLUDED.capacity,
+                request_rate_limits.tokens
+                + GREATEST(0, EXCLUDED.last_refill_ms - request_rate_limits.last_refill_ms)
+                  * (EXCLUDED.capacity::double precision / EXCLUDED.refill_period_ms)) >= 1
+            RETURNING bucket_key
+            """;
 
-    private final Cache<String, TokenBucket> buckets = Caffeine.newBuilder()
-            .maximumSize(MAX_TRACKED_SUBJECTS)
-            .expireAfterAccess(Duration.ofHours(2))
-            .build();
     private final Clock clock;
     private final SecureTokenGenerator tokenGenerator;
+    private final JdbcTemplate jdbc;
 
-    public RequestRateLimiter(Clock clock, SecureTokenGenerator tokenGenerator) {
+    public RequestRateLimiter(Clock clock, SecureTokenGenerator tokenGenerator, JdbcTemplate jdbc) {
         this.clock = clock;
         this.tokenGenerator = tokenGenerator;
+        this.jdbc = jdbc;
     }
 
     public void checkLogin(HttpServletRequest request, String email) {
@@ -59,14 +78,27 @@ public class RequestRateLimiter {
         consume("account-token-ip", clientAddress(request), 20, Duration.ofHours(1));
     }
 
+    @Scheduled(cron = "${app.booking.data-retention-cron}", zone = "${app.time-zone}")
+    public void removeExpired() {
+        jdbc.update("DELETE FROM request_rate_limits WHERE expires_at < ?",
+                Timestamp.from(Instant.now(clock)));
+    }
+
     private void consume(String action, String subject, int capacity, Duration refillPeriod) {
-        String normalized = subject == null ? "unknown" : subject.trim().toLowerCase();
+        String normalized = subject == null ? "unknown" : subject.trim().toLowerCase(Locale.ROOT);
         String key = action + ':' + tokenGenerator.hash(normalized);
-        TokenBucket bucket = buckets.get(
+        long now = clock.millis();
+        boolean allowed = jdbc.query(
+                CONSUME_SQL,
+                resultSet -> resultSet.next(),
                 key,
-                ignored -> new TokenBucket(capacity, refillPeriod, clock.millis())
+                capacity,
+                refillPeriod.toMillis(),
+                capacity - 1.0,
+                now,
+                Timestamp.from(Instant.ofEpochMilli(now).plus(refillPeriod).plus(refillPeriod))
         );
-        if (!bucket.tryConsume(clock.millis())) {
+        if (!allowed) {
             throw new BusinessRuleException(
                     HttpStatus.TOO_MANY_REQUESTS,
                     "RATE_LIMIT_EXCEEDED",
@@ -77,31 +109,5 @@ public class RequestRateLimiter {
 
     private static String clientAddress(HttpServletRequest request) {
         return request.getRemoteAddr() == null ? "unknown" : request.getRemoteAddr();
-    }
-
-    private static final class TokenBucket {
-
-        private final int capacity;
-        private final double tokensPerMillisecond;
-        private double tokens;
-        private long lastRefillAt;
-
-        private TokenBucket(int capacity, Duration refillPeriod, long createdAt) {
-            this.capacity = capacity;
-            this.tokens = capacity;
-            this.tokensPerMillisecond = (double) capacity / refillPeriod.toMillis();
-            this.lastRefillAt = createdAt;
-        }
-
-        private synchronized boolean tryConsume(long now) {
-            long elapsed = Math.max(0, now - lastRefillAt);
-            tokens = Math.min(capacity, tokens + elapsed * tokensPerMillisecond);
-            lastRefillAt = now;
-            if (tokens < 1) {
-                return false;
-            }
-            tokens--;
-            return true;
-        }
     }
 }
