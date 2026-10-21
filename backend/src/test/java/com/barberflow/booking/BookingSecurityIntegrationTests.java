@@ -12,11 +12,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.barberflow.TestcontainersConfiguration;
 import com.barberflow.notification.NotificationOutboxRepository;
 import com.jayway.jsonpath.JsonPath;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -30,9 +35,12 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(properties = "app.security.require-email-verification=true")
@@ -47,6 +55,8 @@ class BookingSecurityIntegrationTests {
     @Autowired private Clock clock;
     @Autowired private NotificationOutboxRepository notifications;
     @Autowired private JdbcTemplate jdbc;
+    @Autowired private PlatformTransactionManager transactionManager;
+    @PersistenceContext private EntityManager entityManager;
 
     @Test
     void rejectsMissingAndMismatchedCsrfOnRegistrationAndAuthenticatedWrites() throws Exception {
@@ -190,6 +200,63 @@ class BookingSecurityIntegrationTests {
         }
         mockMvc.perform(get("/api/dashboard/bookings").cookie(fixture.owner().session()))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void rejectsOneOfTwoConcurrentOwnerStatusChangesAfterBothReadConfirmed() throws Exception {
+        Fixture fixture = publishedFixture();
+        UUID bookingId = UUID.fromString(jsonId(book(fixture, bookingDate().atTime(9, 0))
+                .andExpect(status().isCreated()).andReturn()));
+        CountDownLatch bothLoaded = new CountDownLatch(2);
+        CountDownLatch releaseChanges = new CountDownLatch(1);
+        var executor = Executors.newFixedThreadPool(2);
+        try {
+            var first = executor.submit(() -> changeStatusAfterBothRead(
+                    bookingId, BookingStatus.CANCELLED, bothLoaded, releaseChanges));
+            var second = executor.submit(() -> changeStatusAfterBothRead(
+                    bookingId, BookingStatus.COMPLETED, bothLoaded, releaseChanges));
+            assertThat(bothLoaded.await(10, TimeUnit.SECONDS)).isTrue();
+            releaseChanges.countDown();
+
+            List<Throwable> outcomes = Arrays.asList(first.get(20, TimeUnit.SECONDS),
+                    second.get(20, TimeUnit.SECONDS));
+            assertThat(outcomes.stream().filter(Objects::isNull).count()).isEqualTo(1);
+            Throwable failure = outcomes.stream().filter(Objects::nonNull).findFirst().orElseThrow();
+            assertThat(failure).isInstanceOfAny(
+                    OptimisticLockingFailureException.class,
+                    OptimisticLockException.class
+            );
+        } finally {
+            releaseChanges.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    private Throwable changeStatusAfterBothRead(
+            UUID bookingId,
+            BookingStatus newStatus,
+            CountDownLatch bothLoaded,
+            CountDownLatch releaseChanges
+    ) {
+        try {
+            new TransactionTemplate(transactionManager).executeWithoutResult(ignored -> {
+                Booking booking = entityManager.find(Booking.class, bookingId);
+                bothLoaded.countDown();
+                try {
+                    if (!releaseChanges.await(10, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("The competing transaction did not start");
+                    }
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while coordinating transactions", exception);
+                }
+                booking.changeStatus(newStatus);
+                entityManager.flush();
+            });
+            return null;
+        } catch (Throwable failure) {
+            return failure;
+        }
     }
 
     @Test
