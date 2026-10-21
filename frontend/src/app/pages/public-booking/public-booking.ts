@@ -74,8 +74,19 @@ export class PublicBooking implements OnInit {
   readonly maxDate = this.toDateInput(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
   readonly quickDates = computed(() => this.buildQuickDates());
   readonly form = this.formBuilder.group({
-    customerName: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(120)]],
-    customerPhone: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(30)]],
+    customerName: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/\S/),
+        Validators.pattern(/^[^\u0000-\u001F\u007F-\u009F]+$/u),
+        Validators.maxLength(120),
+      ],
+    ],
+    customerPhone: [
+      '',
+      [Validators.required, Validators.pattern(/\S/), Validators.pattern(/^[+0-9() .-]{7,30}$/)],
+    ],
     customerEmail: ['', [Validators.email, Validators.maxLength(255)]],
   });
 

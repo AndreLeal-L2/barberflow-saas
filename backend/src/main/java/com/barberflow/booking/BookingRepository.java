@@ -63,7 +63,8 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
                 booking.cancellationTokenHash = null,
                 booking.cancellationTokenExpiresAt = null,
                 booking.anonymizedAt = :now,
-                booking.updatedAt = :now
+                booking.updatedAt = :now,
+                booking.version = booking.version + 1
             where booking.endAt < :retentionCutoff
               and booking.anonymizedAt is null
             """)

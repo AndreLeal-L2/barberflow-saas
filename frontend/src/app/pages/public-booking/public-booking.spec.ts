@@ -206,6 +206,20 @@ describe('PublicBooking', () => {
     },
   );
 
+  it.each([
+    { field: 'customerName' as const, value: 'Alice\nInjected log line' },
+    { field: 'customerPhone' as const, value: 'call me maybe' },
+  ])('rejects malformed $field before submitting a booking', ({ field, value }) => {
+    const fixture = readyToBook();
+    const component = fixture.componentInstance;
+    component.form.controls[field].setValue(value);
+    component.submit();
+    fixture.detectChanges();
+
+    expect(component.form.controls[field].invalid).toBe(true);
+    expect(api.createPublicBooking).not.toHaveBeenCalled();
+  });
+
   it('refreshes availability and clears the chosen slot after a booking conflict', () => {
     const fixture = readyToBook();
     const component = fixture.componentInstance;

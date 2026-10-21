@@ -40,12 +40,12 @@ public class NotificationDeliveryService {
             NotificationSendResult result = sender.send(notification);
             notification.markSubmitted(result, now);
         } catch (RuntimeException exception) {
-            notification.recordFailure(exception.getMessage(), now);
+            notification.recordFailure("Falha do fornecedor de mensagens.", now);
             LOGGER.warn(
-                    "Notification delivery failed id={} type={}",
+                    "Notification delivery failed id={} type={} cause={}",
                     notification.getId(),
                     notification.getNotificationType(),
-                    exception
+                    exception.getClass().getSimpleName()
             );
         }
     }
@@ -62,12 +62,12 @@ public class NotificationDeliveryService {
             sender.cancel(notification.getProviderMessageId());
             notification.markCancelled();
         } catch (RuntimeException exception) {
-            notification.recordCancellationFailure(exception.getMessage(), now);
+            notification.recordCancellationFailure("Falha do fornecedor de mensagens.", now);
             LOGGER.warn(
-                    "Scheduled notification cancellation failed id={} type={}",
+                    "Scheduled notification cancellation failed id={} type={} cause={}",
                     notification.getId(),
                     notification.getNotificationType(),
-                    exception
+                    exception.getClass().getSimpleName()
             );
         }
     }
