@@ -1,6 +1,7 @@
 package com.barberflow.booking;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -40,6 +41,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Import(TestcontainersConfiguration.class)
@@ -56,6 +58,7 @@ class BookingSecurityIntegrationTests {
     @Autowired private NotificationOutboxRepository notifications;
     @Autowired private JdbcTemplate jdbc;
     @Autowired private PlatformTransactionManager transactionManager;
+    @Autowired private BookingRepository bookingRepository;
     @PersistenceContext private EntityManager entityManager;
 
     @Test
@@ -230,6 +233,27 @@ class BookingSecurityIntegrationTests {
             releaseChanges.countDown();
             executor.shutdownNow();
         }
+    }
+
+    @Test
+    void rejectsAStaleBookingUpdateAfterPersonalDataWasAnonymized() throws Exception {
+        Fixture fixture = publishedFixture();
+        UUID bookingId = UUID.fromString(jsonId(book(fixture, bookingDate().atTime(9, 0))
+                .andExpect(status().isCreated()).andReturn()));
+
+        assertThatThrownBy(() -> new TransactionTemplate(transactionManager).executeWithoutResult(ignored -> {
+            Booking staleBooking = entityManager.find(Booking.class, bookingId);
+            TransactionTemplate maintenance = new TransactionTemplate(transactionManager);
+            maintenance.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+            int anonymized = maintenance.execute(status -> bookingRepository.anonymizeExpiredPersonalData(
+                    bookingDate().atTime(9, 31), java.time.Instant.now(clock)));
+            assertThat(anonymized).isGreaterThanOrEqualTo(1);
+            staleBooking.changeStatus(BookingStatus.COMPLETED);
+            entityManager.flush();
+        })).isInstanceOfAny(OptimisticLockingFailureException.class, OptimisticLockException.class);
+
+        assertThat(jdbc.queryForObject("select customer_name from bookings where id = ?", String.class, bookingId))
+                .isEqualTo("Cliente removido");
     }
 
     private Throwable changeStatusAfterBothRead(
