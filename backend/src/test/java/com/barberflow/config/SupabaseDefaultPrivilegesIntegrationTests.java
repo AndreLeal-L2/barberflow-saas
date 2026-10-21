@@ -20,6 +20,14 @@ class SupabaseDefaultPrivilegesIntegrationTests {
     @Autowired private JdbcTemplate jdbc;
 
     @Test
+    void existingApplicationTablesAreNotReadableThroughTheSupabaseServiceRole() {
+        assertThat(jdbc.queryForObject(
+                "SELECT has_table_privilege('service_role', 'public.bookings', 'SELECT')",
+                Boolean.class
+        )).isFalse();
+    }
+
+    @Test
     void futureApplicationTablesDoNotBecomePublicThroughSupabaseDefaults() {
         jdbc.execute("CREATE TABLE security_future_probe (id INTEGER PRIMARY KEY)");
         try {
