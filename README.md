@@ -1,13 +1,13 @@
-# BarberFlow SaaS
+# Compasso
 
 [![CI](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml)
 [![Security](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml)
 
-**[Live demo](https://barberflow-saas-delta.vercel.app/)** · [Architecture](ARCHITECTURE.md) · [Local setup](#run-locally) · [Tests and regressions](docs/TESTING.md)
+**[Live demo](https://compasso-pt.vercel.app/)** · [Architecture](ARCHITECTURE.md) · [Local setup](#run-locally) · [Tests and regressions](docs/TESTING.md)
 
-**Built at the request of a client who is a barber**, BarberFlow turns a real appointment-management need into a full-stack web application.
+**Built at the request of a client who is a barber**, Compasso turns a real appointment-management need into a full-stack web application.
 
-Multi-tenant booking SaaS for independent barbers and small barbershops. BarberFlow gives each business a public booking link and a private dashboard for managing its operation.
+Multi-tenant appointment platform for small service businesses. Compasso gives each business a public booking link and a private calendar, with a guided three-step booking flow. The product started with a real request from a barber.
 
 The project is a full-stack Java portfolio application with a separated Angular
 frontend and Spring Boot REST API. Its engineering focus is secure browser
@@ -16,7 +16,7 @@ and reproducible local environments.
 
 ## Screenshots
 
-Real captures of the deployed public website:
+Historical captures of the BarberFlow identity, before the Compasso redesign now available in the live demo:
 
 ### Landing page
 
@@ -71,6 +71,22 @@ The working MVP includes:
 - Beta privacy/terms pages with no real payment collection
 - OpenAPI UI for development, health probes, integration tests, and Docker Compose
 - Production profile, private service network, backup scripts, CodeQL, Trivy, and Dependabot
+
+## Deployed performance improvements
+
+The Compasso deployment was updated on 30 October 2026 with:
+
+- One business-profile request when opening the calendar, shared safely within the current session.
+- Calendar queries limited to the selected day, paginated upcoming/history lists, and a limited query for the next five appointments.
+- Login preparation started when the form opens, with CSRF protection preserved.
+- Cancellation of obsolete reads when changing dates or leaving a page.
+- An extracted Spring Boot JAR, a CDS class archive and JVM startup tuning for the Vercel container.
+
+In an isolated Linux ARM64 container with one CPU, 2 GiB of memory and a disposable PostgreSQL database, startup to the first CSRF response improved from **8.05 s to 2.80 s**. Authenticated login after preparation took **0.61 s**. These are local measurements, not production latency guarantees.
+
+Validation of that release included **67 Java tests, 110 Angular tests and 26 browser tests**, plus the frontend build and end-to-end type checks. Read-only checks after promotion confirmed a healthy API and CSRF preparation in **0.33 s with an already active server**. Vercel can still scale instances down, so cold-start latency remains relevant.
+
+The deployment was built from the validated working tree; its performance changes are not all synchronized to the repository's default branch yet. The test counts above describe that release validation, not the current GitHub Actions result.
 
 ## Tech Stack
 
@@ -197,4 +213,4 @@ chore: configure docker compose
 
 ## Image Credit
 
-Landing page photograph by [Matt Connor on Unsplash](https://unsplash.com/photos/a-couple-of-men-standing-next-to-each-other-in-a-room-tmd97rYqtGU).
+Current landing page photograph by [mehdi pezhvak on Unsplash](https://unsplash.com/photos/a-barber-is-cutting-a-clients-hair-PQfvTunl4tY), used under the [Unsplash License](https://unsplash.com/license). Historical screenshots use a photograph by [Matt Connor on Unsplash](https://unsplash.com/photos/a-couple-of-men-standing-next-to-each-other-in-a-room-tmd97rYqtGU).
