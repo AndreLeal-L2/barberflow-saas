@@ -16,17 +16,19 @@ and reproducible local environments.
 
 ## Screenshots
 
-Historical captures of the BarberFlow identity, before the Compasso redesign now available in the live demo:
+Captures of the current Compasso interface, taken from the local production build on 30 October 2026.
 
-### Landing page
+### Desktop landing page
 
-![BarberFlow landing page](docs/screenshots/barberflow-home.jpg)
+![Compasso landing page on desktop](docs/screenshots/compasso-home-desktop.jpg)
 
-### Product and agenda preview
+### Mobile landing page
 
-![BarberFlow public product section with an illustrative daily agenda](docs/screenshots/barberflow-product.jpg)
+<img src="docs/screenshots/compasso-home-mobile.jpg" alt="Compasso landing page on mobile" width="390">
 
-The agenda shown above is the illustrative preview on the public landing page, not a capture of a signed-in owner's dashboard.
+### Login
+
+![Compasso login page](docs/screenshots/compasso-login.jpg)
 
 ## Architecture at a Glance
 
