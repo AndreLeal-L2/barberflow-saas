@@ -20,15 +20,15 @@ Captures of the current Compasso interface in dark mode, taken from the local pr
 
 ### Desktop landing page
 
-![Compasso landing page on desktop](docs/screenshots/compasso-home-desktop.jpg)
+![Compasso landing page on desktop](docs/screenshots/compasso-home-desktop-dark.jpg)
 
 ### Mobile landing page
 
-<img src="docs/screenshots/compasso-home-mobile.jpg" alt="Compasso landing page on mobile" width="390">
+<img src="docs/screenshots/compasso-home-mobile-dark.jpg" alt="Compasso landing page on mobile" width="390">
 
 ### Login
 
-![Compasso login page](docs/screenshots/compasso-login.jpg)
+![Compasso login page](docs/screenshots/compasso-login-dark.jpg)
 
 ## Architecture at a Glance
 
