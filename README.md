@@ -16,7 +16,7 @@ and reproducible local environments.
 
 ## Screenshots
 
-Captures of the current Compasso interface, taken from the local production build on 30 October 2026.
+Captures of the current Compasso interface in dark mode, taken from the local production build on 30 October 2026.
 
 ### Desktop landing page
 
