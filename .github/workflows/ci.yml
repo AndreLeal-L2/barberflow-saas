@@ -33,14 +33,14 @@ jobs:
 
       - name: Save backend test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-reports
           path: backend/target/surefire-reports/
           retention-days: 7
 
       - name: Save application for browser tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-e2e-application
           path: backend/target/backend-*.jar
@@ -76,7 +76,7 @@ jobs:
 
       - name: Save frontend test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-test-report
           path: frontend/test-results/unit.xml
@@ -149,7 +149,7 @@ jobs:
 
       - name: Save browser report and failure evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-regression-report
           path: |
