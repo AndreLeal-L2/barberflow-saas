@@ -11,7 +11,7 @@ RUN --mount=type=cache,id=barberflow-pnpm,target=/pnpm/store \
 COPY . .
 RUN pnpm build
 
-FROM nginx:1.29-alpine
+FROM nginx:1.31-alpine
 
 RUN apk upgrade --no-cache
 
