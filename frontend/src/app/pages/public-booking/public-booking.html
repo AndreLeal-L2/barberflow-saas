@@ -139,6 +139,7 @@
                   class="public-service-option"
                   type="button"
                   [class.selected]="selectedService()?.id === service.id"
+                  [attr.aria-pressed]="selectedService()?.id === service.id"
                   (click)="selectService(service)"
                 >
                   <span class="service-selection" aria-hidden="true">
@@ -185,6 +186,7 @@
                   <button
                     type="button"
                     [class.selected]="selectedDate() === date.value"
+                    [attr.aria-pressed]="selectedDate() === date.value"
                     [disabled]="!selectedService()"
                     (click)="selectDate(date.value)"
                   >
@@ -202,8 +204,8 @@
                 </span>
                 <input
                   type="date"
-                  [min]="today"
-                  [max]="maxDate"
+                  [min]="today()"
+                  [max]="maxDate()"
                   [value]="selectedDate()"
                   [disabled]="!selectedService()"
                   (change)="chooseDate($event)"
@@ -217,6 +219,13 @@
                 <div class="slots-loading">{{ 'A consultar a agenda...' | translate }}</div>
               } @else if (slotError()) {
                 <div class="form-alert" role="alert">{{ slotError() | translate }}</div>
+                <button
+                  class="button button-secondary button-small slot-retry"
+                  type="button"
+                  (click)="loadSlots()"
+                >
+                  {{ 'Tentar novamente' | translate }}
+                </button>
               } @else if (selectedDate() && slots().length === 0) {
                 <p class="inline-empty">
                   {{ 'Não existem horários livres neste dia.' | translate }}
@@ -227,6 +236,7 @@
                     <button
                       type="button"
                       [class.selected]="selectedSlot()?.startAt === slot.startAt"
+                      [attr.aria-pressed]="selectedSlot()?.startAt === slot.startAt"
                       (click)="selectSlot(slot)"
                     >
                       {{ timeLabel(slot.startAt) }}
@@ -258,7 +268,9 @@
                   <span>{{ 'Telefone' | translate }}</span>
                   <input formControlName="customerPhone" type="tel" autocomplete="tel" />
                   @if (form.controls.customerPhone.touched && form.controls.customerPhone.invalid) {
-                    <small class="field-error">{{ 'Introduza o seu telefone.' | translate }}</small>
+                    <small class="field-error">
+                      {{ 'Introduza um número de telefone válido.' | translate }}
+                    </small>
                   }
                 </label>
                 <label class="field customer-email-field">

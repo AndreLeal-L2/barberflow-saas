@@ -358,6 +358,9 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Página ativa': 'Page active',
   'Página inativa': 'Page inactive',
   'Link copiado.': 'Link copied.',
+  'Link de marcação': 'Booking link',
+  'Não foi possível copiar o link automaticamente. Copie-o no campo acima.':
+    'Unable to copy the link automatically. Copy it from the field above.',
   'A aceitar marcações': 'Accepting bookings',
   'Em preparação': 'Setting up',
   'Já recuperou o acesso?': 'Already recovered access?',
@@ -665,6 +668,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Esta página de marcações não existe.': 'This booking page does not exist.',
   'Esta página não está disponível neste momento.': 'This page is currently unavailable.',
   'Não foi possível consultar os horários.': 'Unable to check available times.',
+  'Tentar novamente': 'Try again',
   'Não foi possível concluir a marcação.': 'Unable to complete the booking.',
   'Não foi possível criar a conta. Tente novamente.':
     'Unable to create the account. Please try again.',
@@ -725,6 +729,8 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'A marcação não foi encontrada.': 'The booking was not found.',
   'Só é possível concluir ou cancelar uma marcação.':
     'A booking can only be completed or cancelled.',
+  'Só é possível concluir a marcação depois de começar.':
+    'The booking can only be completed after it starts.',
   'A marcação foi cancelada.': 'The booking has been cancelled.',
   'O barbeiro não está disponível.': 'The barber is unavailable.',
   'A página de marcações não está disponível.': 'The booking page is unavailable.',

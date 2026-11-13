@@ -1,5 +1,6 @@
 package com.barberflow.booking;
 
+import com.barberflow.shared.validation.PhoneNumber;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +16,8 @@ public record CreateBookingRequest(
         @Pattern(regexp = "^[^\\p{Cntrl}]+$", message = "O nome contém caracteres inválidos.")
         String customerName,
         @NotBlank
-        @Pattern(regexp = "^[+0-9() .-]{7,30}$", message = "Introduza um número de telefone válido.")
+        @Pattern(regexp = PhoneNumber.PATTERN,
+                message = "Introduza um número de telefone válido.")
         String customerPhone,
         @Email @Size(max = 254) String customerEmail
 ) {

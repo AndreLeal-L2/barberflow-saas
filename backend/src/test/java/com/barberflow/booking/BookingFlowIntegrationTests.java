@@ -117,6 +117,12 @@ class BookingFlowIntegrationTests {
                 .andExpect(jsonPath("$.published").value(true))
                 .andExpect(jsonPath("$.completedSetupSteps").value(4));
 
+        LocalDate today = LocalDate.now(clock);
+        mockMvc.perform(get("/api/public/barbershops/barbearia-fluxo-completo"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bookingStartDate").value(today.toString()))
+                .andExpect(jsonPath("$.bookingEndDate").value(today.plusDays(60).toString()));
+
         mockMvc.perform(get(
                         "/api/public/barbershops/barbearia-fluxo-completo/available-slots")
                         .param("serviceId", serviceId)

@@ -92,6 +92,15 @@ public class BookingManagementService {
             );
         }
 
+        if (request.status() == BookingStatus.COMPLETED
+                && booking.getStartAt().isAfter(LocalDateTime.now(clock))) {
+            throw new BusinessRuleException(
+                    HttpStatus.CONFLICT,
+                    "BOOKING_NOT_STARTED",
+                    "Só é possível concluir a marcação depois de começar."
+            );
+        }
+
         booking.changeStatus(request.status());
         if (request.status() == BookingStatus.CANCELLED) {
             notificationService.cancelledByOwner(booking);

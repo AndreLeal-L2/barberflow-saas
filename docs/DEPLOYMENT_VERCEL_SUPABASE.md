@@ -124,7 +124,7 @@ outbox until a later maintenance run.
 
 1. Confirm that the production branch is `main`.
 2. Keep preview deployments protected, but make the production deployment public.
-3. Add or confirm `compasso-pt.vercel.app` under **Settings > Domains**.
+3. Confirm the public domain under **Settings > Domains**. The portfolio demo uses `compasso-pt.vercel.app`.
 4. Redeploy the latest `main` commit after saving all environment variables.
 
 Validate the deployment:

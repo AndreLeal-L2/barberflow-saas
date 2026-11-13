@@ -24,3 +24,22 @@ for (const viewport of [
     });
   });
 }
+
+test('keeps language and theme preferences across public pages and reloads', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Tema escuro', exact: true }).click();
+  await page.getByRole('button', { name: 'English', exact: true }).click();
+  const html = page.locator('html');
+  await expect(html).toHaveAttribute('lang', 'en-GB');
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+
+  await page.goto('/pricing');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('free beta');
+  await page.getByRole('link', { name: 'Privacy', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Privacy policy', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Terms', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Terms of use', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(html).toHaveAttribute('lang', 'en-GB');
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+});

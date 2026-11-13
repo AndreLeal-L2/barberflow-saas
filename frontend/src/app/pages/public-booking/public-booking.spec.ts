@@ -451,6 +451,63 @@ describe('PublicBooking', () => {
     expect(fixture.nativeElement.querySelector('.booking-submit').disabled).toBe(true);
   });
 
+  it('lets the customer retry a failed availability request for the same date', () => {
+    api.getAvailableSlots.mockReturnValueOnce(
+      throwError(() => new HttpErrorResponse({ status: 503 })),
+    );
+    const fixture = TestBed.createComponent(PublicBooking);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const date = component.quickDates()[0].value;
+    component.selectService(service);
+    component.selectDate(date);
+    fixture.detectChanges();
+
+    const retryButton = fixture.nativeElement.querySelector('.slot-retry') as HTMLButtonElement;
+    expect(retryButton?.textContent).toContain('Tentar novamente');
+    retryButton.click();
+    fixture.detectChanges();
+
+    expect(api.getAvailableSlots.mock.calls).toEqual([
+      [shop.slug, service.id, date],
+      [shop.slug, service.id, date],
+    ]);
+    expect(component.slotError()).toBeNull();
+    expect(fixture.nativeElement.querySelector('.slot-grid button')).not.toBeNull();
+  });
+
+  it('rejects a phone number made only of punctuation before submitting', () => {
+    const fixture = readyToBook();
+    const component = fixture.componentInstance;
+    component.form.controls.customerPhone.setValue('-------');
+    component.submit();
+
+    expect(component.form.controls.customerPhone.invalid).toBe(true);
+    expect(api.createPublicBooking).not.toHaveBeenCalled();
+  });
+
+  it('uses the booking calendar limits supplied by the shop', () => {
+    api.getPublicBarbershop.mockReturnValueOnce(
+      of(Object.assign({}, shop, { bookingStartDate: '2026-10-24', bookingEndDate: '2026-12-23' })),
+    );
+    const fixture = TestBed.createComponent(PublicBooking);
+    fixture.detectChanges();
+    const dateInput = fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement;
+
+    expect(dateInput.min).toBe('2026-10-24');
+    expect(dateInput.max).toBe('2026-12-23');
+    expect(fixture.componentInstance.quickDates().map(({ value }) => value)).toEqual([
+      '2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30',
+    ]);
+  });
+
+  it('exposes the selected service, date and time to assistive technology', () => {
+    const fixture = readyToBook();
+    for (const selector of ['.public-service-option', '.quick-date-list button', '.slot-grid button']) {
+      expect(fixture.nativeElement.querySelector(selector).getAttribute('aria-pressed')).toBe('true');
+    }
+  });
+
   it('keeps customer details and allows retry after a temporary booking failure', () => {
     const fixture = readyToBook();
     const component = fixture.componentInstance;

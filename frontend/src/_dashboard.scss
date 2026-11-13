@@ -518,10 +518,12 @@
   background: var(--canvas);
 }
 
-.link-copy-field span {
+.link-copy-field input {
   min-width: 0;
   flex: 1;
   overflow: hidden;
+  border: 0;
+  background: transparent;
   color: var(--ink-soft);
   font-size: 0.74rem;
   text-overflow: ellipsis;

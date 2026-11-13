@@ -65,7 +65,10 @@ public class PublicBookingService {
 
     @Transactional(readOnly = true)
     public PublicBarbershopResponse getBarbershop(String slug) {
-        return PublicBarbershopResponse.from(findPublicBarbershop(slug));
+        LocalDate today = LocalDate.now(clock);
+        return PublicBarbershopResponse.from(
+                findPublicBarbershop(slug), today, today.plusDays(BOOKING_HORIZON_DAYS)
+        );
     }
 
     @Transactional(readOnly = true)

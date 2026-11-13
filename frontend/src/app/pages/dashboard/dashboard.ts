@@ -59,7 +59,7 @@ export class Dashboard implements OnInit {
   readonly analyticsError = signal<string | null>(null);
   readonly bookingsError = signal<string | null>(null);
   readonly savingPublication = signal(false);
-  readonly copied = signal(false);
+  readonly copyFeedback = signal('');
   readonly error = signal<string | null>(null);
 
   readonly publicUrl = computed(() => {
@@ -109,16 +109,18 @@ export class Dashboard implements OnInit {
       });
   }
 
-  copyPublicUrl(): void {
+  async copyPublicUrl(): Promise<void> {
     const url = this.publicUrl();
     if (!url) {
       return;
     }
 
-    void navigator.clipboard.writeText(url).then(() => {
-      this.copied.set(true);
-      window.setTimeout(() => this.copied.set(false), 1800);
-    });
+    try {
+      await navigator.clipboard.writeText(url);
+      this.copyFeedback.set('Link copiado.');
+    } catch {
+      this.copyFeedback.set('Não foi possível copiar o link automaticamente. Copie-o no campo acima.');
+    }
   }
 
   private load(): void {

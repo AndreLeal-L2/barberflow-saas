@@ -7,6 +7,8 @@ import jakarta.validation.Validator;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class CreateBookingRequestValidationTest {
 
@@ -25,5 +27,21 @@ class CreateBookingRequestValidationTest {
         assertThat(validator.validate(request))
                 .extracting(violation -> violation.getPropertyPath().toString())
                 .contains("customerName", "customerPhone");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"-------", "+(12) 3-45-6"})
+    void rejectsPhoneNumbersWithFewerThanSevenDigits(String phone) {
+        CreateBookingRequest request = new CreateBookingRequest(
+                UUID.randomUUID(),
+                LocalDateTime.parse("2026-11-02T10:00:00"),
+                "Cliente de teste",
+                phone,
+                "cliente@example.test"
+        );
+
+        assertThat(validator.validate(request))
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .containsExactly("customerPhone");
     }
 }

@@ -357,6 +357,27 @@ class BookingSecurityIntegrationTests {
         book(fixture, bookingDate().atTime(9, 0, 30)).andExpect(status().isCreated());
     }
 
+    @Test
+    void allowsCompletionOnlyAfterTheBookingHasStarted() throws Exception {
+        Fixture fixture = publishedFixture();
+        String bookingId = jsonId(book(fixture, bookingDate().atTime(9, 0))
+                .andExpect(status().isCreated()).andReturn());
+
+        mockMvc.perform(write(fixture.owner(), patch("/api/dashboard/bookings/{id}/status", bookingId))
+                        .content("{\"status\":\"COMPLETED\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("BOOKING_NOT_STARTED"));
+
+        LocalDateTime now = LocalDateTime.now(clock);
+        jdbc.update("update bookings set start_at = ?, end_at = ? where id = ?",
+                now.minusMinutes(15), now.plusMinutes(15), UUID.fromString(bookingId));
+
+        mockMvc.perform(write(fixture.owner(), patch("/api/dashboard/bookings/{id}/status", bookingId))
+                        .content("{\"status\":\"COMPLETED\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"));
+    }
+
     private Owner register() throws Exception {
         int client = CLIENT_SEQUENCE.incrementAndGet();
         String email = "regression-" + UUID.randomUUID() + "@example.test";

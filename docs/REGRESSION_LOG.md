@@ -406,3 +406,33 @@ Foi acrescentado `.vercelignore` para excluir backups, relatórios e ficheiros l
 - Antes da promoção: dois testes GET/OPTIONS de autenticação aprovados, health UP, HTML inicial escuro e ficheiros de entrada JS/CSS idênticos ao build local validado. Após promoção: mesmas verificações do HTML, bundles e health aprovadas no domínio público. Nenhum teste de escrita em produção.
 - A quota VCR estava cheia. Foi arquivada por digest e verificada com SHA256 a imagem histórica sem referências `image_wni97bYdY2Fky9msJi2sfmPg2LcK` (`e492aa174448`) em `backups/vcr/20261030/e492aa174448.tar` antes de libertar uma vaga; imagens dos deployments existentes foram preservadas.
 - Observabilidade: consulta dos últimos 10 minutos do deployment com `level:error OR level:fatal` devolveu zero registos após a publicação. A base E2E foi terminada no fim da bateria.
+
+## 2026-11-13 — Auditoria funcional do Compasso
+
+Comandos executados antes e depois das correções.
+
+```bash
+cd frontend
+pnpm test --watch=false --include='src/app/pages/public-booking/public-booking.spec.ts'
+pnpm test --watch=false --include='src/app/pages/dashboard/dashboard.spec.ts'
+pnpm test --watch=false --include='src/app/pages/register/register.spec.ts'
+```
+
+```bash
+cd backend
+./mvnw --batch-mode --no-transfer-progress -Dtest=CreateBookingRequestValidationTest,BookingFlowIntegrationTests test
+./mvnw --batch-mode --no-transfer-progress '-Dtest=BookingSecurityIntegrationTests#allowsCompletionOnlyAfterTheBookingHasStarted' test
+./mvnw --batch-mode --no-transfer-progress '-Dtest=AuthenticationFlowIntegrationTests#rejectsAnOwnerPhoneNumberMadeOnlyOfPunctuation' test
+```
+
+| Teste | RED | Correção |
+| --- | --- | --- |
+| `lets the customer retry a failed availability request for the same date` | Após HTTP 503, o botão de repetição estava ausente. | Repetir a consulta com o serviço e a data atuais. |
+| `rejects a phone number made only of punctuation before submitting` e `rejectsPhoneNumbersWithFewerThanSevenDigits` | O formulário e o validador aceitavam telefones com menos de sete dígitos. | Exigir pelo menos sete dígitos, mantendo a formatação de telefone aceite. |
+| `rejects an owner phone number made only of punctuation` e `rejectsAnOwnerPhoneNumberMadeOnlyOfPunctuation` | O formulário enviou o pedido e a API devolveu HTTP 201 em vez de 400. | Reutilizar a mesma regra de telefone no registo e nas marcações. |
+| `uses the booking calendar limits supplied by the shop` e `shouldConfigurePublishBookAndCancel` | A página usava a data do navegador e a resposta da API não incluía `bookingStartDate`. | Expor as datas do calendário do servidor e usar esses limites na página. |
+| `keeps the booking link available to copy manually when clipboard access is missing` | A cópia lançou `TypeError` ao aceder a `writeText`. | Apresentar um campo selecionável e uma indicação de cópia manual. |
+| `exposes the selected service, date and time to assistive technology` | O estado acessível da opção selecionada era `null`. | Expor a seleção com `aria-pressed`. |
+| `allowsCompletionOnlyAfterTheBookingHasStarted` | Uma marcação futura passou a concluída com HTTP 200. | Aplicar na API a regra temporal do painel e devolver HTTP 409 antes do início. |
+
+**GREEN.** Os testes de regressão passaram com as mesmas expectativas. O teste anterior do painel continua a confirmar a disponibilidade do link através do valor do novo campo selecionável.

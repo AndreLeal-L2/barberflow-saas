@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { account, fillRegistration, futureDate } from './helpers';
 
-test('registers, configures, publishes, accepts a customer booking, cancels and pauses', async ({
+test('manages services, schedule, publication and a customer booking', async ({
   page,
   browser,
 }, testInfo) => {
@@ -28,6 +28,11 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
   await page.getByLabel('Preço', { exact: true }).fill('15');
   await page.getByRole('button', { name: 'Adicionar serviço', exact: true }).click();
   await expect(page.locator('.service-list')).toContainText('Corte completo E2E');
+  const serviceRow = page.locator('.service-list article').filter({ hasText: 'Corte completo E2E' });
+  await serviceRow.getByRole('button', { name: 'Editar serviço' }).click();
+  await page.getByLabel('Preço', { exact: true }).fill('19');
+  await page.getByRole('button', { name: 'Guardar alterações', exact: true }).click();
+  await expect(serviceRow).toContainText('19,00');
 
   await page.goto('/dashboard/availability');
   await expect(page.getByRole('button', { name: 'Guardar horário', exact: true })).toBeEnabled();
@@ -40,6 +45,13 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
   }
   await page.getByRole('button', { name: 'Guardar horário', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Horário semanal guardado.');
+
+  await page.getByRole('button', { name: 'Indisponibilidades', exact: true }).click();
+  const date = futureDate();
+  await page.getByLabel('Data', { exact: true }).fill(date);
+  await page.getByLabel(/Motivo/).fill('Pausa E2E');
+  await page.getByRole('button', { name: 'Adicionar indisponibilidade' }).click();
+  await expect(page.getByRole('status')).toContainText('Indisponibilidade adicionada.');
 
   await page.goto('/dashboard/profile');
   await page.getByRole('button', { name: 'Personalização', exact: true }).click();
@@ -123,9 +135,13 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
   }
   await page.screenshot({ path: testInfo.outputPath('personalization.png'), fullPage: true });
   await page.setViewportSize({ width: 1280, height: 844 });
+  await page.getByRole('button', { name: 'Informação pública', exact: true }).click();
+  await page.getByLabel(/Morada/).fill('Rua de Teste, Lisboa');
+  await page.getByRole('button', { name: 'Guardar alterações', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Página pública atualizada.');
   await page.getByRole('button', { name: 'Publicação', exact: true }).click();
   await page.getByRole('button', { name: 'Publicar página', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Página publicada.');
+  await expect(page.getByRole('status').filter({ hasText: 'Página publicada.' })).toBeVisible();
   const publicPath = `/b/${user.barbershop.slug}`;
 
   // A separate anonymous browser context proves that publication is public.
@@ -144,7 +160,9 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
     await expect(customer.locator('.public-shop-cover')).toHaveJSProperty('naturalWidth', 720);
     await expect(customer.locator('.booking-step:visible')).toHaveCount(1);
     await customer.screenshot({ path: testInfo.outputPath('public-service.png'), fullPage: true });
-    await customer.getByRole('button', { name: /Corte completo E2E/ }).click();
+    const service = customer.getByRole('button', { name: /Corte completo E2E/ });
+    await expect(service).toContainText('19,00');
+    await service.click();
     await expect(
       customer.getByRole('heading', { name: 'Escolha o dia e a hora', exact: true }),
     ).toBeVisible();
@@ -156,7 +174,21 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
     expect((await customer.getByLabel('Outra data').boundingBox())!.height).toBeGreaterThanOrEqual(
       44,
     );
-    await customer.getByLabel('Outra data').fill(futureDate());
+
+    await expect(customer.getByText('Rua de Teste, Lisboa', { exact: true })).toBeVisible();
+    await customer.getByLabel('Outra data').fill(date);
+    await expect(customer.getByText('Não existem horários livres neste dia.')).toBeVisible();
+
+    await page.goto('/dashboard/availability');
+    await page.getByRole('button', { name: 'Indisponibilidades', exact: true }).click();
+    const block = page.locator('.block-list article').filter({ hasText: 'Pausa E2E' });
+    await block.getByRole('button', { name: 'Remover indisponibilidade' }).click();
+    await block.getByRole('button', { name: 'Sim', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText('Indisponibilidade removida.');
+
+    await customer.reload();
+    await service.click();
+    await customer.getByLabel('Outra data').fill(date);
     await customer.screenshot({ path: testInfo.outputPath('public-time.png'), fullPage: true });
     await customer.locator('.slot-grid button').first().click();
     await expect(customer.locator('.booking-step:visible')).toHaveCount(1);
@@ -178,6 +210,8 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
     ).toBeVisible();
 
     await page.goto('/dashboard/bookings');
+    await page.getByLabel('Data', { exact: true }).fill(date);
+    await expect(page.locator('.calendar-event')).toContainText('Cliente de teste E2E');
     await page.getByRole('button', { name: 'Lista', exact: true }).click();
     const booking = page.locator('.booking-row-full').filter({ hasText: 'Cliente de teste E2E' });
     await expect(booking).toContainText('Confirmada');
@@ -197,6 +231,11 @@ test('registers, configures, publishes, accepts a customer booking, cancels and 
     await expect(
       customer.getByRole('heading', { name: 'Página indisponível', exact: true }),
     ).toBeVisible();
+
+    await page.goto('/dashboard/services');
+    await serviceRow.getByRole('button', { name: 'Remover serviço' }).click();
+    await serviceRow.getByRole('button', { name: 'Sim', exact: true }).click();
+    await expect(serviceRow).toHaveCount(0);
   } finally {
     await customerContext.close();
   }

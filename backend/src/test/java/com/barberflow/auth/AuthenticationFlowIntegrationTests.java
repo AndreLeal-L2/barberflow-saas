@@ -26,6 +26,29 @@ class AuthenticationFlowIntegrationTests {
     private MockMvc mockMvc;
 
     @Test
+    void rejectsAnOwnerPhoneNumberMadeOnlyOfPunctuation() throws Exception {
+        Cookie csrfCookie = mockMvc.perform(get("/api/auth/csrf"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getCookie("XSRF-TOKEN");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .cookie(csrfCookie)
+                        .header("X-XSRF-TOKEN", csrfCookie.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "ownerName": "Responsável de Teste",
+                                  "barbershopName": "Barbearia Sem Telefone",
+                                  "email": "invalid-phone@example.test",
+                                  "phone": "-------",
+                                  "password": "PalavraPasseTeste2026!"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.phone").value("Introduza um número de telefone válido."));
+    }
+
+    @Test
     void shouldRegisterRestoreSessionAndLogout() throws Exception {
         MvcResult csrfResult = mockMvc.perform(get("/api/auth/csrf"))
                 .andExpect(status().isOk())

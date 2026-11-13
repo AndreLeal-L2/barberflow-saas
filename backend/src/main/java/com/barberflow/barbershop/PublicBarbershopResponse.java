@@ -1,5 +1,7 @@
 package com.barberflow.barbershop;
 
+import java.time.LocalDate;
+
 public record PublicBarbershopResponse(
         String name,
         String slug,
@@ -8,9 +10,13 @@ public record PublicBarbershopResponse(
         String description,
         String address,
         String logoUrl,
-        String coverImageUrl
+        String coverImageUrl,
+        LocalDate bookingStartDate,
+        LocalDate bookingEndDate
 ) {
-    public static PublicBarbershopResponse from(Barbershop barbershop) {
+    public static PublicBarbershopResponse from(
+            Barbershop barbershop, LocalDate bookingStartDate, LocalDate bookingEndDate
+    ) {
         return new PublicBarbershopResponse(
                 barbershop.getName(),
                 barbershop.getSlug(),
@@ -19,7 +25,9 @@ public record PublicBarbershopResponse(
                 barbershop.getPublicDescription(),
                 barbershop.getPublicAddress(),
                 barbershop.imageUrl("public", "logo"),
-                barbershop.imageUrl("public", "cover")
+                barbershop.imageUrl("public", "cover"),
+                bookingStartDate,
+                bookingEndDate
         );
     }
 }

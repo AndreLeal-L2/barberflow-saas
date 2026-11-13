@@ -111,6 +111,8 @@ export interface PublicBarbershop {
   email: string;
   description: string | null;
   address: string | null;
+  bookingStartDate?: string;
+  bookingEndDate?: string;
   logoUrl?: string | null;
   coverImageUrl?: string | null;
 }

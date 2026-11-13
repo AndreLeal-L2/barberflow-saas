@@ -31,6 +31,7 @@ import {
 } from '../../core/booking.models';
 import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
 import { LanguageService } from '../../core/language.service';
+import { PHONE_NUMBER_PATTERN } from '../../core/phone-number';
 import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
@@ -80,8 +81,14 @@ export class PublicBooking implements OnInit {
   readonly slotError = signal<string | null>(null);
   readonly confirmation = signal<Booking | null>(null);
 
-  readonly today = this.toDateInput(new Date());
-  readonly maxDate = this.toDateInput(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
+  private readonly localDate = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Lisbon',
+    dateStyle: 'short',
+  }).format(new Date());
+  readonly today = computed(() => this.shop()?.bookingStartDate ?? this.localDate);
+  readonly maxDate = computed(
+    () => this.shop()?.bookingEndDate ?? this.calendarDay(this.today(), 60).toISOString().slice(0, 10),
+  );
   readonly quickDates = computed(() => this.buildQuickDates());
   readonly form = this.formBuilder.group({
     customerName: [
@@ -93,10 +100,7 @@ export class PublicBooking implements OnInit {
         Validators.maxLength(120),
       ],
     ],
-    customerPhone: [
-      '',
-      [Validators.required, Validators.pattern(/\S/), Validators.pattern(/^[+0-9() .-]{7,30}$/)],
-    ],
+    customerPhone: ['', [Validators.required, Validators.pattern(PHONE_NUMBER_PATTERN)]],
     customerEmail: ['', [Validators.email, Validators.maxLength(255)]],
   });
 
@@ -232,7 +236,8 @@ export class PublicBooking implements OnInit {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-    }).format(new Date(date + 'T12:00:00'));
+      timeZone: 'UTC',
+    }).format(this.calendarDay(date));
   }
 
   timeLabel(dateTime: string): string {
@@ -242,7 +247,7 @@ export class PublicBooking implements OnInit {
     }).format(new Date(dateTime));
   }
 
-  private loadSlots(): void {
+  loadSlots(): void {
     const service = this.selectedService();
     const date = this.selectedDate();
     if (!service || !date) {
@@ -251,6 +256,7 @@ export class PublicBooking implements OnInit {
 
     const requestId = ++this.slotRequestId;
     const serviceId = service.id;
+    this.slotError.set(null);
     this.loadingSlots.set(true);
     this.api
       .getAvailableSlots(this.slug, service.id, date)
@@ -285,32 +291,32 @@ export class PublicBooking implements OnInit {
     day: string;
     month: string;
   }> {
+    const today = this.today();
+    const locale = this.i18n.locale();
+    const timeZone = 'UTC';
     return Array.from({ length: 7 }, (_, index) => {
-      const date = new Date();
-      date.setHours(12, 0, 0, 0);
-      date.setDate(date.getDate() + index);
+      const date = this.calendarDay(today, index);
 
       return {
-        value: this.toDateInput(date),
+        value: date.toISOString().slice(0, 10),
         weekday:
           index === 0
             ? this.i18n.translate('Hoje')
-            : new Intl.DateTimeFormat(this.i18n.locale(), { weekday: 'short' })
+            : new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone })
                 .format(date)
                 .replace('.', ''),
-        day: new Intl.DateTimeFormat(this.i18n.locale(), { day: '2-digit' }).format(date),
-        month: new Intl.DateTimeFormat(this.i18n.locale(), { month: 'short' })
+        day: new Intl.DateTimeFormat(locale, { day: '2-digit', timeZone }).format(date),
+        month: new Intl.DateTimeFormat(locale, { month: 'short', timeZone })
           .format(date)
           .replace('.', ''),
       };
     });
   }
 
-  private toDateInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  private calendarDay(date: string, days = 0): Date {
+    const day = new Date(`${date}T00:00:00Z`);
+    day.setUTCDate(day.getUTCDate() + days);
+    return day;
   }
 
   private errorMessage(error: HttpErrorResponse): string {
