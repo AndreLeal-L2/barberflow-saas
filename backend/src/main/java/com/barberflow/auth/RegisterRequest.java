@@ -1,5 +1,6 @@
 package com.barberflow.auth;
 
+import com.barberflow.shared.validation.PhoneNumber;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,7 +22,7 @@ public record RegisterRequest(
 
         @NotBlank(message = "O telefone é obrigatório.")
         @Pattern(
-                regexp = "^[+0-9() .-]{7,30}$",
+                regexp = PhoneNumber.PATTERN,
                 message = "Introduza um número de telefone válido."
         )
         String phone,

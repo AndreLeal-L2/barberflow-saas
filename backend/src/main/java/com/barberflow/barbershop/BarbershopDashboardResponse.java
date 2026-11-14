@@ -11,17 +11,21 @@ public record BarbershopDashboardResponse(
         String email,
         String publicDescription,
         String publicAddress,
+        String logoUrl,
+        String coverImageUrl,
         boolean published,
         SubscriptionStatus subscriptionStatus,
         long serviceCount,
         long availabilityDayCount,
         int completedSetupSteps,
-        boolean canPublish
+        boolean canPublish,
+        String timeZone
 ) {
     public static BarbershopDashboardResponse from(
             Barbershop barbershop,
             long serviceCount,
-            long availabilityDayCount
+            long availabilityDayCount,
+            String timeZone
     ) {
         boolean canPublish = serviceCount > 0
                 && availabilityDayCount > 0
@@ -39,12 +43,15 @@ public record BarbershopDashboardResponse(
                 barbershop.getEmail(),
                 barbershop.getPublicDescription(),
                 barbershop.getPublicAddress(),
+                barbershop.imageUrl("dashboard", "logo"),
+                barbershop.imageUrl("dashboard", "cover"),
                 barbershop.isPublished(),
                 barbershop.getSubscriptionStatus(),
                 serviceCount,
                 availabilityDayCount,
                 completedSteps,
-                canPublish
+                canPublish,
+                timeZone
         );
     }
 }

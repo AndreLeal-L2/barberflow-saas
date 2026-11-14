@@ -56,7 +56,7 @@ public class BrevoNotificationSender implements NotificationSender {
                 .defaultHeader("api-key", apiKey)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(HttpHeaders.USER_AGENT, "BarberFlow/1.0")
+                .defaultHeader(HttpHeaders.USER_AGENT, "Compasso/1.0")
                 .build();
         this.clock = clock;
         this.sender = parseSender(from);
@@ -124,7 +124,7 @@ public class BrevoNotificationSender implements NotificationSender {
             String name = address.getPersonal();
             return new BrevoSender(
                     address.getAddress(),
-                    name == null || name.isBlank() ? "BarberFlow" : name
+                    name == null || name.isBlank() ? "Compasso" : name
             );
         } catch (AddressException | NullPointerException exception) {
             throw new IllegalArgumentException(

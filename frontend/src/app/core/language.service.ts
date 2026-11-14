@@ -8,7 +8,7 @@ const LANGUAGE_KEY = 'barberflow.language';
 export class LanguageService {
   private readonly document = inject(DOCUMENT);
   private readonly selectedLanguage = signal<Language>(this.readLanguage());
-  private pageTitle = 'BarberFlow';
+  private pageTitle = 'Compasso';
 
   readonly language = this.selectedLanguage.asReadonly();
   readonly locale = computed(() => this.language());
@@ -48,8 +48,8 @@ export class LanguageService {
       ?.setAttribute(
         'content',
         this.language() === 'pt-PT'
-          ? 'Marcações online simples para barbeiros e pequenas barbearias.'
-          : 'Simple online bookings for barbers and small barbershops.',
+          ? 'Uma agenda clara para si. Uma marcação simples para os seus clientes.'
+          : 'A clear schedule for you. Simple bookings for your customers.',
       );
   }
 

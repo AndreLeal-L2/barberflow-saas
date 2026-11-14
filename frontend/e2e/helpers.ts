@@ -44,7 +44,7 @@ export async function registerViaApi(request: APIRequestContext) {
 
 export async function fillRegistration(page: Page, owner: ReturnType<typeof account>) {
   await page.getByLabel('O seu nome', { exact: true }).fill(owner.ownerName);
-  await page.getByLabel('Nome da barbearia', { exact: true }).fill(owner.barbershopName);
+  await page.getByLabel('Nome do negócio', { exact: true }).fill(owner.barbershopName);
   await page.getByLabel('E-mail', { exact: true }).fill(owner.email);
   await page.getByLabel('Telefone', { exact: true }).fill(owner.phone);
   await page.getByLabel('Palavra-passe', { exact: true }).fill(owner.password);

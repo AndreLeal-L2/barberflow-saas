@@ -2,7 +2,7 @@
   <header class="page-heading dashboard-page-heading">
     <div>
       <p class="section-label">{{ 'VISÃO GERAL' | translate }}</p>
-      <h1>{{ 'Hoje na barbearia' | translate }}</h1>
+      <h1>{{ 'O negócio em números' | translate }}</h1>
       <p>{{ 'Clientes, horários e atividade da agenda num só lugar.' | translate }}</p>
     </div>
     <a class="button button-secondary button-small" routerLink="/dashboard/bookings">
@@ -277,7 +277,12 @@
             {{ 'Partilhe este endereço no Instagram, WhatsApp ou perfil do Google.' | translate }}
           </p>
           <div class="link-copy-field">
-            <span>{{ publicUrl() }}</span>
+            <input
+              type="url"
+              [value]="publicUrl()"
+              readonly
+              [attr.aria-label]="'Link de marcação' | translate"
+            />
             <button
               class="icon-button"
               type="button"
@@ -288,7 +293,7 @@
               <svg lucideCopy [size]="18"></svg>
             </button>
           </div>
-          <span class="copy-feedback">{{ copied() ? ('Link copiado.' | translate) : '' }}</span>
+          <span class="copy-feedback" role="status">{{ copyFeedback() | translate }}</span>
           @if (currentShop.published) {
             <a class="button button-secondary button-full" [href]="publicUrl()" target="_blank">
               {{ 'Abrir como cliente' | translate }}

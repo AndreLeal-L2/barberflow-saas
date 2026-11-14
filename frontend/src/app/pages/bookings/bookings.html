@@ -5,13 +5,15 @@
 >
   <header class="page-heading booking-page-heading">
     <div>
-      <p class="section-label">{{ 'AGENDA' | translate }}</p>
-      <h1>{{ 'Marcações' | translate }}</h1>
-      <p>{{ 'Consulte a agenda por calendário diário ou pela lista operacional.' | translate }}</p>
+      <h1>{{ 'A sua agenda' | translate }}</h1>
+      <p>{{ 'O seu dia, com espaço para o que importa.' | translate }}</p>
     </div>
 
     <div class="booking-header-controls">
-      <div class="segmented-control icon-segmented" [attr.aria-label]="'Escolher vista de marcações' | translate">
+      <div
+        class="segmented-control icon-segmented"
+        [attr.aria-label]="'Escolher vista de marcações' | translate"
+      >
         <button
           type="button"
           [class.active]="view() === 'CALENDAR'"
@@ -32,24 +34,70 @@
         </button>
       </div>
 
-      <app-theme-toggle />
+      <button
+        class="icon-button"
+        type="button"
+        (click)="reload()"
+        [disabled]="loading()"
+        [attr.aria-label]="'Atualizar agenda' | translate"
+      >
+        <svg lucideRefreshCw [size]="17" aria-hidden="true"></svg>
+      </button>
+      <button
+        class="button button-primary"
+        type="button"
+        (click)="openBooking()"
+        [disabled]="loading() || !shop()?.published"
+      >
+        <svg lucidePlus [size]="17" aria-hidden="true"></svg>{{ 'Nova marcação' | translate }}
+      </button>
     </div>
   </header>
 
   @if (error()) {
     <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
+  @for (warning of calendarWarnings(); track warning) {
+    <div class="form-alert" role="alert">{{ warning | translate }}</div>
+  }
 
+  @if (shop(); as currentShop) {
+    @if (!currentShop.published) {
+      <aside class="agenda-setup-note">
+        <div>
+          <strong>{{ 'Prepare a sua agenda' | translate }}</strong>
+          <p>
+            {{
+              'Defina os serviços e horários e publique a página para começar a marcar.' | translate
+            }}
+          </p>
+        </div>
+        <a class="button button-secondary button-small" routerLink="/dashboard/profile">{{
+          'Configurar página' | translate
+        }}</a>
+      </aside>
+    }
+  }
   <section class="list-panel booking-panel" [class.booking-calendar-panel]="view() === 'CALENDAR'">
-    <div class="panel-heading booking-toolbar">
+    <div class="panel-heading booking-toolbar" [hidden]="view() === 'CALENDAR'">
       <div>
-        <h2>{{ view() === 'CALENDAR' ? ('Calendário diário' | translate) : ('Agenda da barbearia' | translate) }}</h2>
+        <h2>
+          {{
+            view() === 'CALENDAR'
+              ? ('Calendário diário' | translate)
+              : ('Agenda do negócio' | translate)
+          }}
+        </h2>
         @if (view() === 'CALENDAR') {
           <p>{{ selectedDateSummary() }}</p>
         } @else {
           <p>
             {{ bookings().length }}
-            {{ bookings().length === 1 ? ('marcação registada' | translate) : ('marcações registadas' | translate) }}
+            {{
+              bookings().length === 1
+                ? ('marcação registada' | translate)
+                : ('marcações registadas' | translate)
+            }}
           </p>
         }
       </div>
@@ -117,12 +165,16 @@
 
         <div class="calendar-day-summary">
           <strong>{{ selectedDateLabel() }}</strong>
-          <span>{{ calendarItemCount() }} {{ 'eventos na grelha' | translate }}</span>
+          <span>{{ selectedDateSummary() }}</span>
         </div>
       </div>
 
       <div class="booking-calendar-shell">
-        <div class="booking-calendar-scroll" tabindex="0" [attr.aria-label]="'Calendário diário' | translate">
+        <div
+          class="booking-calendar-scroll"
+          tabindex="0"
+          [attr.aria-label]="'Calendário diário' | translate"
+        >
           <div
             class="booking-calendar-grid"
             [style.--calendar-intervals]="calendarIntervals()"
@@ -137,7 +189,9 @@
                   <strong>{{ lane.label }}</strong>
                   <span
                     >{{ lane.items.length }}
-                    {{ lane.items.length === 1 ? ('evento' | translate) : ('eventos' | translate) }}</span
+                    {{
+                      lane.items.length === 1 ? ('evento' | translate) : ('eventos' | translate)
+                    }}</span
                   >
                 </div>
               </div>
@@ -160,12 +214,34 @@
                     [style.top.%]="slot.top"
                     aria-hidden="true"
                   ></span>
+                  @if (slotIsFree(slot.minutes, lane)) {
+                    <button
+                      class="calendar-free-slot"
+                      type="button"
+                      [style.top.%]="slot.top"
+                      [style.height.%]="100 / calendarIntervals()"
+                      (click)="openBooking(slot.label)"
+                      [attr.aria-label]="('Marcar às' | translate) + ' ' + slot.label"
+                    >
+                      <span>+ {{ 'Marcar' | translate }}</span>
+                    </button>
+                  }
                 }
 
                 @for (item of lane.items; track item.id) {
                   <article
                     class="calendar-event"
+                    [attr.role]="item.booking ? 'button' : null"
+                    [attr.tabindex]="item.booking ? 0 : null"
+                    (click)="item.booking && showBooking(item.booking)"
+                    (keydown.enter)="item.booking && showBooking(item.booking)"
+                    (keydown.space)="
+                      $event.preventDefault(); item.booking && showBooking(item.booking)
+                    "
                     [class.event-block]="item.kind === 'block'"
+                    [class.event-compact]="
+                      item.booking && item.booking.serviceDurationMinutes <= 30
+                    "
                     [class.status-confirmed]="item.status === 'CONFIRMED'"
                     [class.status-cancelled]="item.status === 'CANCELLED'"
                     [class.status-completed]="item.status === 'COMPLETED'"
@@ -189,7 +265,9 @@
             <svg lucideCalendarCheck [size]="24" aria-hidden="true"></svg>
             <div>
               <strong>{{ 'Sem eventos neste dia' | translate }}</strong>
-              <span>{{ 'Use o seletor de data para navegar para outro dia da agenda.' | translate }}</span>
+              <span>{{
+                'Use o seletor de data para navegar para outro dia da agenda.' | translate
+              }}</span>
             </div>
           </div>
         }
@@ -197,7 +275,9 @@
     } @else if (visibleBookings().length === 0) {
       <div class="panel-empty booking-empty">
         <svg lucideCalendarCheck [size]="30" aria-hidden="true"></svg>
-        <strong>{{ filter() === 'UPCOMING' ? ('Agenda livre' | translate) : ('Sem histórico' | translate) }}</strong>
+        <strong>{{
+          filter() === 'UPCOMING' ? ('Agenda livre' | translate) : ('Sem histórico' | translate)
+        }}</strong>
         <span>
           {{
             filter() === 'UPCOMING'
@@ -227,7 +307,10 @@
 
             <div class="booking-service">
               <strong>{{ booking.serviceName }}</strong>
-              <span>{{ booking.servicePrice | currency: booking.priceCurrency : 'symbol' : '1.2-2' : i18n.locale() }}</span>
+              <span>{{
+                booking.servicePrice
+                  | currency: booking.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
+              }}</span>
             </div>
 
             <span
@@ -239,13 +322,16 @@
 
             @if (booking.status === 'CONFIRMED') {
               <div class="booking-actions">
+                @if (confirmingCancellationId() === booking.id) {
+                  <ng-container *ngTemplateOutlet="cancelActions; context: { $implicit: booking }" />
+                } @else {
                 <button
                   class="icon-button"
                   type="button"
                   [title]="'Cancelar marcação' | translate"
                   [attr.aria-label]="'Cancelar marcação' | translate"
                   [disabled]="updatingId() === booking.id"
-                  (click)="updateStatus(booking, 'CANCELLED')"
+                  (click)="confirmingCancellationId.set(booking.id)"
                 >
                   <svg lucideX [size]="18" aria-hidden="true"></svg>
                 </button>
@@ -259,6 +345,7 @@
                 >
                   <svg lucideCheck [size]="18" aria-hidden="true"></svg>
                 </button>
+                }
               </div>
             } @else {
               <span class="booking-actions-placeholder"></span>
@@ -267,5 +354,125 @@
         }
       </div>
     }
+    @if (view() === 'LIST' && hasMore()) {
+      <button class="button button-secondary" type="button" (click)="loadMore()" [disabled]="loading()">
+        {{ 'Carregar mais' | translate }}
+      </button>
+    }
   </section>
 </div>
+
+<dialog
+  #bookingDialog
+  class="agenda-dialog booking-editor-dialog"
+  (cancel)="closeBooking($event)"
+  aria-labelledby="new-booking-title"
+>
+  <header class="dialog-heading">
+    <div>
+      <h2 id="new-booking-title">{{ 'Nova marcação' | translate }}</h2>
+    </div>
+    <button
+      class="icon-button"
+      type="button"
+      [disabled]="bookingEditor()?.submitting()"
+      (click)="closeBooking()"
+      [attr.aria-label]="'Fechar' | translate"
+    >
+      <svg lucideX [size]="20" aria-hidden="true"></svg>
+    </button>
+  </header>
+  @if (dialogOpen()) {
+    @if (shop(); as currentShop) {
+      <app-public-booking
+        [bookingSlug]="currentShop.slug"
+        [initialDate]="selectedDate()"
+        [initialTime]="draftTime()"
+        [embedded]="true"
+        (booked)="bookingCreated($event)"
+      />
+    }
+  }
+</dialog>
+<dialog
+  #detailDialog
+  class="agenda-dialog booking-detail-dialog"
+  aria-labelledby="booking-detail-title"
+  (close)="confirmingCancellationId.set(null)"
+>
+  <header class="dialog-heading">
+    <h2 id="booking-detail-title">{{ 'Detalhes da marcação' | translate }}</h2>
+    <button
+      class="icon-button"
+      type="button"
+      (click)="detailDialog.close()"
+      [attr.aria-label]="'Fechar' | translate"
+    >
+      <svg lucideX [size]="20" aria-hidden="true"></svg>
+    </button>
+  </header>
+  @if (detailBooking(); as booking) {
+    <div class="booking-detail-content">
+      <p class="section-label">{{ statusLabel(booking.status) | translate }}</p>
+      <h3>{{ booking.customerName }}</h3>
+      <p>{{ booking.serviceName }} · {{ booking.serviceDurationMinutes }} min</p>
+      <p>
+        {{ booking.startAt | date: 'dd MMM, HH:mm' : undefined : i18n.locale() }}–{{
+          booking.endAt | date: 'HH:mm' : undefined : i18n.locale()
+        }}
+      </p>
+      <a [href]="'tel:' + booking.customerPhone">{{ booking.customerPhone }}</a>
+      <p class="detail-price">
+        {{
+          booking.servicePrice
+            | currency: booking.priceCurrency : 'symbol' : '1.2-2' : i18n.locale()
+        }}
+      </p>
+      @if (error()) {
+        <div class="form-alert" role="alert">{{ error() | translate }}</div>
+      }
+      @if (booking.status === 'CONFIRMED') {
+        <div class="dialog-actions">
+          @if (confirmingCancellationId() === booking.id) {
+            <ng-container *ngTemplateOutlet="cancelActions; context: { $implicit: booking }" />
+          } @else {
+          <button
+            class="button button-secondary"
+            type="button"
+            [disabled]="loading() || !!updatingId()"
+            (click)="confirmingCancellationId.set(booking.id)"
+          >
+            {{ 'Cancelar marcação' | translate }}
+          </button>
+          <button
+            class="button button-primary"
+            type="button"
+            [disabled]="loading() || !canComplete(booking) || !!updatingId()"
+            (click)="updateStatus(booking, 'COMPLETED')"
+          >
+            {{ 'Marcar como concluída' | translate }}
+          </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</dialog>
+
+<ng-template #cancelActions let-booking>
+  <button
+    class="button button-danger button-small"
+    type="button"
+    [disabled]="loading() || !!updatingId()"
+    (click)="updateStatus(booking, 'CANCELLED')"
+  >
+    {{ 'Confirmar cancelamento' | translate }}
+  </button>
+  <button
+    class="button button-secondary button-small"
+    type="button"
+    (click)="confirmingCancellationId.set(null)"
+  >
+    {{ 'Manter marcação' | translate }}
+  </button>
+</ng-template>

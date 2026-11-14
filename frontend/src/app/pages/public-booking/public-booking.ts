@@ -6,6 +6,8 @@ import {
   computed,
   inject,
   OnInit,
+  input,
+  output,
   signal,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -29,6 +31,7 @@ import {
 } from '../../core/booking.models';
 import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
 import { LanguageService } from '../../core/language.service';
+import { PHONE_NUMBER_PATTERN } from '../../core/phone-number';
 import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
@@ -54,7 +57,15 @@ export class PublicBooking implements OnInit {
   private readonly api = inject(BookingApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  private readonly slug = this.route.snapshot.paramMap.get('slug') ?? '';
+  readonly bookingSlug = input('');
+  readonly initialDate = input('');
+  readonly initialTime = input('');
+  readonly embedded = input(false);
+  readonly booked = output<Booking>();
+  private get slug(): string {
+    return this.bookingSlug() || this.route.snapshot.paramMap.get('slug') || '';
+  }
+  readonly activeStep = signal<1 | 2 | 3>(1);
   private slotRequestId = 0;
 
   readonly shop = signal<PublicBarbershop | null>(null);
@@ -70,8 +81,14 @@ export class PublicBooking implements OnInit {
   readonly slotError = signal<string | null>(null);
   readonly confirmation = signal<Booking | null>(null);
 
-  readonly today = this.toDateInput(new Date());
-  readonly maxDate = this.toDateInput(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
+  private readonly localDate = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Lisbon',
+    dateStyle: 'short',
+  }).format(new Date());
+  readonly today = computed(() => this.shop()?.bookingStartDate ?? this.localDate);
+  readonly maxDate = computed(
+    () => this.shop()?.bookingEndDate ?? this.calendarDay(this.today(), 60).toISOString().slice(0, 10),
+  );
   readonly quickDates = computed(() => this.buildQuickDates());
   readonly form = this.formBuilder.group({
     customerName: [
@@ -83,10 +100,7 @@ export class PublicBooking implements OnInit {
         Validators.maxLength(120),
       ],
     ],
-    customerPhone: [
-      '',
-      [Validators.required, Validators.pattern(/\S/), Validators.pattern(/^[+0-9() .-]{7,30}$/)],
-    ],
+    customerPhone: ['', [Validators.required, Validators.pattern(PHONE_NUMBER_PATTERN)]],
     customerEmail: ['', [Validators.email, Validators.maxLength(255)]],
   });
 
@@ -112,6 +126,9 @@ export class PublicBooking implements OnInit {
   }
 
   selectService(service: CatalogService): void {
+    if (this.submitting()) return;
+    this.activeStep.set(2);
+    if (!this.selectedDate() && this.initialDate()) this.selectedDate.set(this.initialDate());
     this.selectedService.set(service);
     this.selectedSlot.set(null);
     this.slots.set([]);
@@ -126,11 +143,23 @@ export class PublicBooking implements OnInit {
     this.selectDate(date);
   }
 
+  goToStep(step: 1 | 2 | 3): void {
+    if (
+      this.submitting() ||
+      (step >= 2 && !this.selectedService()) ||
+      (step === 3 && !this.selectedSlot())
+    )
+      return;
+    this.activeStep.set(step);
+  }
+
   selectDate(date: string): void {
+    if (this.submitting()) return;
     if (date === this.selectedDate()) {
       return;
     }
 
+    this.activeStep.set(2);
     this.selectedDate.set(date);
     this.selectedSlot.set(null);
     this.slots.set([]);
@@ -143,7 +172,9 @@ export class PublicBooking implements OnInit {
   }
 
   selectSlot(slot: AvailableSlot): void {
+    if (this.submitting()) return;
     this.selectedSlot.set(slot);
+    this.activeStep.set(3);
   }
 
   canSubmit(): boolean {
@@ -168,10 +199,14 @@ export class PublicBooking implements OnInit {
       })
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
-        next: (booking) => this.confirmation.set(booking),
+        next: (booking) => {
+          this.confirmation.set(booking);
+          this.booked.emit(booking);
+        },
         error: (error: HttpErrorResponse) => {
           this.error.set(this.errorMessage(error));
           if ((error.error as Partial<ApiError> | null)?.code === 'BOOKING_SLOT_UNAVAILABLE') {
+            this.activeStep.set(2);
             this.selectedSlot.set(null);
             this.slots.set([]);
             this.loadSlots();
@@ -181,6 +216,8 @@ export class PublicBooking implements OnInit {
   }
 
   startAnotherBooking(): void {
+    if (this.submitting()) return;
+    this.activeStep.set(1);
     this.confirmation.set(null);
     this.selectedService.set(null);
     this.selectedDate.set('');
@@ -199,7 +236,8 @@ export class PublicBooking implements OnInit {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-    }).format(new Date(date + 'T12:00:00'));
+      timeZone: 'UTC',
+    }).format(this.calendarDay(date));
   }
 
   timeLabel(dateTime: string): string {
@@ -209,7 +247,7 @@ export class PublicBooking implements OnInit {
     }).format(new Date(dateTime));
   }
 
-  private loadSlots(): void {
+  loadSlots(): void {
     const service = this.selectedService();
     const date = this.selectedDate();
     if (!service || !date) {
@@ -218,6 +256,7 @@ export class PublicBooking implements OnInit {
 
     const requestId = ++this.slotRequestId;
     const serviceId = service.id;
+    this.slotError.set(null);
     this.loadingSlots.set(true);
     this.api
       .getAvailableSlots(this.slug, service.id, date)
@@ -232,6 +271,10 @@ export class PublicBooking implements OnInit {
         next: (slots) => {
           if (requestId === this.slotRequestId) {
             this.slots.set(slots);
+            const preferred = slots.find(
+              (slot) => slot.startAt.slice(11, 16) === this.initialTime(),
+            );
+            if (preferred && this.embedded()) this.selectSlot(preferred);
           }
         },
         error: () => {
@@ -248,32 +291,32 @@ export class PublicBooking implements OnInit {
     day: string;
     month: string;
   }> {
+    const today = this.today();
+    const locale = this.i18n.locale();
+    const timeZone = 'UTC';
     return Array.from({ length: 7 }, (_, index) => {
-      const date = new Date();
-      date.setHours(12, 0, 0, 0);
-      date.setDate(date.getDate() + index);
+      const date = this.calendarDay(today, index);
 
       return {
-        value: this.toDateInput(date),
+        value: date.toISOString().slice(0, 10),
         weekday:
           index === 0
             ? this.i18n.translate('Hoje')
-            : new Intl.DateTimeFormat(this.i18n.locale(), { weekday: 'short' })
+            : new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone })
                 .format(date)
                 .replace('.', ''),
-        day: new Intl.DateTimeFormat(this.i18n.locale(), { day: '2-digit' }).format(date),
-        month: new Intl.DateTimeFormat(this.i18n.locale(), { month: 'short' })
+        day: new Intl.DateTimeFormat(locale, { day: '2-digit', timeZone }).format(date),
+        month: new Intl.DateTimeFormat(locale, { month: 'short', timeZone })
           .format(date)
           .replace('.', ''),
       };
     });
   }
 
-  private toDateInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  private calendarDay(date: string, days = 0): Date {
+    const day = new Date(`${date}T00:00:00Z`);
+    day.setUTCDate(day.getUTCDate() + days);
+    return day;
   }
 
   private errorMessage(error: HttpErrorResponse): string {

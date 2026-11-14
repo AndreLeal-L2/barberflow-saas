@@ -3,11 +3,10 @@
 <main class="plans-page">
   <div class="plans-container">
     <header class="plans-heading">
-      <p class="section-label">{{ 'Preço' | translate }}</p>
       <h1>{{ 'Comece com a beta gratuita.' | translate }}</h1>
       <p>
         {{
-          'Conheça a plataforma e organize as marcações da sua barbearia, sem custos durante esta fase.'
+          'Organize as marcações do seu negócio, sem custos durante esta fase.'
             | translate
         }}
       </p>
@@ -15,9 +14,9 @@
 
     <section class="beta-plan" aria-labelledby="plan-title">
       <div class="beta-plan-summary">
+        <h2 id="plan-title">Compasso</h2>
         <span class="beta-plan-label">{{ 'Acesso beta' | translate }}</span>
-        <h2 id="plan-title">BarberFlow</h2>
-        <p>{{ 'Para barbeiros independentes e equipas pequenas.' | translate }}</p>
+        <p>{{ 'Para quem trabalha por marcação.' | translate }}</p>
         <div class="beta-plan-price">
           <strong>0 €</strong><span>{{ 'durante a beta' | translate }}</span>
         </div>
@@ -32,7 +31,7 @@
         <ul>
           <li>
             <svg lucideCheck [size]="17" aria-hidden="true"></svg
-            ><span>{{ 'Página pública com o nome e o link da sua barbearia' | translate }}</span>
+            ><span>{{ 'Página de marcações com a sua identidade' | translate }}</span>
           </li>
           <li>
             <svg lucideCheck [size]="17" aria-hidden="true"></svg
@@ -60,7 +59,7 @@
       <h2 id="beta-note-title">{{ 'O que significa estar em beta?' | translate }}</h2>
       <p>
         {{
-          'O BarberFlow está a ser validado com os primeiros utilizadores. Algumas funcionalidades podem evoluir e podem ocorrer interrupções durante esta fase.'
+          'O Compasso está a ser validado com os primeiros utilizadores. Algumas funcionalidades podem evoluir e podem ocorrer interrupções durante esta fase.'
             | translate
         }}
       </p>
@@ -80,7 +79,7 @@
 
 <footer class="plans-footer">
   <div class="page-container">
-    <span>BarberFlow</span>
+    <span>Compasso</span>
     <nav [attr.aria-label]="'Informação legal' | translate">
       <a routerLink="/privacy">{{ 'Privacidade' | translate }}</a
       ><a routerLink="/terms">{{ 'Termos' | translate }}</a>

@@ -13,8 +13,10 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
+@DynamicUpdate
 @Table(name = "barbershops")
 public class Barbershop {
 
@@ -39,6 +41,12 @@ public class Barbershop {
 
     @Column(name = "public_address", length = 255)
     private String publicAddress;
+
+    @Column(name = "logo_version")
+    private UUID logoVersion;
+
+    @Column(name = "cover_version")
+    private UUID coverVersion;
 
     @Column(nullable = false)
     private boolean active;
@@ -111,6 +119,19 @@ public class Barbershop {
 
     public String getPublicAddress() {
         return publicAddress;
+    }
+
+    public UUID getLogoVersion() { return logoVersion; }
+    public UUID getCoverVersion() { return coverVersion; }
+    public void setImageVersion(String kind, UUID version) {
+        if (kind.equals("logo")) logoVersion = version;
+        else coverVersion = version;
+    }
+    public String imageUrl(String scope, String kind) {
+        UUID version = kind.equals("logo") ? logoVersion : coverVersion;
+        if (version == null) return null;
+        String base = scope.equals("public") ? "/api/public/barbershops/" + slug : "/api/dashboard/barbershop";
+        return base + "/images/" + kind + "?v=" + version;
     }
 
     public boolean isActive() {

@@ -54,7 +54,7 @@ public class AccountSecurityService {
         notificationService.enqueue(
                 "VERIFY_EMAIL",
                 user.getEmail(),
-                "Confirme o seu email no BarberFlow",
+                "Confirme o seu email no Compasso",
                 "Olá " + user.getName() + ",\n\nConfirme o seu email através deste link:\n"
                         + link + "\n\nO link é válido durante 24 horas."
         );
@@ -77,7 +77,7 @@ public class AccountSecurityService {
             notificationService.enqueue(
                     "RESET_PASSWORD",
                     user.getEmail(),
-                    "Recuperar palavra-passe do BarberFlow",
+                    "Recuperar palavra-passe do Compasso",
                     "Olá " + user.getName() + ",\n\nDefina uma nova palavra-passe através deste link:\n"
                             + link + "\n\nO link é válido durante 30 minutos."
             );

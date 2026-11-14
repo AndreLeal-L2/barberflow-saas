@@ -32,6 +32,32 @@ describe('Availability', () => {
     TestBed.inject(LanguageService).setLanguage('pt-PT');
   });
 
+  it('separates weekly hours from one-off blocks', () => {
+    const fixture = TestBed.createComponent(Availability);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.availability-exceptions')?.hasAttribute('hidden')).toBe(true);
+    const blocksTab = Array.from(element.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Indisponibilidades',
+    );
+    expect(blocksTab).toBeDefined();
+    blocksTab!.click();
+    fixture.detectChanges();
+    expect(element.querySelector('.schedule-panel')?.hasAttribute('hidden')).toBe(true);
+    expect(element.querySelector('.availability-exceptions')?.hasAttribute('hidden')).toBe(false);
+  });
+
+  it('sets the initial block date from the business calendar after midnight', () => {
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2030-05-10T23:15:00Z'));
+    try {
+      const fixture = TestBed.createComponent(Availability);
+      fixture.detectChanges();
+      expect(fixture.componentInstance.blockForm.controls.date.value).toBe('2030-05-11');
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
   it('cannot save while the weekly schedule is still loading', () => {
     const fixture = TestBed.createComponent(Availability);
     fixture.detectChanges();

@@ -12,6 +12,7 @@ import { LucideArrowLeft, LucideEye, LucideEyeOff } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
+import { PHONE_NUMBER_PATTERN } from '../../core/phone-number';
 
 function matchingPasswords(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
@@ -49,7 +50,7 @@ export class Register {
       ownerName: ['', [Validators.required, Validators.maxLength(120)]],
       barbershopName: ['', [Validators.required, Validators.maxLength(120)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
-      phone: ['', [Validators.required, Validators.pattern(/^[+0-9() .-]{7,30}$/)]],
+      phone: ['', [Validators.required, Validators.pattern(PHONE_NUMBER_PATTERN)]],
       password: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(72)]],
       confirmPassword: ['', Validators.required],
     },

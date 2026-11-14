@@ -68,6 +68,29 @@ describe('Dashboard', () => {
     TestBed.inject(LanguageService).setLanguage('pt-PT');
   });
 
+  it('keeps the booking link available to copy manually when clipboard access is missing', async () => {
+    const clipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+    try {
+      const fixture = TestBed.createComponent(Dashboard);
+      fixture.detectChanges();
+
+      await expect(Promise.resolve().then(() => fixture.componentInstance.copyPublicUrl()))
+        .resolves.toBeUndefined();
+      fixture.detectChanges();
+
+      const link = fixture.nativeElement.querySelector('.link-copy-field input') as HTMLInputElement;
+      expect(link.value).toContain('/b/barbearia-central');
+      expect(link.readOnly).toBe(true);
+      expect(fixture.nativeElement.querySelector('.copy-feedback')?.textContent).toContain(
+        'Não foi possível copiar o link automaticamente. Copie-o no campo acima.',
+      );
+    } finally {
+      if (clipboard) Object.defineProperty(navigator, 'clipboard', clipboard);
+      else Reflect.deleteProperty(navigator, 'clipboard');
+    }
+  });
+
   it('renders operational metrics and scales daily activity bars', () => {
     const fixture = TestBed.createComponent(Dashboard);
     fixture.detectChanges();
@@ -86,6 +109,12 @@ describe('Dashboard', () => {
     expect(api.getDashboardAnalytics).toHaveBeenCalledOnce();
   });
 
+  it('requests only the next five appointments for the overview', () => {
+    const fixture = TestBed.createComponent(Dashboard);
+    fixture.detectChanges();
+    expect(api.listBookings).toHaveBeenCalledExactlyOnceWith({ view: 'next', page: 0, size: 5 });
+  });
+
   it('keeps setup, public link and publication available when analytics and bookings fail', () => {
     api.getBarbershop.mockReturnValueOnce(
       of({ ...shop, published: false, completedSetupSteps: 3 }),
@@ -99,9 +128,8 @@ describe('Dashboard', () => {
 
     expect(fixture.componentInstance.shop()?.id).toBe(shop.id);
     expect(fixture.componentInstance.loading()).toBe(false);
-    expect(fixture.nativeElement.querySelector('.public-link-section')?.textContent).toContain(
-      '/b/barbearia-central',
-    );
+    const link = fixture.nativeElement.querySelector('.link-copy-field input') as HTMLInputElement;
+    expect(link.value).toContain('/b/barbearia-central');
     expect(fixture.nativeElement.querySelectorAll('.setup-list li')).toHaveLength(4);
     expect(
       fixture.nativeElement.querySelector('.setup-list a[href="/dashboard/profile"]')?.textContent,

@@ -64,6 +64,16 @@ describe('Register', () => {
     expect(fixture.nativeElement.textContent).toContain('Introduza o seu nome.');
   });
 
+  it('rejects an owner phone number made only of punctuation', () => {
+    const fixture = TestBed.createComponent(Register);
+    fixture.componentInstance.form.setValue({ ...values, phone: '-------' });
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(auth.register).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Introduza um telefone válido.');
+  });
+
   it('shows server validation details beside the affected field and allows correction', () => {
     auth.register.mockReturnValueOnce(
       throwError(

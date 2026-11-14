@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Login } from '../pages/login/login';
 import { AuthService } from './auth.service';
+import { of } from 'rxjs';
 import { LanguageService } from './language.service';
 
 describe('Site languages', () => {
@@ -9,7 +10,7 @@ describe('Site languages', () => {
     localStorage.removeItem('barberflow.language');
     await TestBed.configureTestingModule({
       imports: [Login],
-      providers: [provideRouter([]), { provide: AuthService, useValue: {} }],
+      providers: [provideRouter([]), { provide: AuthService, useValue: { prepareLogin: () => of(undefined) } }],
     }).compileComponents();
   });
 
@@ -32,16 +33,16 @@ describe('Site languages', () => {
   it('updates the page title and translates messages without changing unknown text', () => {
     const language = TestBed.inject(LanguageService);
     expect(language.language()).toBe('pt-PT');
-    language.setPageTitle('Entrar | BarberFlow');
+    language.setPageTitle('Entrar | Compasso');
     language.setLanguage('en-GB');
-    expect(document.title).toBe('Sign in | BarberFlow');
+    expect(document.title).toBe('Sign in | Compasso');
     expect(language.translate('E-mail ou palavra-passe incorretos.')).toBe(
       'Incorrect email or password.',
     );
     expect(language.translate('Barbearia do João')).toBe('Barbearia do João');
     expect(language.translate(' marcações em ')).toBe(' bookings on ');
     language.setLanguage('pt-PT');
-    expect(document.title).toBe('Entrar | BarberFlow');
+    expect(document.title).toBe('Entrar | Compasso');
   });
 
   it('switches OnPush form labels without clearing entered values', () => {

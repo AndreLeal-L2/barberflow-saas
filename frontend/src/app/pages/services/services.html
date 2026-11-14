@@ -1,7 +1,6 @@
 <div class="dashboard-content">
   <header class="page-heading">
     <div>
-      <p class="section-label">{{ 'CATÁLOGO' | translate }}</p>
       <h1>{{ 'Serviços' | translate }}</h1>
       <p>{{ 'Defina o que os clientes podem marcar, a duração e o preço.' | translate }}</p>
     </div>
@@ -15,9 +14,6 @@
     <section class="editor-panel">
       <div class="panel-heading">
         <div>
-          <p class="section-label">
-            {{ editingId() ? ('EDITAR SERVIÇO' | translate) : ('NOVO SERVIÇO' | translate) }}
-          </p>
           <h2>
             {{
               editingId() ? ('Atualizar dados' | translate) : ('Adicionar ao catálogo' | translate)
@@ -113,7 +109,6 @@
     <section class="list-panel">
       <div class="panel-heading">
         <div>
-          <p class="section-label">{{ 'SERVIÇOS ATIVOS' | translate }}</p>
           <h2>{{ 'Catálogo atual' | translate }}</h2>
         </div>
         <span>{{ services().length }}</span>

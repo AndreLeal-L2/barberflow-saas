@@ -1,0 +1,12 @@
+.git
+.hallmark
+backups
+output
+**/target
+**/node_modules
+**/dist
+**/.angular
+**/test-results
+**/playwright-report
+.env
+.env.*

@@ -55,20 +55,34 @@ BARBERFLOW_DATABASE_USERNAME=postgres.PROJECT_REF
 BARBERFLOW_DATABASE_PASSWORD=SUPABASE_DATABASE_PASSWORD
 BARBERFLOW_DATABASE_MAX_POOL_SIZE=2
 
-BARBERFLOW_PUBLIC_BASE_URL=https://barberflow-saas-delta.vercel.app
-BARBERFLOW_ALLOWED_ORIGINS=https://barberflow-saas-delta.vercel.app
+BARBERFLOW_PUBLIC_BASE_URL=https://compasso-pt.vercel.app
+BARBERFLOW_ALLOWED_ORIGINS=https://compasso-pt.vercel.app
 BARBERFLOW_TIME_ZONE=Europe/Lisbon
 
 CRON_SECRET=GENERATED_RANDOM_SECRET
 ```
 
-This beta configuration uses the privileged `postgres.PROJECT_REF` connection
-for both Flyway migrations and application requests. It can bypass RLS, so a
-compromised backend would still have broad database access. Before storing real
-customer data, provision a separate runtime role with only the required table
-and sequence permissions, keep the migration credentials separate, and verify
-the actual production grants and RLS state in Supabase. The current deployment
-must remain synthetic-data-only until that work is complete.
+The connection above is for migration and setup. For real customer data, apply
+Flyway on an isolated release runner using the table owner's credentials and
+run [the runtime-role script](../scripts/setup-runtime-role.sql) as that owner.
+Create a dedicated login with inheritance enabled, no administrative privileges
+and no RLS bypass. Grant that login membership in `compasso_runtime` using
+the database administration interface. Configure its credentials as the
+Vercel database connection and set `SPRING_FLYWAY_ENABLED=false` there.
+Keep the migration credentials on the release runner. Repeat the grant and
+policy review whenever a migration adds a table.
+
+The runtime role can read and write the application tables. Spring Security
+and tenant-scoped queries enforce business boundaries. The role has no schema
+creation or Flyway history access. Check the real hosted role, public grants,
+and successful Java/SQL startup before connecting a production deployment.
+Disable the Supabase Data API if unused by the project. For a restore drill,
+restore a fresh backup to a separate isolated instance, verify Flyway history
+and representative row counts, and test the application against synthetic
+data there. The published demo is for synthetic data.
+
+See [Supabase Data API controls](https://supabase.com/docs/guides/api/securing-your-api)
+and [backup and restore](https://supabase.com/docs/guides/platform/backups).
 
 The Vercel-specific backend image already sets `PORT=8080` and
 `SPRING_PROFILES_ACTIVE=prod,vercel`. Generate the cron secret locally with:
@@ -124,14 +138,14 @@ outbox until a later maintenance run.
 
 1. Confirm that the production branch is `main`.
 2. Keep preview deployments protected, but make the production deployment public.
-3. Add or confirm `barberflow-saas-delta.vercel.app` under **Settings > Domains**.
+3. Confirm the public domain under **Settings > Domains**. The portfolio demo uses `compasso-pt.vercel.app`.
 4. Redeploy the latest `main` commit after saving all environment variables.
 
 Validate the deployment:
 
 ```bash
-curl --fail --show-error https://barberflow-saas-delta.vercel.app/actuator/health
-curl --fail --show-error --head https://barberflow-saas-delta.vercel.app/
+curl --fail --show-error https://compasso-pt.vercel.app/actuator/health
+curl --fail --show-error --head https://compasso-pt.vercel.app/
 ```
 
 Then complete the full smoke test: registration, email verification, service

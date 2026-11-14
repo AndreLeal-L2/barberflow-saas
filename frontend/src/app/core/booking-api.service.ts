@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { finalize, Observable, shareReplay } from 'rxjs';
+import { AuthService } from './auth.service';
 import { MessageResponse } from './auth.models';
 import {
   AvailabilityDay,
@@ -16,6 +17,7 @@ import {
   BlockedTime,
   PublicBarbershop,
   ServiceRequest,
+  ShopImageKind,
 } from './booking.models';
 import { CsrfService } from './csrf.service';
 
@@ -23,13 +25,38 @@ import { CsrfService } from './csrf.service';
 export class BookingApiService {
   private readonly http = inject(HttpClient);
   private readonly csrf = inject(CsrfService);
+  private readonly auth = inject(AuthService);
+  private shopRequest?: { owner: unknown; response: Observable<DashboardBarbershop> };
 
   getBarbershop(): Observable<DashboardBarbershop> {
-    return this.http.get<DashboardBarbershop>('/api/dashboard/barbershop');
+    const owner = this.auth.user();
+    if (this.shopRequest?.owner === owner) return this.shopRequest.response;
+    const response = this.http.get<DashboardBarbershop>('/api/dashboard/barbershop').pipe(
+      finalize(() => {
+        if (this.shopRequest?.response === response) this.shopRequest = undefined;
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+    this.shopRequest = { owner, response };
+    return response;
   }
 
   getDashboardAnalytics(): Observable<DashboardAnalytics> {
     return this.http.get<DashboardAnalytics>('/api/dashboard/analytics');
+  }
+
+  uploadImage(kind: ShopImageKind, file: File): Observable<DashboardBarbershop> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.csrf.execute(() =>
+      this.http.put<DashboardBarbershop>('/api/dashboard/barbershop/images/' + kind, body),
+    );
+  }
+
+  removeImage(kind: ShopImageKind): Observable<DashboardBarbershop> {
+    return this.csrf.execute(() =>
+      this.http.delete<DashboardBarbershop>('/api/dashboard/barbershop/images/' + kind),
+    );
   }
 
   updateProfile(request: BarbershopProfileRequest): Observable<DashboardBarbershop> {
@@ -92,8 +119,8 @@ export class BookingApiService {
     );
   }
 
-  listBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>('/api/dashboard/bookings');
+  listBookings(query: { from?: string; to?: string; view?: string; page?: number; size?: number } = {}): Observable<Booking[]> {
+    return this.http.get<Booking[]>('/api/dashboard/bookings', { params: query });
   }
 
   updateBookingStatus(id: string, status: BookingStatus): Observable<Booking> {

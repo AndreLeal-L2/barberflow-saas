@@ -38,9 +38,9 @@ export class ThemeService {
     try {
       const storage = this.document.defaultView?.localStorage;
       const saved = storage?.getItem(THEME_KEY) ?? storage?.getItem(LEGACY_THEME_KEY);
-      return saved === 'DARK' ? 'DARK' : 'LIGHT';
+      return saved === 'LIGHT' ? 'LIGHT' : 'DARK';
     } catch {
-      return 'LIGHT';
+      return 'DARK';
     }
   }
 }

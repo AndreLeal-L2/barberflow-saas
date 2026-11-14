@@ -1,11 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideCalendarOff, LucidePlus, LucideSave, LucideTrash2 } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
+import { addCalendarDays, businessDateTime } from '../../core/business-time';
+import { ShopAppearanceService } from '../../core/shop-appearance.service';
 import { AvailabilityDay, BlockedTime, DayOfWeek } from '../../core/booking.models';
 
 const WEEK_DAYS: { value: DayOfWeek; label: string }[] = [
@@ -35,9 +37,11 @@ import { TranslatePipe } from '../../core/translate.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Availability implements OnInit {
+  readonly section = signal<'WEEK' | 'BLOCKS'>('WEEK');
   readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly appearance = inject(ShopAppearanceService);
 
   readonly loading = signal(true);
   readonly scheduleLoaded = signal(false);
@@ -49,8 +53,8 @@ export class Availability implements OnInit {
   readonly blocks = signal<BlockedTime[]>([]);
   readonly error = signal<string | null>(null);
   readonly success = signal<string | null>(null);
-  readonly today = this.toDateInput(new Date());
-  readonly maxBlockDate = this.toDateInput(new Date(Date.now() + 366 * 24 * 60 * 60 * 1000));
+  readonly today = computed(() => businessDateTime(this.appearance.shop()?.timeZone).slice(0, 10));
+  readonly maxBlockDate = computed(() => addCalendarDays(this.today(), 366));
   readonly form = this.formBuilder.group({
     days: this.formBuilder.array(
       WEEK_DAYS.map((day) =>
@@ -64,7 +68,7 @@ export class Availability implements OnInit {
     ),
   });
   readonly blockForm = this.formBuilder.group({
-    date: [this.today, Validators.required],
+    date: [this.today(), Validators.required],
     fullDay: [true],
     startTime: ['09:00'],
     endTime: ['18:00'],
@@ -206,14 +210,6 @@ export class Availability implements OnInit {
   }
 
   private nextDate(date: string): string {
-    const [year, month, day] = date.split('-').map(Number);
-    return this.toDateInput(new Date(year, month - 1, day + 1));
-  }
-
-  private toDateInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return addCalendarDays(date, 1);
   }
 }

@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   OnInit,
@@ -23,6 +24,8 @@ import { ApiError } from '../../core/auth.models';
 import { Booking, DashboardAnalytics, DashboardBarbershop } from '../../core/booking.models';
 import { LanguageService } from '../../core/language.service';
 import { TranslatePipe } from '../../core/translate.pipe';
+import { ShopAppearanceService } from '../../core/shop-appearance.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-dashboard',
@@ -44,6 +47,8 @@ import { TranslatePipe } from '../../core/translate.pipe';
 export class Dashboard implements OnInit {
   readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
+  private readonly appearance = inject(ShopAppearanceService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly shop = signal<DashboardBarbershop | null>(null);
   readonly analytics = signal<DashboardAnalytics | null>(null);
@@ -54,7 +59,7 @@ export class Dashboard implements OnInit {
   readonly analyticsError = signal<string | null>(null);
   readonly bookingsError = signal<string | null>(null);
   readonly savingPublication = signal(false);
-  readonly copied = signal(false);
+  readonly copyFeedback = signal('');
   readonly error = signal<string | null>(null);
 
   readonly publicUrl = computed(() => {
@@ -64,14 +69,7 @@ export class Dashboard implements OnInit {
 
   readonly progress = computed(() => (this.shop()?.completedSetupSteps ?? 1) * 25);
 
-  readonly nextBookings = computed(() =>
-    this.bookings()
-      .filter(
-        (booking) =>
-          booking.status === 'CONFIRMED' && new Date(booking.startAt).getTime() >= Date.now(),
-      )
-      .slice(0, 5),
-  );
+  readonly nextBookings = computed(() => this.bookings().slice(0, 5));
 
   readonly activityDays = computed(() => {
     const days = this.analytics()?.upcomingDailyBookings ?? [];
@@ -104,16 +102,18 @@ export class Dashboard implements OnInit {
       });
   }
 
-  copyPublicUrl(): void {
+  async copyPublicUrl(): Promise<void> {
     const url = this.publicUrl();
     if (!url) {
       return;
     }
 
-    void navigator.clipboard.writeText(url).then(() => {
-      this.copied.set(true);
-      window.setTimeout(() => this.copied.set(false), 1800);
-    });
+    try {
+      await navigator.clipboard.writeText(url);
+      this.copyFeedback.set('Link copiado.');
+    } catch {
+      this.copyFeedback.set('Não foi possível copiar o link automaticamente. Copie-o no campo acima.');
+    }
   }
 
   private load(): void {
@@ -121,23 +121,26 @@ export class Dashboard implements OnInit {
     this.error.set(null);
     this.api
       .getBarbershop()
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (shop) => this.shop.set(shop),
+        next: (shop) => {
+          this.shop.set(shop);
+          this.appearance.update(shop);
+        },
         error: () => this.error.set('Não foi possível carregar o painel.'),
       });
 
     this.api
       .getDashboardAnalytics()
-      .pipe(finalize(() => this.analyticsLoading.set(false)))
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.analyticsLoading.set(false)))
       .subscribe({
         next: (analytics) => this.analytics.set(analytics),
         error: () => this.analyticsError.set('Não foi possível carregar as estatísticas.'),
       });
 
     this.api
-      .listBookings()
-      .pipe(finalize(() => this.bookingsLoading.set(false)))
+      .listBookings({ view: 'next', page: 0, size: 5 })
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.bookingsLoading.set(false)))
       .subscribe({
         next: (bookings) => this.bookings.set(bookings),
         error: () => this.bookingsError.set('Não foi possível carregar as próximas marcações.'),

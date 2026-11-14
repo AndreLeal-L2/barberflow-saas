@@ -3,9 +3,9 @@
     <a
       class="brand dashboard-brand"
       routerLink="/dashboard"
-      [attr.aria-label]="'BarberFlow, visão geral' | translate"
+      [attr.aria-label]="'Compasso, agenda' | translate"
     >
-      <span class="brand-name" aria-hidden="true">BarberFlow</span>
+      <span class="brand-name" aria-hidden="true">Compasso</span>
     </a>
 
     <nav class="dashboard-nav" [attr.aria-label]="'Navegação do painel' | translate">
@@ -15,12 +15,12 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
+        <svg lucideCalendarDays [size]="19" aria-hidden="true"></svg>
+        {{ 'Agenda' | translate }}
+      </a>
+      <a routerLink="/dashboard/overview" routerLinkActive="active">
         <svg lucideLayoutDashboard [size]="19" aria-hidden="true"></svg>
         {{ 'Visão geral' | translate }}
-      </a>
-      <a routerLink="/dashboard/bookings" routerLinkActive="active">
-        <svg lucideCalendarDays [size]="19" aria-hidden="true"></svg>
-        {{ 'Marcações' | translate }}
       </a>
       <a routerLink="/dashboard/services" routerLinkActive="active">
         <svg lucideScissors [size]="19" aria-hidden="true"></svg>
@@ -57,21 +57,44 @@
 
   <section class="dashboard-main">
     <header class="dashboard-topbar">
-      <div class="topbar-context">
-        <span>{{ 'BARBEARIA' | translate }}</span>
-        <strong>{{ user()?.barbershop?.name }}</strong>
+      <div class="topbar-business">
+        @if (appearance.shop()?.logoUrl; as logo) {
+          <img
+            class="dashboard-shop-logo"
+            [src]="logo"
+            [alt]="('Logo de' | translate) + ' ' + user()?.barbershop?.name"
+          />
+        }
+        <div class="topbar-context">
+          <span>{{ 'O SEU ESPAÇO' | translate }}</span>
+          <strong>{{ user()?.barbershop?.name }}</strong>
+        </div>
       </div>
       <div class="topbar-actions">
         <app-language-switcher />
         <app-theme-toggle />
-        <a class="topbar-public-link" routerLink="/dashboard/profile">
-          {{ 'Gerir página' | translate }}
+        <button class="topbar-public-link share-link" type="button" (click)="copyLink()">
+          <svg lucideCopy [size]="15" aria-hidden="true"></svg>
+          <span class="mobile-action-label">{{
+            (copied() ? 'Link copiado' : 'Copiar link') | translate
+          }}</span>
+        </button>
+        <a class="topbar-public-link" [href]="publicUrl()" target="_blank" rel="noopener">
+          <span class="mobile-action-label">{{ 'Ver página' | translate }}</span>
           <svg lucideExternalLink [size]="15" aria-hidden="true"></svg>
         </a>
-        <span class="status-badge status-trial">{{ 'Período experimental' | translate }}</span>
       </div>
     </header>
 
+    @if (copyError()) {
+      <label class="copy-fallback"
+        >{{ 'Copie o link da sua página:' | translate }}
+        <input readonly [value]="publicUrl()" (focus)="$any($event.target).select()" />
+      </label>
+    }
+    <span class="sr-only" aria-live="polite">{{
+      copied() ? ('Link copiado' | translate) : ''
+    }}</span>
     @if (logoutError()) {
       <div class="form-alert dashboard-alert" role="alert">{{ logoutError() | translate }}</div>
     }

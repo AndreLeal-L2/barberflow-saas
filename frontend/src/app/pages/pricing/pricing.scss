@@ -1,112 +1,98 @@
+/* Compasso · institutional pricing presentation */
 :host {
   display: block;
 }
 .plans-page {
-  min-height: calc(100vh - 160px);
-  padding-block: 66px 46px;
+  min-height: calc(100svh - 160px);
+  padding-block: var(--space-3xl);
   background: var(--canvas);
 }
 .plans-container {
-  width: min(890px, calc(100% - 64px));
+  width: min(1040px, calc(100% - 64px));
   margin-inline: auto;
 }
 .plans-heading {
-  max-width: 650px;
-  margin-bottom: 36px;
-}
-.plans-heading .section-label {
-  margin-bottom: 16px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  max-width: 760px;
+  margin-bottom: var(--space-2xl);
 }
 .plans-heading h1 {
-  margin-bottom: 18px;
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  font-weight: 650;
-  line-height: 1.15;
+  margin-bottom: var(--space-lg);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.05;
   letter-spacing: -0.04em;
 }
 .plans-heading > p:last-child {
-  max-width: 590px;
+  max-width: 52ch;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.96rem;
-  line-height: 1.75;
+  font-size: var(--text-md);
+  line-height: 1.65;
 }
 .beta-plan {
   display: grid;
-  grid-template-columns: minmax(0, 0.87fr) minmax(0, 1.13fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--radius-panel);
   background: var(--paper);
 }
 .beta-plan-summary {
-  padding: 32px;
+  padding: var(--space-xl);
   border-right: 1px solid var(--line);
 }
-.beta-plan-label {
-  display: inline-flex;
-  padding: 4px 7px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  color: var(--ink-soft);
-  font-size: 0.68rem;
-  font-weight: 550;
-}
 .beta-plan-summary h2 {
-  margin: 20px 0 9px;
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  margin: 0 0 var(--space-xs);
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+.beta-plan-label {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
 }
 .beta-plan-summary > p:not(.beta-plan-caption) {
-  margin-bottom: 0;
+  margin-block: var(--space-md) 0;
   color: var(--ink-soft);
-  font-size: 0.84rem;
-  line-height: 1.65;
+  font-size: var(--text-md);
 }
 .beta-plan-price {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  margin-block: 29px;
+  gap: var(--space-sm);
+  margin-block: var(--space-xl);
 }
 .beta-plan-price strong {
-  font-size: 2.9rem;
+  font-size: 3.5rem;
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.05em;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
 }
-.beta-plan-price span {
+.beta-plan-price span,
+.beta-plan-caption {
   color: var(--ink-soft);
-  font-size: 0.78rem;
-}
-.beta-plan-summary .button {
-  font-size: 0.84rem;
+  font-size: var(--text-sm);
 }
 .beta-plan-caption {
-  margin: 13px 0 0;
-  color: var(--ink-soft);
-  font-size: 0.69rem;
+  margin: var(--space-md) 0 0;
   text-align: center;
 }
 .beta-plan-details {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 34px;
+  padding: var(--space-xl);
 }
 .beta-plan-details h3 {
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  margin-bottom: var(--space-lg);
+  font-size: var(--text-title);
+  font-weight: 500;
   line-height: 1.4;
-  letter-spacing: -0.01em;
 }
 .beta-plan-details ul {
   display: grid;
-  gap: 18px;
+  gap: var(--space-lg);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -114,43 +100,44 @@
 .beta-plan-details li {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--space-sm);
   align-items: start;
   color: var(--ink-soft);
-  font-size: 0.81rem;
+  font-size: var(--text-md);
   line-height: 1.55;
 }
 .beta-plan-details svg {
-  margin-top: 1px;
   color: var(--brand);
 }
 .plans-transparency {
-  margin-top: 38px;
-  padding-top: 28px;
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-xl);
   border-top: 1px solid var(--line);
 }
 .plans-transparency h2,
 .plans-transparency h3 {
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  margin-block: var(--space-xl) var(--space-sm);
+  font-size: var(--text-title);
+  font-weight: 500;
   line-height: 1.4;
 }
+.plans-transparency h2:first-child {
+  margin-top: 0;
+}
 .plans-transparency p {
-  max-width: 730px;
-  margin-bottom: 25px;
+  max-width: 65ch;
+  margin-bottom: var(--space-lg);
   color: var(--ink-soft);
-  font-size: 0.84rem;
-  line-height: 1.8;
+  font-size: var(--text-md);
+  line-height: 1.65;
 }
 .plans-transparency p:last-child {
   margin-bottom: 0;
 }
 .plans-return {
-  margin-top: 28px;
+  margin-top: var(--space-xl);
   color: var(--brand);
-  font-size: 0.8rem;
-  font-weight: 550;
+  font-size: var(--text-sm);
 }
 .plans-return a:hover,
 .plans-footer a:hover {
@@ -158,11 +145,11 @@
   text-underline-offset: 4px;
 }
 .plans-footer {
-  padding-block: 24px;
+  padding-block: var(--space-lg);
   border-top: 1px solid var(--line);
   color: var(--ink-soft);
   background: var(--paper);
-  font-size: 0.74rem;
+  font-size: var(--text-sm);
 }
 .plans-footer > div,
 .plans-footer nav {
@@ -171,45 +158,49 @@
 }
 .plans-footer > div {
   justify-content: space-between;
-  gap: 20px;
+  gap: var(--space-lg);
 }
 .plans-footer > div > span {
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 500;
 }
 .plans-footer nav {
-  gap: 22px;
+  gap: var(--space-lg);
 }
-
 @media (max-width: 700px) {
   .plans-page {
-    padding-block: 43px 36px;
+    padding-block: var(--space-2xl);
   }
   .plans-container {
-    width: min(100% - 40px, 530px);
-  }
-  .plans-heading {
-    margin-bottom: 28px;
+    width: calc(100% - 40px);
   }
   .plans-heading h1 {
-    font-size: 2.3rem;
+    font-size: 2.5rem;
   }
   .beta-plan {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .beta-plan-summary,
+  .beta-plan-details {
+    padding: var(--space-lg);
   }
   .beta-plan-summary {
-    padding: 27px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
-  .beta-plan-price {
-    margin-block: 25px;
-  }
-  .beta-plan-details {
-    padding: 27px;
-  }
-  .plans-transparency {
-    margin-top: 30px;
-    padding-top: 25px;
-  }
+}
+
+.beta-plan-summary {
+  background: var(--color-field);
+  color: var(--color-field-ink);
+}
+.beta-plan-summary .beta-plan-label,
+.beta-plan-summary > p,
+.beta-plan-price span {
+  color: var(--color-field-ink);
+}
+.beta-plan-summary .button {
+  color: var(--color-stage-ink);
+  background: var(--color-stage);
+  border-color: var(--color-stage);
 }

@@ -7,6 +7,7 @@ import { AuthUser } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
 import { BookingApiService } from '../../core/booking-api.service';
 import { DashboardBarbershop } from '../../core/booking.models';
+import { ShopAppearanceService } from '../../core/shop-appearance.service';
 import { LanguageService } from '../../core/language.service';
 import { Profile } from './profile';
 
@@ -47,6 +48,8 @@ describe('Profile publication', () => {
   };
   const api = {
     getBarbershop: vi.fn(() => of(shop)),
+    uploadImage: vi.fn(),
+    removeImage: vi.fn(),
     updateProfile: vi.fn(() => of(shop)),
     updatePublication: vi.fn((published: boolean) => of({ ...shop, published })),
   };
@@ -69,6 +72,90 @@ describe('Profile publication', () => {
       ],
     }).compileComponents();
     TestBed.inject(LanguageService).setLanguage('pt-PT');
+  });
+
+  it('offers image personalization and applies an uploaded shop logo immediately', () => {
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const tab = Array.from(element.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Personalização',
+    );
+    expect(tab).toBeDefined();
+    tab!.click();
+    fixture.detectChanges();
+    api.uploadImage.mockReturnValueOnce(
+      of({ ...shop, logoUrl: '/api/dashboard/barbershop/images/logo?v=new' }),
+    );
+    const input = element.querySelector('input[data-image-kind="logo"]') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [new File(['png'], 'logo.png', { type: 'image/png' })],
+    });
+    input.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    expect(api.uploadImage).toHaveBeenCalledWith('logo', expect.any(File));
+    expect(element.querySelector('img[data-image-preview="logo"]')?.getAttribute('src')).toContain(
+      'v=new',
+    );
+  });
+
+  it.each([
+    new File(['svg'], 'logo.svg', { type: 'image/svg+xml' }),
+    new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'large.png', { type: 'image/png' }),
+  ])('rejects an unsupported or oversized file before uploading', (file) => {
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [file] });
+    fixture.componentInstance.uploadImage('logo', { target: input } as unknown as Event);
+    expect(api.uploadImage).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.imageError()).toBe('Escolha uma imagem PNG ou JPEG até 5 MB.');
+  });
+
+  it('keeps the saved logo after a rejected upload and prevents overlapping changes', () => {
+    const pending = new Subject<DashboardBarbershop>();
+    const original = { ...shop, logoUrl: '/saved-logo.png' };
+    api.getBarbershop.mockReturnValueOnce(of(original));
+    api.uploadImage.mockReturnValueOnce(pending);
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {
+      value: [new File(['png'], 'logo.png', { type: 'image/png' })],
+    });
+    component.uploadImage('logo', { target: input } as unknown as Event);
+    component.uploadImage('cover', { target: input } as unknown as Event);
+    component.removeImage('logo');
+    component.togglePublication();
+    component.save();
+    expect(api.uploadImage).toHaveBeenCalledTimes(1);
+    expect(api.removeImage).not.toHaveBeenCalled();
+    expect(api.updatePublication).not.toHaveBeenCalled();
+    expect(api.updateProfile).not.toHaveBeenCalled();
+    pending.error(new HttpErrorResponse({ status: 503 }));
+    expect(component.shop()?.logoUrl).toBe(original.logoUrl);
+    expect(component.imageBusy()).toBeNull();
+    expect(component.imageError()).toBe('Não foi possível enviar a imagem.');
+  });
+
+  it('ignores an upload response after leaving the previous business session', () => {
+    const pending = new Subject<DashboardBarbershop>();
+    api.uploadImage.mockReturnValueOnce(pending);
+    const fixture = TestBed.createComponent(Profile);
+    fixture.detectChanges();
+    const appearance = TestBed.inject(ShopAppearanceService);
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', {
+      value: [new File(['png'], 'logo.png', { type: 'image/png' })],
+    });
+    fixture.componentInstance.uploadImage('logo', { target: input } as unknown as Event);
+    fixture.destroy();
+    appearance.clear();
+    pending.next({ ...shop, logoUrl: '/old-session-logo.png' });
+    pending.complete();
+    expect(appearance.shop()).toBeNull();
   });
 
   it('publishes from the profile without requiring optional description or address', () => {
