@@ -454,3 +454,9 @@ TZ=UTC pnpm test --watch=false --include='src/app/pages/availability/availabilit
 | `sets the initial block date from the business calendar after midnight` | O formulário ignorou que já era `2030-05-11` no fuso do negócio. | Reutilizar o calendário do negócio na data e no limite dos bloqueios. |
 
 Os mesmos testes passaram. A bateria local incluiu 71 testes Java, 127 Angular, a regressão do proxy e 29 testes de navegador. A compilação, a verificação dos tipos E2E e o arranque da imagem Vercel também passaram.
+
+### Navegador Linux e alojamento Vercel
+
+- **RED no GitHub Actions.** [Teste de navegador](https://github.com/AndreLeal-L2/barberflow-saas/actions/runs/43636629362/job/132575128372) em `a3a63083`, 28 aprovados e uma falha em `keeps the photograph size when scrolling changes only the visible height`. Em Linux, o gesto CDP terminou sem deslocar a janela, com `scrollY = 0`.
+- **Correção.** Deslocar a janela com a API do navegador e conservar as asserções de deslocação, altura estável e rotação. `pnpm exec playwright test --config playwright.visual.config.ts hero-background.spec.ts --grep='keeps the photograph size'` passou localmente.
+- **Vercel.** A build com `8bce87b` falhou depois de compilar porque o repositório de imagens `backend` estava cheio. O mesmo projeto publicou a imagem de pré-visualização após encaminhar as mesmas rotas para o serviço `api`. A versão preparada com a configuração de produção respondeu 200 para HTML e saúde e passou os dois testes de leitura de autenticação de `scripts/deployment-auth.test.cjs`. Os testes de escrita decorreram em ambiente local.

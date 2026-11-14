@@ -35,17 +35,10 @@ test.describe('mobile hero while scrolling', () => {
     const initial = await photo.boundingBox();
     expect(initial).not.toBeNull();
 
-    const touch = await page.context().newCDPSession(page);
-    await touch.send('Input.synthesizeScrollGesture', {
-      x: 200,
-      y: 600,
-      yDistance: -180,
-      gestureSourceType: 'touch',
-    });
+    await page.evaluate(() => window.scrollTo({ top: 180, behavior: 'instant' }));
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
 
-    // Playwright has no mobile address bar. Reproduce its height-only resize
-    // after a real touch scroll, keeping the device width and page intact.
+    // Reproduce the mobile address bar changing the viewport height after scrolling.
     for (const height of [744, 844, 924, 844]) {
       await page.setViewportSize({ width: 390, height });
       await expect.poll(async () => (await photo.boundingBox())!.height).toBeCloseTo(initial!.height, 0);
@@ -56,6 +49,5 @@ test.describe('mobile hero while scrolling', () => {
     await page.setViewportSize({ width: 430, height: 932 });
     await expect.poll(async () => (await photo.boundingBox())!.height).toBeGreaterThan(initial!.height);
     expect((await photo.boundingBox())!.width).toBeCloseTo(430, 0);
-    await touch.detach();
   });
 });
