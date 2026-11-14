@@ -1,8 +1,7 @@
 <div class="dashboard-content">
   <header class="page-heading">
     <div>
-      <p class="section-label">{{ 'PÁGINA PÚBLICA' | translate }}</p>
-      <h1>{{ 'Perfil da barbearia' | translate }}</h1>
+      <h1>{{ 'Página de marcações' | translate }}</h1>
       <p>{{ 'Complete os dados que os clientes veem antes de fazer uma marcação.' | translate }}</p>
     </div>
     @if (shop()?.published) {
@@ -23,10 +22,36 @@
   @if (loading()) {
     <div class="loading-state">{{ 'A carregar perfil...' | translate }}</div>
   } @else if (shop(); as currentShop) {
-    <section class="profile-publication" aria-labelledby="publication-heading">
+    <nav class="task-tabs" [attr.aria-label]="'Gerir página pública' | translate">
+      <button
+        type="button"
+        [attr.aria-pressed]="section() === 'PUBLICATION'"
+        (click)="section.set('PUBLICATION')"
+      >
+        {{ 'Publicação' | translate }}
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="section() === 'DETAILS'"
+        (click)="section.set('DETAILS')"
+      >
+        {{ 'Informação pública' | translate }}
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="section() === 'APPEARANCE'"
+        (click)="section.set('APPEARANCE')"
+      >
+        {{ 'Personalização' | translate }}
+      </button>
+    </nav>
+    <section
+      [hidden]="section() !== 'PUBLICATION'"
+      class="profile-publication"
+      aria-labelledby="publication-heading"
+    >
       <div class="profile-publication-heading">
         <div>
-          <p class="section-label">{{ 'PUBLICAÇÃO' | translate }}</p>
           <h2 id="publication-heading">
             {{
               currentShop.published
@@ -48,7 +73,12 @@
           [class.button-secondary]="currentShop.published"
           type="button"
           (click)="togglePublication()"
-          [disabled]="saving() || savingPublication() || (!currentShop.published && !canPublish())"
+          [disabled]="
+            saving() ||
+            savingPublication() ||
+            !!imageBusy() ||
+            (!currentShop.published && !canPublish())
+          "
         >
           {{
             savingPublication()
@@ -153,7 +183,7 @@
       }
     </section>
 
-    <div class="profile-grid">
+    <div class="profile-grid" [hidden]="section() !== 'DETAILS'">
       <form class="editor-panel profile-editor" [formGroup]="form" (ngSubmit)="save()">
         <div class="panel-heading">
           <div>
@@ -205,7 +235,7 @@
         <button
           class="button button-primary"
           type="submit"
-          [disabled]="saving() || savingPublication()"
+          [disabled]="saving() || savingPublication() || !!imageBusy()"
         >
           <svg lucideSave [size]="17" aria-hidden="true"></svg>
           {{ saving() ? ('A guardar...' | translate) : ('Guardar alterações' | translate) }}
@@ -214,12 +244,24 @@
 
       <aside class="public-preview-panel">
         <p class="section-label">{{ 'PRÉ-VISUALIZAÇÃO' | translate }}</p>
-        <div class="preview-shop-mark">{{ currentShop.name.slice(0, 1).toUpperCase() }}</div>
+        @if (currentShop.coverImageUrl) {
+          <img class="profile-preview-cover" [src]="currentShop.coverImageUrl" alt="" />
+        }
+        <div class="preview-shop-mark">
+          @if (currentShop.logoUrl) {
+            <img
+              [src]="currentShop.logoUrl"
+              [alt]="('Logo de' | translate) + ' ' + currentShop.name"
+            />
+          } @else {
+            {{ currentShop.name.slice(0, 1).toUpperCase() }}
+          }
+        </div>
         <h2>{{ currentShop.name }}</h2>
         <p>
           {{
             form.controls.publicDescription.value ||
-              ('A descrição da barbearia aparece aqui.' | translate)
+              ('A descrição do seu negócio aparece aqui.' | translate)
           }}
         </p>
         <dl>
@@ -241,5 +283,105 @@
         </span>
       </aside>
     </div>
+    <section
+      class="appearance-panel"
+      [hidden]="section() !== 'APPEARANCE'"
+      aria-labelledby="appearance-title"
+    >
+      <header class="appearance-heading">
+        <h2 id="appearance-title">{{ 'A imagem da sua barbearia' | translate }}</h2>
+        <p>
+          {{
+            'Escolha o fundo da página pública e o logo que identifica o seu espaço.' | translate
+          }}
+        </p>
+      </header>
+      @if (imageError()) {
+        <div class="form-alert" role="alert">{{ imageError() | translate }}</div>
+      }
+      @if (imageSuccess()) {
+        <div class="success-alert" role="status">{{ imageSuccess() | translate }}</div>
+      }
+      <div class="appearance-grid">
+        @for (kind of imageKinds; track kind) {
+          <article class="image-editor-card">
+            <div class="image-upload-preview" [class.logo-upload-preview]="kind === 'logo'">
+              @if (kind === 'logo' ? currentShop.logoUrl : currentShop.coverImageUrl; as url) {
+                <img
+                  [src]="url"
+                  [attr.data-image-preview]="kind"
+                  [alt]="(kind === 'logo' ? 'Logo da barbearia' : 'Imagem de fundo') | translate"
+                />
+              } @else {
+                <span class="image-placeholder">{{
+                  (kind === 'logo' ? 'O seu logo' : 'O fundo da sua página') | translate
+                }}</span>
+              }
+            </div>
+            <div class="image-editor-copy">
+              <h3>{{ (kind === 'logo' ? 'Logo da barbearia' : 'Imagem de fundo') | translate }}</h3>
+              <p>
+                {{
+                  (kind === 'logo'
+                    ? 'Aparece no dashboard e na página de marcação.'
+                    : 'Uma fotografia do espaço dá personalidade à sua página pública.'
+                  ) | translate
+                }}
+              </p>
+              <small
+                >{{
+                  (kind === 'logo'
+                    ? 'Recomendado: imagem quadrada. PNG com transparência ou JPEG.'
+                    : 'Recomendado: fotografia horizontal. PNG ou JPEG.'
+                  ) | translate
+                }}
+                {{ 'Máximo: 5 MB.' | translate }}</small
+              >
+              <div class="image-editor-actions">
+                <label
+                  class="button button-secondary image-file-picker"
+                  [class.image-picker-disabled]="!!imageBusy() || saving() || savingPublication()"
+                >
+                  <span>{{
+                    (imageBusy() === kind
+                      ? 'A guardar imagem...'
+                      : kind === 'logo'
+                        ? 'Escolher logo'
+                        : 'Escolher imagem de fundo'
+                    ) | translate
+                  }}</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    [attr.data-image-kind]="kind"
+                    [attr.aria-label]="
+                      (kind === 'logo' ? 'Escolher logo' : 'Escolher imagem de fundo') | translate
+                    "
+                    [disabled]="!!imageBusy() || saving() || savingPublication()"
+                    (change)="uploadImage(kind, $event)"
+                  />
+                </label>
+                @if (kind === 'logo' ? currentShop.logoUrl : currentShop.coverImageUrl) {
+                  <button
+                    class="image-remove"
+                    type="button"
+                    [disabled]="!!imageBusy() || saving() || savingPublication()"
+                    (click)="removeImage(kind)"
+                  >
+                    {{ (kind === 'logo' ? 'Remover logo' : 'Remover imagem de fundo') | translate }}
+                  </button>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+      <p class="appearance-footnote">
+        {{
+          'As imagens são guardadas assim que as escolhe. Pode substituí-las ou removê-las quando quiser.'
+            | translate
+        }}
+      </p>
+    </section>
   }
 </div>

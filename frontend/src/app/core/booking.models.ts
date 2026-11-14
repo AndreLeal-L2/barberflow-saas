@@ -1,3 +1,5 @@
+export type ShopImageKind = 'logo' | 'cover';
+
 export type BookingStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 export type DayOfWeek =
   'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
@@ -10,6 +12,8 @@ export interface DashboardBarbershop {
   email: string;
   publicDescription: string | null;
   publicAddress: string | null;
+  logoUrl?: string | null;
+  coverImageUrl?: string | null;
   published: boolean;
   subscriptionStatus: 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELLED';
   serviceCount: number;
@@ -107,6 +111,8 @@ export interface PublicBarbershop {
   email: string;
   description: string | null;
   address: string | null;
+  logoUrl?: string | null;
+  coverImageUrl?: string | null;
 }
 
 export interface AvailableSlot {

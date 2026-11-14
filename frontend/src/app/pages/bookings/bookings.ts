@@ -3,6 +3,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  viewChild,
+  OnDestroy,
   computed,
   inject,
   OnInit,
@@ -15,21 +19,27 @@ import {
   LucideChevronLeft,
   LucideChevronRight,
   LucideList,
+  LucidePlus,
+  LucideRefreshCw,
   LucideX,
 } from '@lucide/angular';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, Subscription } from 'rxjs';
+import { RouterLink } from '@angular/router';
+import { PublicBooking } from '../public-booking/public-booking';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
 import { TranslatePipe } from '../../core/translate.pipe';
 import { LanguageService } from '../../core/language.service';
 import { ThemeService } from '../../core/theme.service';
-import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
+import { ShopAppearanceService } from '../../core/shop-appearance.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AvailabilityDay,
   BlockedTime,
   Booking,
   BookingStatus,
   DayOfWeek,
+  DashboardBarbershop,
 } from '../../core/booking.models';
 
 type BookingFilter = 'UPCOMING' | 'HISTORY';
@@ -87,7 +97,8 @@ const WEEK_DAYS_BY_DATE_INDEX: DayOfWeek[] = [
   selector: 'app-bookings',
   imports: [
     TranslatePipe,
-    ThemeToggle,
+    RouterLink,
+    PublicBooking,
     CurrencyPipe,
     DatePipe,
     LucideCalendarCheck,
@@ -96,15 +107,81 @@ const WEEK_DAYS_BY_DATE_INDEX: DayOfWeek[] = [
     LucideChevronLeft,
     LucideChevronRight,
     LucideList,
+    LucidePlus,
+    LucideRefreshCw,
     LucideX,
   ],
   templateUrl: './bookings.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Bookings implements OnInit {
+export class Bookings implements OnInit, OnDestroy {
   readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
+  private readonly appearance = inject(ShopAppearanceService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly today = this.toDateInput(new Date());
+
+  readonly shop = signal<DashboardBarbershop | null>(null);
+  readonly dialogOpen = signal(false);
+  readonly draftTime = signal('');
+  readonly detailId = signal<string | null>(null);
+  readonly detailBooking = computed(
+    () => this.bookings().find((booking) => booking.id === this.detailId()) ?? null,
+  );
+  readonly bookingDialog = viewChild<ElementRef<HTMLDialogElement>>('bookingDialog');
+  readonly detailDialog = viewChild<ElementRef<HTMLDialogElement>>('detailDialog');
+  readonly bookingEditor = viewChild(PublicBooking);
+  private readonly refreshOnFocus = () => this.reload();
+  private refresh?: Subscription;
+  private page = 0;
+  private readonly pageSize = 50;
+  readonly hasMore = signal(false);
+
+  ngOnDestroy(): void {
+    window.removeEventListener('focus', this.refreshOnFocus);
+    this.refresh?.unsubscribe();
+  }
+
+  openBooking(time = ''): void {
+    if (!this.shop()?.published || this.loading()) return;
+    this.draftTime.set(time);
+    this.dialogOpen.set(true);
+    this.bookingDialog()?.nativeElement.showModal();
+  }
+
+  closeBooking(event?: Event): void {
+    event?.preventDefault();
+    if (this.bookingEditor()?.submitting()) return;
+    this.bookingDialog()?.nativeElement.close();
+    this.dialogOpen.set(false);
+  }
+
+  bookingCreated(booking: Booking): void {
+    this.bookings.update((items) => [booking, ...items.filter((item) => item.id !== booking.id)]);
+  }
+
+  showBooking(booking: Booking): void {
+    this.detailId.set(booking.id);
+    this.detailDialog()?.nativeElement.showModal();
+  }
+
+  slotIsFree(minutes: number, lane: CalendarLane): boolean {
+    const start = `${this.selectedDate()}T${this.formatMinutes(minutes)}:00`;
+    const end = new Date(new Date(start).getTime() + SLOT_MINUTES * 60_000);
+    const schedule = this.selectedAvailability();
+    return Boolean(
+      this.shop()?.published &&
+      schedule &&
+      new Date(start).getTime() > Date.now() &&
+      minutes >= this.timeToMinutes(schedule.startTime) &&
+      minutes + SLOT_MINUTES <= this.timeToMinutes(schedule.endTime) &&
+      !lane.items.some((item) => {
+        if (item.status === 'CANCELLED') return false;
+        const event = item.booking ?? item.block;
+        return event && new Date(event.startAt) < end && new Date(event.endAt) > new Date(start);
+      }),
+    );
+  }
 
   readonly bookings = signal<Booking[]>([]);
   readonly blockedTimes = signal<BlockedTime[]>([]);
@@ -115,7 +192,7 @@ export class Bookings implements OnInit {
   );
   readonly theme = inject(ThemeService).theme;
   readonly selectedDate = signal(this.today);
-  readonly loading = signal(true);
+  readonly loading = signal(false);
   readonly updatingId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
 
@@ -129,7 +206,11 @@ export class Bookings implements OnInit {
 
   readonly calendarBookings = computed(() =>
     this.bookings()
-      .filter((booking) => this.overlapsSelectedDate(booking.startAt, booking.endAt))
+      .filter(
+        (booking) =>
+          booking.status !== 'CANCELLED' &&
+          this.overlapsSelectedDate(booking.startAt, booking.endAt),
+      )
       .sort((a, b) => a.startAt.localeCompare(b.startAt)),
   );
 
@@ -273,45 +354,85 @@ export class Bookings implements OnInit {
   });
 
   ngOnInit(): void {
-    forkJoin({
-      bookings: this.api.listBookings(),
+    this.reload();
+    window.addEventListener('focus', this.refreshOnFocus);
+  }
+
+  reload(replacePending = false, append = false): void {
+    if (this.dialogOpen() || this.updatingId() || (this.loading() && !replacePending)) return;
+    this.refresh?.unsubscribe();
+    if (!append) this.page = 0;
+    this.loading.set(true);
+    this.error.set(null);
+    this.api
+      .getBarbershop()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (shop) => {
+        this.shop.set(shop);
+        this.appearance.update(shop);
+      }, error: () => this.shop.set(null) });
+    const date = this.selectedDate();
+    const query = this.view() === 'CALENDAR'
+      ? { from: date, to: this.toDateInput(this.dateBoundaries(date).end) }
+      : { view: this.filter() === 'HISTORY' ? 'history' : 'upcoming', page: this.page, size: this.pageSize };
+    this.refresh = forkJoin({
+      bookings: this.api.listBookings(query),
       blockedTimes: this.api.listBlockedTimes(),
       availability: this.api.getAvailability(),
     })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: ({ bookings, blockedTimes, availability }) => {
-          this.bookings.set(bookings);
+          const paginated = this.view() === 'LIST';
+          this.hasMore.set(paginated && bookings.length > this.pageSize);
+          const items = paginated ? bookings.slice(0, this.pageSize) : bookings;
+          this.bookings.update((previous) => append ? [...previous, ...items] : items);
           this.blockedTimes.set(blockedTimes);
           this.availability.set(availability);
         },
-        error: () => this.error.set('Não foi possível carregar as marcações.'),
+        error: () => {
+          if (append) this.page--;
+          this.error.set('Não foi possível carregar as marcações.');
+        },
       });
   }
 
   setFilter(filter: BookingFilter): void {
+    if (filter === this.filter()) return;
     this.filter.set(filter);
+    if (this.view() === 'LIST') this.reload(true);
+  }
+
+  loadMore(): void {
+    if (this.loading() || !this.hasMore()) return;
+    this.page++;
+    this.reload(false, true);
   }
 
   setView(view: BookingView): void {
+    if (view === this.view()) return;
     this.view.set(view);
     this.storePreference(BOOKING_VIEW_KEY, view);
+    this.reload(true);
   }
 
   selectToday(): void {
     this.selectedDate.set(this.today);
+    this.reload(true);
   }
 
   moveDate(days: number): void {
     const date = this.dateInputToDate(this.selectedDate());
     date.setDate(date.getDate() + days);
     this.selectedDate.set(this.toDateInput(date));
+    this.reload(true);
   }
 
   selectDate(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     if (value) {
       this.selectedDate.set(value);
+      this.reload(true);
     }
   }
 
@@ -320,7 +441,7 @@ export class Bookings implements OnInit {
   }
 
   updateStatus(booking: Booking, status: BookingStatus): void {
-    if (this.updatingId()) {
+    if (this.updatingId() || this.loading()) {
       return;
     }
 

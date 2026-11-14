@@ -1,12 +1,12 @@
 <div class="dashboard-content">
   <header class="page-heading page-heading-action">
     <div>
-      <p class="section-label">{{ 'DISPONIBILIDADE' | translate }}</p>
-      <h1>{{ 'Horário semanal' | translate }}</h1>
+      <h1>{{ 'Disponibilidade' | translate }}</h1>
       <p>{{ 'Os clientes só poderão escolher horas dentro destes períodos.' | translate }}</p>
     </div>
     <button
       class="button button-primary"
+      [hidden]="section() !== 'WEEK'"
       type="button"
       (click)="save()"
       [disabled]="loading() || !scheduleLoaded() || saving()"
@@ -23,10 +23,21 @@
     <div class="success-alert" role="status">{{ success() | translate }}</div>
   }
 
-  <section class="schedule-panel">
+  <nav class="task-tabs" [attr.aria-label]="'Gerir disponibilidade' | translate">
+    <button type="button" [attr.aria-pressed]="section() === 'WEEK'" (click)="section.set('WEEK')">
+      {{ 'Horário semanal' | translate }}
+    </button>
+    <button
+      type="button"
+      [attr.aria-pressed]="section() === 'BLOCKS'"
+      (click)="section.set('BLOCKS')"
+    >
+      {{ 'Indisponibilidades' | translate }}
+    </button>
+  </nav>
+  <section class="schedule-panel" [hidden]="section() !== 'WEEK'">
     <div class="panel-heading">
       <div>
-        <p class="section-label">{{ 'SEMANA' | translate }}</p>
         <h2>{{ 'Dias de trabalho' | translate }}</h2>
       </div>
       <span>{{ 'Intervalos de 30 minutos' | translate }}</span>
@@ -79,10 +90,9 @@
     }
   </section>
 
-  <section class="availability-exceptions">
+  <section class="availability-exceptions" [hidden]="section() !== 'BLOCKS'">
     <header class="subsection-heading">
       <div>
-        <p class="section-label">{{ 'EXCEÇÕES' | translate }}</p>
         <h2>{{ 'Indisponibilidades pontuais' | translate }}</h2>
         <p>
           {{ 'Bloqueie férias, compromissos ou períodos em que não aceita marcações.' | translate }}
@@ -94,7 +104,6 @@
       <form class="editor-panel" [formGroup]="blockForm" (ngSubmit)="createBlock()">
         <div class="panel-heading">
           <div>
-            <p class="section-label">{{ 'NOVO BLOQUEIO' | translate }}</p>
             <h2>{{ 'Fechar um período' | translate }}</h2>
           </div>
         </div>
@@ -155,7 +164,6 @@
       <section class="list-panel block-list-panel">
         <div class="panel-heading">
           <div>
-            <p class="section-label">{{ 'PRÓXIMOS PERÍODOS' | translate }}</p>
             <h2>{{ 'Agenda bloqueada' | translate }}</h2>
           </div>
           <span>{{ blocks().length }}</span>

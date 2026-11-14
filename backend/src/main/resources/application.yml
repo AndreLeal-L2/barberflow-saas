@@ -1,6 +1,10 @@
 spring:
   application:
-    name: BarberFlow API
+    name: Compasso API
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   datasource:
     url: ${BARBERFLOW_DATABASE_URL:jdbc:postgresql://localhost:5432/barberflow}
     username: ${BARBERFLOW_DATABASE_USERNAME:barberflow}
@@ -60,7 +64,7 @@ app:
     require-email-verification: ${BARBERFLOW_REQUIRE_EMAIL_VERIFICATION:false}
   mail:
     delivery: ${BARBERFLOW_MAIL_DELIVERY:log}
-    from: ${BARBERFLOW_MAIL_FROM:BarberFlow <no-reply@barberflow.local>}
+    from: ${BARBERFLOW_MAIL_FROM:Compasso <no-reply@barberflow.local>}
     outbox-poll-delay: ${BARBERFLOW_MAIL_POLL_DELAY:30000}
     resend:
       api-key: ${RESEND_API_KEY:}

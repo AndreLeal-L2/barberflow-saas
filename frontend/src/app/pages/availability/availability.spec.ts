@@ -32,6 +32,21 @@ describe('Availability', () => {
     TestBed.inject(LanguageService).setLanguage('pt-PT');
   });
 
+  it('separates weekly hours from one-off blocks', () => {
+    const fixture = TestBed.createComponent(Availability);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.availability-exceptions')?.hasAttribute('hidden')).toBe(true);
+    const blocksTab = Array.from(element.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Indisponibilidades',
+    );
+    expect(blocksTab).toBeDefined();
+    blocksTab!.click();
+    fixture.detectChanges();
+    expect(element.querySelector('.schedule-panel')?.hasAttribute('hidden')).toBe(true);
+    expect(element.querySelector('.availability-exceptions')?.hasAttribute('hidden')).toBe(false);
+  });
+
   it('cannot save while the weekly schedule is still loading', () => {
     const fixture = TestBed.createComponent(Availability);
     fixture.detectChanges();

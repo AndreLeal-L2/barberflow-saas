@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-for dependency in java docker pnpm; do
+for dependency in java docker pnpm python3; do
   if ! command -v "$dependency" >/dev/null 2>&1; then
     printf 'Missing prerequisite: %s. See docs/TESTING.md.\n' "$dependency" >&2
     exit 1
@@ -22,4 +22,6 @@ cleanup() {
 }
 trap cleanup EXIT
 docker compose -f docker-compose.e2e.yml up -d --wait
+docker build -f backend/Dockerfile.vercel -t compasso-startup-test backend
+COMPASSO_STARTUP_IMAGE=compasso-startup-test python3 scripts/test-container-startup.py
 (cd frontend && pnpm exec playwright install chromium && pnpm test:e2e)

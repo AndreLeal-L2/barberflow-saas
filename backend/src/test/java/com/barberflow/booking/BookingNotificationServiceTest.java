@@ -2,6 +2,7 @@ package com.barberflow.booking;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,13 @@ class BookingNotificationServiceTest {
 
     private static final ZoneId LISBON = ZoneId.of("Europe/Lisbon");
     private static final Instant NOW = Instant.parse("2026-09-14T10:00:00Z");
+
+    @Test
+    void ownerNotificationUsesCurrentProductBrand() {
+        NotificationOutboxService outbox = mock(NotificationOutboxService.class);
+        service(outbox).bookingCreated(booking(UUID.randomUUID(), LocalDateTime.of(2026, 9, 16, 15, 0)), "cancel-token");
+        verify(outbox).enqueue(eq("NEW_BOOKING_OWNER"), eq("owner@example.com"), anyString(), contains("Nova marcação no Compasso."));
+    }
 
     @Test
     void shouldQueueConfirmationAndBothBookingReminders() {

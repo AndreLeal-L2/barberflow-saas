@@ -9,19 +9,39 @@ COPY src ./src
 RUN --mount=type=cache,id=barberflow-vercel-maven,target=/root/.m2 \
     mvn --batch-mode --no-transfer-progress package -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-alpine AS runtime-base
 
 WORKDIR /app
 RUN apk upgrade --no-cache && \
     addgroup -g 10001 barberflow && \
     adduser -D -u 10001 -G barberflow barberflow
 
-COPY --chown=10001:10001 --from=build /workspace/target/backend-*.jar app.jar
+FROM runtime-base AS training
+WORKDIR /build
+COPY --from=build /workspace/target/backend-*.jar application.jar
+RUN java -Djarmode=tools -jar application.jar extract --destination /app
+WORKDIR /app
+# Train the class archive without credentials, a database, migrations, or jobs.
+RUN java -XX:TieredStopAtLevel=1 -XX:ArchiveClassesAtExit=application.jsa \
+    -Dspring.context.exit=onRefresh -jar application.jar \
+    --spring.profiles.active=vercel \
+    --spring.autoconfigure.exclude=org.springframework.boot.session.jdbc.autoconfigure.JdbcSessionAutoConfiguration \
+    --spring.datasource.url=jdbc:postgresql://127.0.0.1:1/cds_training \
+    --spring.datasource.username=training --spring.datasource.password=training \
+    --spring.datasource.hikari.initialization-fail-timeout=-1 \
+    --spring.jpa.properties.hibernate.boot.allow_jdbc_metadata_access=false \
+    --spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect \
+    --spring.jpa.hibernate.ddl-auto=none --spring.flyway.enabled=false \
+    --spring.sql.init.mode=never --spring.session.jdbc.initialize-schema=never \
+    --app.mail.outbox-poll-delay=3600000
+
+FROM runtime-base
+COPY --chown=10001:10001 --from=training /app/ /app/
 
 ENV PORT=8080 \
     SPRING_PROFILES_ACTIVE=prod,vercel \
-    JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0
+    JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:TieredStopAtLevel=1"
 
 EXPOSE 8080
 USER 10001:10001
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-XX:SharedArchiveFile=/app/application.jsa", "-jar", "/app/application.jar"]

@@ -86,6 +86,12 @@ describe('Dashboard', () => {
     expect(api.getDashboardAnalytics).toHaveBeenCalledOnce();
   });
 
+  it('requests only the next five appointments for the overview', () => {
+    const fixture = TestBed.createComponent(Dashboard);
+    fixture.detectChanges();
+    expect(api.listBookings).toHaveBeenCalledExactlyOnceWith({ view: 'next', page: 0, size: 5 });
+  });
+
   it('keeps setup, public link and publication available when analytics and bookings fail', () => {
     api.getBarbershop.mockReturnValueOnce(
       of({ ...shop, published: false, completedSetupSteps: 3 }),

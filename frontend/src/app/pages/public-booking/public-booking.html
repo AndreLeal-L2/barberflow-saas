@@ -1,15 +1,17 @@
-<main class="public-booking-page">
-  <header class="booking-public-header">
-    <a class="brand" href="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
-      <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="brand-name">BarberFlow</span>
-    </a>
-    <div class="booking-public-actions">
-      <span>{{ 'Marcação online' | translate }}</span>
-      <app-language-switcher />
-      <app-theme-toggle />
-    </div>
-  </header>
+<main class="public-booking-page" [class.embedded-booking]="embedded()">
+  @if (!embedded()) {
+    <header class="booking-public-header">
+      <a class="brand" href="/" [attr.aria-label]="'Compasso, página inicial' | translate">
+        <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-name">Compasso</span>
+      </a>
+      <div class="booking-public-actions">
+        <span>{{ 'Marcação online' | translate }}</span>
+        <app-language-switcher />
+        <app-theme-toggle />
+      </div>
+    </header>
+  }
 
   @if (loading()) {
     <div class="public-loading">{{ 'A abrir a agenda...' | translate }}</div>
@@ -19,12 +21,31 @@
       <p>{{ error() | translate }}</p>
     </section>
   } @else if (shop(); as currentShop) {
-    <section class="shop-intro">
-      <div class="shop-monogram" aria-hidden="true">
-        {{ currentShop.name.slice(0, 1).toUpperCase() }}
+    <section
+      class="shop-intro"
+      [class.has-shop-cover]="currentShop.coverImageUrl"
+      [hidden]="embedded()"
+    >
+      @if (currentShop.coverImageUrl) {
+        <img
+          class="public-shop-cover"
+          [src]="currentShop.coverImageUrl"
+          alt=""
+          aria-hidden="true"
+        />
+      }
+      <div class="shop-monogram">
+        @if (currentShop.logoUrl) {
+          <img
+            class="public-shop-logo"
+            [src]="currentShop.logoUrl"
+            [alt]="('Logo de' | translate) + ' ' + currentShop.name"
+          />
+        } @else {
+          {{ currentShop.name.slice(0, 1).toUpperCase() }}
+        }
       </div>
       <div>
-        <p class="section-label">{{ 'AGENDA ONLINE' | translate }}</p>
         <h1>{{ currentShop.name }}</h1>
         @if (currentShop.description) {
           <p>{{ currentShop.description }}</p>
@@ -71,33 +92,26 @@
       </section>
     } @else {
       <ol class="booking-progress" [attr.aria-label]="'Progresso da marcação' | translate">
-        <li class="active" [class.complete]="selectedService()">
-          <span>
-            @if (selectedService()) {
-              <svg lucideCheck [size]="14" aria-hidden="true"></svg>
-            } @else {
-              1
-            }
-          </span>
-          <strong>{{ 'Serviço' | translate }}</strong>
-        </li>
-        <li [class.active]="selectedService()" [class.complete]="selectedSlot()">
-          <span>
-            @if (selectedSlot()) {
-              <svg lucideCheck [size]="14" aria-hidden="true"></svg>
-            } @else {
-              2
-            }
-          </span>
-          <strong>{{ 'Horário' | translate }}</strong>
-        </li>
-        <li [class.active]="selectedSlot()">
-          <span>3</span>
-          <strong>{{ 'Dados' | translate }}</strong>
-        </li>
+        @for (step of [1, 2, 3]; track step) {
+          <li [class.active]="activeStep() === step" [class.complete]="activeStep() > step">
+            <button
+              type="button"
+              [attr.aria-current]="activeStep() === step ? 'step' : null"
+              [disabled]="
+                submitting() || (step >= 2 && !selectedService()) || (step === 3 && !selectedSlot())
+              "
+              (click)="goToStep($any(step))"
+            >
+              <span>{{ step }}</span>
+              <strong>{{
+                (step === 1 ? 'Serviço' : step === 2 ? 'Horário' : 'Dados') | translate
+              }}</strong>
+            </button>
+          </li>
+        }
       </ol>
 
-      <div class="booking-workspace">
+      <div class="booking-workspace" [class.service-first]="activeStep() === 1">
         <form
           id="booking-form"
           class="booking-flow"
@@ -105,12 +119,18 @@
           (ngSubmit)="submit()"
           novalidate
         >
-          <section class="booking-step">
+          @if (error()) {
+            <div class="form-alert booking-flow-error" role="alert">{{ error() | translate }}</div>
+          }
+          <p class="booking-reassurance">
+            {{ 'Sem conta. Sem aplicação. Apenas a sua marcação.' | translate }}
+          </p>
+          <section class="booking-step" [hidden]="activeStep() !== 1">
             <header>
               <span>1</span>
               <div>
                 <h2>{{ 'Escolha o serviço' | translate }}</h2>
-                <p>{{ 'Duração e preço definidos pela barbearia.' | translate }}</p>
+                <p>{{ 'Escolha o que precisa. O preço fica claro desde o início.' | translate }}</p>
               </div>
             </header>
             <div class="public-service-list">
@@ -151,7 +171,7 @@
             </div>
           </section>
 
-          <section class="booking-step" [class.step-disabled]="!selectedService()">
+          <section class="booking-step" [hidden]="activeStep() !== 2">
             <header>
               <span>2</span>
               <div>
@@ -217,7 +237,7 @@
             </div>
           </section>
 
-          <section class="booking-step" [class.step-disabled]="!selectedSlot()">
+          <section class="booking-step" [hidden]="activeStep() !== 3">
             <header>
               <span>3</span>
               <div>
@@ -253,9 +273,6 @@
                   }
                 </label>
               </div>
-              @if (error()) {
-                <div class="form-alert" role="alert">{{ error() | translate }}</div>
-              }
               <p class="booking-privacy-note">
                 {{ 'Ao confirmar, os dados são tratados para gerir esta marcação.' | translate }}
                 <a routerLink="/privacy" target="_blank" rel="noopener">{{
@@ -274,10 +291,19 @@
               </button>
             </div>
           </section>
+          @if (activeStep() > 1) {
+            <button
+              class="wizard-back"
+              type="button"
+              [disabled]="submitting()"
+              (click)="goToStep(activeStep() === 3 ? 2 : 1)"
+            >
+              {{ 'Voltar' | translate }}
+            </button>
+          }
         </form>
 
-        <aside class="booking-summary" aria-live="polite">
-          <p class="section-label">{{ 'RESUMO' | translate }}</p>
+        <aside class="booking-summary" [hidden]="activeStep() === 1" aria-live="polite">
           <h2>{{ 'A sua marcação' | translate }}</h2>
           <dl>
             <div>

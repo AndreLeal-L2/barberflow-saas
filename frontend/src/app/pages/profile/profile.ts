@@ -2,11 +2,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LucideCircle, LucideCircleCheck, LucideExternalLink, LucideSave } from '@lucide/angular';
@@ -14,7 +16,8 @@ import { finalize } from 'rxjs';
 import { ApiError } from '../../core/auth.models';
 import { AuthService } from '../../core/auth.service';
 import { BookingApiService } from '../../core/booking-api.service';
-import { DashboardBarbershop } from '../../core/booking.models';
+import { ShopAppearanceService } from '../../core/shop-appearance.service';
+import { DashboardBarbershop, ShopImageKind } from '../../core/booking.models';
 import { TranslatePipe } from '../../core/translate.pipe';
 
 @Component({
@@ -33,6 +36,13 @@ import { TranslatePipe } from '../../core/translate.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Profile implements OnInit {
+  readonly imageKinds: ShopImageKind[] = ['cover', 'logo'];
+  readonly section = signal<'PUBLICATION' | 'DETAILS' | 'APPEARANCE'>('PUBLICATION');
+  readonly appearance = inject(ShopAppearanceService);
+  readonly imageBusy = signal<ShopImageKind | null>(null);
+  readonly imageError = signal<string | null>(null);
+  readonly imageSuccess = signal<string | null>(null);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(BookingApiService);
   private readonly auth = inject(AuthService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
@@ -74,10 +84,14 @@ export class Profile implements OnInit {
   ngOnInit(): void {
     this.api
       .getBarbershop()
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: (shop) => {
           this.shop.set(shop);
+          this.appearance.update(shop);
           this.form.setValue({
             publicDescription: shop.publicDescription ?? '',
             publicAddress: shop.publicAddress ?? '',
@@ -87,6 +101,57 @@ export class Profile implements OnInit {
       });
   }
 
+  uploadImage(kind: ShopImageKind, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || this.imageBusy() || this.saving() || this.savingPublication()) return;
+    this.imageError.set(null);
+    this.imageSuccess.set(null);
+    this.success.set(null);
+    if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      this.imageError.set('Escolha uma imagem PNG ou JPEG até 5 MB.');
+      return;
+    }
+    this.imageBusy.set(kind);
+    this.api
+      .uploadImage(kind, file)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.imageBusy.set(null)),
+      )
+      .subscribe({
+        next: (shop) => this.applyImage(shop, 'Imagem atualizada.'),
+        error: (error: HttpErrorResponse) =>
+          this.imageError.set(this.errorMessage(error, 'Não foi possível enviar a imagem.')),
+      });
+  }
+
+  removeImage(kind: ShopImageKind): void {
+    if (this.imageBusy() || this.saving() || this.savingPublication()) return;
+    this.imageError.set(null);
+    this.imageSuccess.set(null);
+    this.success.set(null);
+    this.imageBusy.set(kind);
+    this.api
+      .removeImage(kind)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.imageBusy.set(null)),
+      )
+      .subscribe({
+        next: (shop) => this.applyImage(shop, 'Imagem removida.'),
+        error: (error: HttpErrorResponse) =>
+          this.imageError.set(this.errorMessage(error, 'Não foi possível remover a imagem.')),
+      });
+  }
+
+  private applyImage(shop: DashboardBarbershop, message: string): void {
+    this.shop.set(shop);
+    this.appearance.update(shop);
+    this.imageSuccess.set(message);
+  }
+
   save(): void {
     this.form.markAllAsTouched();
     if (
@@ -94,7 +159,8 @@ export class Profile implements OnInit {
       this.loading() ||
       !this.shop() ||
       this.saving() ||
-      this.savingPublication()
+      this.savingPublication() ||
+      this.imageBusy()
     ) {
       return;
     }
@@ -104,10 +170,14 @@ export class Profile implements OnInit {
     this.saving.set(true);
     this.api
       .updateProfile(this.form.getRawValue())
-      .pipe(finalize(() => this.saving.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
       .subscribe({
         next: (shop) => {
           this.shop.set(shop);
+          this.appearance.update(shop);
           this.success.set('Página pública atualizada.');
         },
         error: (error: HttpErrorResponse) =>
@@ -122,6 +192,7 @@ export class Profile implements OnInit {
       this.loading() ||
       this.saving() ||
       this.savingPublication() ||
+      this.imageBusy() ||
       (!shop.published && !this.canPublish())
     ) {
       return;
@@ -133,10 +204,14 @@ export class Profile implements OnInit {
     this.savingPublication.set(true);
     this.api
       .updatePublication(published)
-      .pipe(finalize(() => this.savingPublication.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.savingPublication.set(false)),
+      )
       .subscribe({
         next: (updated) => {
           this.shop.set(updated);
+          this.appearance.update(updated);
           this.publicationSuccess.set(
             updated.published
               ? 'Página publicada. Já pode partilhar o seu link.'

@@ -22,7 +22,7 @@ describe('Login', () => {
       subscriptionStatus: 'TRIALING',
     },
   };
-  const auth = { login: vi.fn(() => of(user)) };
+  const auth = { login: vi.fn(() => of(user)), prepareLogin: vi.fn(() => of(undefined)) };
   const route = { snapshot: { queryParamMap: convertToParamMap({}) } };
   const values = { email: user.email, password: '  Exact Password 2026!  ' };
 

@@ -1,0 +1,82 @@
+/* Compasso · institutional restyle · 2026-10-28
+ * navy, slate and white · compact typography · real product captures · preserved booking flows */
+@font-face {
+  font-family: 'Rethink Sans';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/rethink-sans-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/fonts/figtree-latin.woff2') format('woff2');
+}
+:root {
+  --color-paper: oklch(98.5% 0.004 250);
+  --color-canvas: oklch(96.5% 0.007 250);
+  --color-paper-2: oklch(93% 0.012 250);
+  --color-ink: oklch(27% 0.03 255);
+  --color-muted: oklch(47% 0.025 255);
+  --color-rule: oklch(86% 0.015 255);
+  --color-rule-strong: oklch(56% 0.025 255);
+  --color-field: oklch(94.5% 0.015 250);
+  --color-field-ink: oklch(27% 0.03 255);
+  --color-accent: oklch(77% 0.065 245);
+  --color-accent-ink: oklch(25% 0.035 255);
+  --color-focus: oklch(46% 0.085 250);
+  --color-accent-soft: oklch(93% 0.02 250);
+  --color-action: oklch(32% 0.055 255);
+  --color-action-hover: oklch(40% 0.07 255);
+  --color-action-ink: oklch(98.5% 0.004 250);
+  --color-stage: oklch(25% 0.04 255);
+  --color-stage-ink: oklch(98.5% 0.004 250);
+  --color-stage-muted: oklch(83% 0.02 250);
+  --color-stage-overlay: oklch(17% 0.035 255 / 82%);
+  --color-stage-clear: oklch(17% 0.035 255 / 16%);
+  --color-stage-shadow: oklch(12% 0.02 255 / 68%);
+  --color-stage-panel: oklch(33% 0.04 255);
+  --color-stage-rule: oklch(52% 0.035 250);
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+  --space-4xl: 144px;
+  --font-display: 'Rethink Sans', sans-serif;
+  --font-body: 'Figtree', sans-serif;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-title: 1.375rem;
+  --text-section: clamp(2rem, 3.2vw, 2.75rem);
+  --text-display: clamp(2.75rem, 4.8vw, 4.375rem);
+  --radius-control: 6px;
+  --radius-panel: 8px;
+  --dur-micro: 120ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --hero-paper: var(--color-stage);
+  --hero-ink: var(--color-stage-ink);
+  --hero-muted: var(--color-stage-muted);
+  --on-brand: var(--color-action-ink);
+}
+:root[data-theme='dark'] {
+  --color-paper: oklch(24% 0.023 255);
+  --color-canvas: oklch(20% 0.02 255);
+  --color-paper-2: oklch(29% 0.025 255);
+  --color-ink: oklch(96% 0.006 250);
+  --color-muted: oklch(78% 0.018 250);
+  --color-rule: oklch(38% 0.025 255);
+  --color-rule-strong: oklch(62% 0.025 250);
+  --color-focus: oklch(78% 0.065 245);
+  --color-accent-soft: oklch(32% 0.035 255);
+  --color-action: oklch(39% 0.07 255);
+  --color-action-hover: oklch(45% 0.08 255);
+  --color-field: oklch(29% 0.025 255);
+  --color-field-ink: oklch(96% 0.006 250);
+}

@@ -7,12 +7,10 @@ for (const viewport of [
 ]) {
   test(`keeps the next section below the first viewport at ${viewport.width}x${viewport.height}`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
-    await expect(
-      page.getByRole('heading', { name: 'A agenda da sua barbearia. Em ordem.' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'O seu negócio, ao seu ritmo.' })).toBeVisible();
     const product = await page.locator('#produto').boundingBox();
     expect(product).not.toBeNull();
     expect(product!.y).toBeGreaterThanOrEqual(viewport.height - 1);
@@ -20,5 +18,9 @@ for (const viewport of [
       () => document.documentElement.scrollWidth > window.innerWidth,
     );
     expect(overflow).toBe(false);
+    await page.screenshot({
+      path: testInfo.outputPath(`home-${viewport.width}.png`),
+      fullPage: true,
+    });
   });
 }

@@ -8,10 +8,9 @@
       <div class="landing-product-layout">
         <div class="landing-product-copy">
           <div class="landing-section-heading">
-            <p class="section-label">{{ 'O essencial, bem organizado' | translate }}</p>
             <h2 id="product-title">{{ 'Menos tempo a combinar horários.' | translate }}</h2>
             <p>
-              {{ 'Uma ferramenta dedicada às tarefas do dia a dia da sua barbearia.' | translate }}
+              {{ 'O essencial para gerir os seus serviços e receber clientes.' | translate }}
             </p>
           </div>
           <div class="landing-features">
@@ -43,7 +42,7 @@
               <span class="feature-icon"
                 ><svg lucideScissors [size]="21" aria-hidden="true"></svg
               ></span>
-              <h3>{{ 'Uma página da sua barbearia' | translate }}</h3>
+              <h3>{{ 'Uma página para o seu negócio' | translate }}</h3>
               <p>
                 {{
                   'Apresente os serviços e partilhe o seu link de marcações no Instagram, no WhatsApp ou com os clientes habituais.'
@@ -60,7 +59,6 @@
 
   <section class="landing-setup page-container" aria-labelledby="setup-title">
     <div class="landing-section-heading">
-      <p class="section-label">{{ 'Como começar' | translate }}</p>
       <h2 id="setup-title">{{ 'Da configuração à primeira marcação.' | translate }}</h2>
     </div>
     <ol class="landing-steps">
@@ -68,7 +66,7 @@
         <span class="step-index">1</span>
         <div>
           <h3>{{ 'Crie a sua conta' | translate }}</h3>
-          <p>{{ 'Registe a barbearia e confirme o e-mail de administrador.' | translate }}</p>
+          <p>{{ 'Registe o seu negócio e confirme o e-mail de administrador.' | translate }}</p>
         </div>
       </li>
       <li>
@@ -88,7 +86,7 @@
         <div>
           <h3>{{ 'Partilhe o seu link' | translate }}</h3>
           <p>
-            {{ 'Publique a página da barbearia e comece a receber marcações online.' | translate }}
+            {{ 'Publique a sua página e comece a receber marcações online.' | translate }}
           </p>
         </div>
       </li>
@@ -96,9 +94,10 @@
   </section>
 
   <section class="landing-closing page-container" aria-labelledby="closing-title">
+    <strong class="closing-price">0 €</strong>
     <div>
       <h2 id="closing-title">{{ 'A próxima marcação começa aqui.' | translate }}</h2>
-      <p>{{ 'Experimente o BarberFlow durante a beta gratuita.' | translate }}</p>
+      <p>{{ 'Experimente o Compasso durante a beta gratuita.' | translate }}</p>
     </div>
     <a class="button button-primary button-large" routerLink="/register"
       >{{ 'Criar conta gratuita' | translate
@@ -109,11 +108,11 @@
 
 <footer class="landing-footer">
   <div class="page-container landing-footer-inner">
-    <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate"
+    <a class="brand" routerLink="/" [attr.aria-label]="'Compasso, página inicial' | translate"
       ><span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span
-      ><span class="brand-name">BarberFlow</span></a
+      ><span class="brand-name">Compasso</span></a
     >
-    <p>{{ 'Marcações online para a sua barbearia.' | translate }}</p>
+    <p>{{ 'O seu negócio, ao seu ritmo.' | translate }}</p>
     <nav [attr.aria-label]="'Informação legal' | translate">
       <a routerLink="/privacy">{{ 'Privacidade' | translate }}</a
       ><a routerLink="/terms">{{ 'Termos' | translate }}</a>

@@ -103,6 +103,84 @@ describe('PublicBooking', () => {
     TestBed.inject(LanguageService).setLanguage('pt-PT');
   });
 
+  it('shows one booking task at a time and lets customers revise earlier choices', () => {
+    const fixture = TestBed.createComponent(PublicBooking);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const visibleSteps = () => element.querySelectorAll('.booking-step:not([hidden])');
+    expect(visibleSteps()).toHaveLength(1);
+    expect(visibleSteps()[0].textContent).toContain('Escolha o serviço');
+    (element.querySelector('.public-service-option') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(visibleSteps()).toHaveLength(1);
+    expect(visibleSteps()[0].textContent).toContain('Escolha o dia e a hora');
+    (element.querySelector('.quick-date-list button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.slot-grid button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(visibleSteps()).toHaveLength(1);
+    expect(visibleSteps()[0].textContent).toContain('Os seus dados');
+    fixture.componentInstance.form.patchValue(customer);
+    (element.querySelector('.booking-progress button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(visibleSteps()[0].textContent).toContain('Escolha o serviço');
+    expect(fixture.componentInstance.form.getRawValue()).toEqual(customer);
+  });
+
+  it('preselects a clicked calendar time only after real availability returns', () => {
+    const pending = new Subject<AvailableSlot[]>();
+    api.getAvailableSlots.mockReturnValueOnce(pending);
+    const fixture = TestBed.createComponent(PublicBooking);
+    fixture.componentRef.setInput('bookingSlug', shop.slug);
+    fixture.componentRef.setInput('embedded', true);
+    fixture.componentRef.setInput('initialDate', slot.startAt.slice(0, 10));
+    fixture.componentRef.setInput('initialTime', slot.startAt.slice(11, 16));
+    fixture.detectChanges();
+    fixture.componentInstance.selectService(service);
+    expect(fixture.componentInstance.activeStep()).toBe(2);
+    expect(fixture.componentInstance.selectedSlot()).toBeNull();
+    pending.next([slot]);
+    pending.complete();
+    expect(fixture.componentInstance.activeStep()).toBe(3);
+    expect(fixture.componentInstance.selectedSlot()).toEqual(slot);
+  });
+
+  it('locks navigation while confirmation is pending and returns to times after a conflict', () => {
+    const fixture = readyToBook();
+    const component = fixture.componentInstance;
+    const pending = new Subject<Booking>();
+    api.createPublicBooking.mockReturnValueOnce(pending);
+    component.submit();
+    component.goToStep(1);
+    component.selectDate(component.quickDates()[1].value);
+    component.selectService({ ...service, id: 'another-service' });
+    expect(component.activeStep()).toBe(3);
+    expect(component.selectedService()).toEqual(service);
+    pending.error(
+      new HttpErrorResponse({ status: 409, error: { code: 'BOOKING_SLOT_UNAVAILABLE' } }),
+    );
+    expect(component.activeStep()).toBe(2);
+    expect(component.selectedSlot()).toBeNull();
+    expect(component.form.getRawValue()).toEqual(customer);
+  });
+
+  it('shows the business logo and background returned by the public API', () => {
+    api.getPublicBarbershop.mockReturnValueOnce(
+      of({ ...shop, logoUrl: '/api/public/logo', coverImageUrl: '/api/public/cover' }),
+    );
+    const fixture = TestBed.createComponent(PublicBooking);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.public-shop-logo').getAttribute('src')).toBe(
+      '/api/public/logo',
+    );
+    expect(fixture.nativeElement.querySelector('.public-shop-cover').getAttribute('src')).toBe(
+      '/api/public/cover',
+    );
+    expect(
+      fixture.nativeElement.querySelector('.shop-intro').classList.contains('has-shop-cover'),
+    ).toBe(true);
+  });
+
   it('loads slots when a quick date is selected', () => {
     const fixture = TestBed.createComponent(PublicBooking);
     fixture.detectChanges();
@@ -218,6 +296,25 @@ describe('PublicBooking', () => {
 
     expect(component.form.controls[field].invalid).toBe(true);
     expect(api.createPublicBooking).not.toHaveBeenCalled();
+  });
+
+  it('shows booking conflicts outside the hidden customer step', () => {
+    const fixture = readyToBook();
+    api.createPublicBooking.mockReturnValueOnce(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 409,
+            error: { code: 'BOOKING_SLOT_UNAVAILABLE', message: 'Este horário já foi reservado.' },
+          }),
+      ),
+    );
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+    const alert = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement;
+    expect(alert.textContent).toContain('Este horário já foi reservado.');
+    expect(alert.closest('[hidden]')).toBeNull();
+    expect(fixture.componentInstance.activeStep()).toBe(2);
   });
 
   it('refreshes availability and clears the chosen slot after a booking conflict', () => {

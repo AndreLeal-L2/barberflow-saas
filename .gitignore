@@ -47,3 +47,11 @@ coverage/
 # Browser regression artifacts
 playwright-report/
 test-results/
+
+# Local Compasso review captures
+output/compasso-preview/
+# Local logo exploration drafts
+output/compasso-logos/
+
+# Local Hallmark audits and comparison captures
+.hallmark/

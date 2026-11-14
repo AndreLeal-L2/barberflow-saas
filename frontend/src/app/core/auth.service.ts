@@ -15,6 +15,10 @@ export class AuthService {
   readonly user = this.currentUser.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
+  prepareLogin(): Observable<unknown> {
+    return this.csrf.prepare();
+  }
+
   register(request: RegisterRequest): Observable<AuthUser> {
     return this.csrf
       .execute(() => this.http.post<AuthUser>('/api/auth/register', request))

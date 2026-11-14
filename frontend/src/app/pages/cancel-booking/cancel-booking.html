@@ -1,8 +1,8 @@
 <main class="action-page">
   <header class="action-header">
-    <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
+    <a class="brand" routerLink="/" [attr.aria-label]="'Compasso, página inicial' | translate">
       <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="brand-name">BarberFlow</span>
+      <span class="brand-name">Compasso</span>
     </a>
     <app-language-switcher />
   </header>
@@ -13,7 +13,7 @@
       <p class="section-label">{{ 'MARCAÇÃO CANCELADA' | translate }}</p>
       <h1>{{ success() | translate }}</h1>
       <p>
-        {{ 'A barbearia recebeu a atualização e o horário voltou a ficar disponível.' | translate }}
+        {{ 'O negócio recebeu a atualização e o horário voltou a ficar disponível.' | translate }}
       </p>
       <a class="button button-secondary" routerLink="/">{{ 'Fechar' | translate }}</a>
     } @else {

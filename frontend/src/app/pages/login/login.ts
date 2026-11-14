@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft, LucideEye, LucideEyeOff } from '@lucide/angular';
@@ -23,7 +23,7 @@ import { TranslatePipe } from '../../core/translate.pipe';
   templateUrl: './login.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Login {
+export class Login implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
@@ -37,6 +37,10 @@ export class Login {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.maxLength(72)]],
   });
+
+  ngOnInit(): void {
+    this.authService.prepareLogin().subscribe({ error: () => {} });
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword.update((visible) => !visible);

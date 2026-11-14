@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideCalendarDays,
+  LucideCopy,
   LucideClock,
   LucideExternalLink,
   LucideLayoutDashboard,
@@ -11,6 +20,8 @@ import {
   LucideScissors,
 } from '@lucide/angular';
 import { finalize } from 'rxjs';
+import { BookingApiService } from '../../core/booking-api.service';
+import { ShopAppearanceService } from '../../core/shop-appearance.service';
 import { AuthService } from '../../core/auth.service';
 import { ThemeToggle } from '../../components/theme-toggle/theme-toggle';
 import { LanguageSwitcher } from '../../components/language-switcher/language-switcher';
@@ -23,6 +34,7 @@ import { TranslatePipe } from '../../core/translate.pipe';
     TranslatePipe,
     ThemeToggle,
     LucideCalendarDays,
+    LucideCopy,
     LucideClock,
     LucideExternalLink,
     LucideLayoutDashboard,
@@ -37,9 +49,38 @@ import { TranslatePipe } from '../../core/translate.pipe';
   templateUrl: './dashboard-layout.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardLayout {
+export class DashboardLayout implements OnInit, OnDestroy {
+  readonly appearance = inject(ShopAppearanceService);
+  private readonly api = inject(BookingApiService);
+  private readonly route = inject(ActivatedRoute);
+  ngOnInit(): void {
+    if (!this.route.firstChild?.snapshot.data['loadsBarbershop']) {
+      this.appearance.load(this.api.getBarbershop());
+    }
+  }
+  ngOnDestroy(): void {
+    this.appearance.clear();
+  }
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  readonly copied = signal(false);
+  readonly copyError = signal(false);
+  readonly publicUrl = computed(() => {
+    const slug = this.user()?.barbershop.slug;
+    return slug ? window.location.origin + '/b/' + slug : '';
+  });
+
+  async copyLink(): Promise<void> {
+    this.copied.set(false);
+    this.copyError.set(false);
+    try {
+      await navigator.clipboard.writeText(this.publicUrl());
+      this.copied.set(true);
+    } catch {
+      this.copyError.set(true);
+    }
+  }
 
   readonly user = this.authService.user;
   readonly loggingOut = signal(false);

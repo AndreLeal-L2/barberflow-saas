@@ -1,8 +1,8 @@
 <main class="action-page">
   <header class="action-header">
-    <a class="brand" routerLink="/" [attr.aria-label]="'BarberFlow, página inicial' | translate">
+    <a class="brand" routerLink="/" [attr.aria-label]="'Compasso, página inicial' | translate">
       <span class="brand-stripes" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="brand-name">BarberFlow</span>
+      <span class="brand-name">Compasso</span>
     </a>
     <app-language-switcher />
   </header>
@@ -15,7 +15,7 @@
     } @else if (success()) {
       <p class="section-label">{{ 'E-MAIL CONFIRMADO' | translate }}</p>
       <h1>{{ success() | translate }}</h1>
-      <p>{{ 'A página da barbearia já pode ser publicada.' | translate }}</p>
+      <p>{{ 'A sua página já pode ser publicada.' | translate }}</p>
       <a class="button button-primary" routerLink="/dashboard/profile">{{
         'Abrir o painel' | translate
       }}</a>

@@ -120,7 +120,7 @@ class BrevoNotificationSenderTest {
 
         server.expect(once(), requestTo("https://api.brevo.test/v3/smtp/email"))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(jsonPath("$.sender.name").value("BarberFlow"))
+                .andExpect(jsonPath("$.sender.name").value("Compasso"))
                 .andExpect(jsonPath("$.scheduledAt").doesNotExist())
                 .andRespond(withSuccess(
                         "{\"messageId\":\"<message-124@relay.brevo.test>\"}",

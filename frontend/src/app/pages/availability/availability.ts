@@ -35,6 +35,7 @@ import { TranslatePipe } from '../../core/translate.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Availability implements OnInit {
+  readonly section = signal<'WEEK' | 'BLOCKS'>('WEEK');
   readonly i18n = inject(LanguageService);
   private readonly api = inject(BookingApiService);
   private readonly formBuilder = inject(NonNullableFormBuilder);

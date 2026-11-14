@@ -6,7 +6,9 @@ public record PublicBarbershopResponse(
         String phone,
         String email,
         String description,
-        String address
+        String address,
+        String logoUrl,
+        String coverImageUrl
 ) {
     public static PublicBarbershopResponse from(Barbershop barbershop) {
         return new PublicBarbershopResponse(
@@ -15,7 +17,9 @@ public record PublicBarbershopResponse(
                 barbershop.getPhone(),
                 barbershop.getEmail(),
                 barbershop.getPublicDescription(),
-                barbershop.getPublicAddress()
+                barbershop.getPublicAddress(),
+                barbershop.imageUrl("public", "logo"),
+                barbershop.imageUrl("public", "cover")
         );
     }
 }

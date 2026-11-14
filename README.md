@@ -1,22 +1,26 @@
 # Compasso
 
+**Online booking for small service businesses.** Share a booking link with clients and manage appointments from a private calendar.
+
 [![CI](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/ci.yml)
 [![Security](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/AndreLeal-L2/barberflow-saas/actions/workflows/security.yml)
 
 **[Live demo](https://compasso-pt.vercel.app/)** · [Architecture](ARCHITECTURE.md) · [Local setup](#run-locally) · [Tests and regressions](docs/TESTING.md)
 
-**Built at the request of a client who is a barber**, Compasso turns a real appointment-management need into a full-stack web application.
+Compasso started as BarberFlow, a project built at the request of a barber. His feedback shaped the current experience: fewer controls per screen, a calendar that opens immediately after sign-in, and a booking page clients can use from their phones. See the [product direction](docs/PRODUCT_DIRECTION.md).
 
-Multi-tenant appointment platform for small service businesses. Compasso gives each business a public booking link and a private calendar, with a guided three-step booking flow. The product started with a real request from a barber.
+- **For business owners** — Open the calendar, select a free slot to add a booking, or share the public booking link. Set weekly hours and block time for breaks or days off.
+- **For clients** — Choose a service, pick a time and enter contact details. Booking takes place in the browser without a client account.
 
-The project is a full-stack Java portfolio application with a separated Angular
-frontend and Spring Boot REST API. Its engineering focus is secure browser
-authentication, tenant isolation, explicit database migrations, automated tests,
-and reproducible local environments.
+The application pairs an Angular frontend with a Spring Boot REST API and PostgreSQL. The API enforces tenant isolation and prevents overlapping bookings. Automated browser tests exercise the main flows against a real API and an isolated database.
 
 ## Screenshots
 
-Captures of the current Compasso interface in dark mode, taken from the local production build on 30 October 2026.
+The calendar uses synthetic demonstration data. The landing and sign-in captures are from the 30 October 2026 local production build.
+
+### Booking calendar
+
+<img src="frontend/public/images/compasso-agenda-detail-mobile.webp" alt="Compasso calendar on mobile showing appointments and a blocked break" width="390">
 
 ### Desktop landing page
 
@@ -44,7 +48,7 @@ Each business has a public booking page and a private owner dashboard. The API e
 
 ## Current Status
 
-**Functional MVP for a controlled beta.** Subscriptions are simulated; real payments, WhatsApp/SMS notifications and full multi-barber team management are planned. This is not a completed commercial rollout.
+**Functional MVP for a controlled beta.** The beta uses simulated subscriptions. Real payments, WhatsApp/SMS notifications and full team scheduling are planned.
 
 The working MVP includes:
 
@@ -61,10 +65,10 @@ The working MVP includes:
 - Service catalogue management with create, edit, and removal flows
 - Weekly availability management with 30-minute booking intervals
 - Full-day and custom schedule exceptions that remove blocked periods from public booking
-- Public barbershop profile and publication controls
-- Public booking link with service, date, time, and customer data selection
+- Public business profile with publication controls, a custom logo, and a cover image
+- Public booking link with a three-step flow for service, date and time, and contact details
 - Availability calculation and concurrent booking conflict prevention
-- Authenticated agenda with upcoming bookings, history, cancellation, and completion
+- Private calendar with manual booking, paginated upcoming and past appointments, cancellation, and completion
 - Operational dashboard analytics for daily workload, upcoming value, completions, and cancellations
 - Transactional email outbox with retries and SMTP, Brevo, or Resend delivery adapters
 - Customer confirmation, 24-hour and 3-hour reminders, and self-service cancellation
@@ -84,11 +88,9 @@ The Compasso deployment was updated on 30 October 2026 with:
 - Cancellation of obsolete reads when changing dates or leaving a page.
 - An extracted Spring Boot JAR, a CDS class archive and JVM startup tuning for the Vercel container.
 
-In an isolated Linux ARM64 container with one CPU, 2 GiB of memory and a disposable PostgreSQL database, startup to the first CSRF response improved from **8.05 s to 2.80 s**. Authenticated login after preparation took **0.61 s**. These are local measurements, not production latency guarantees.
+In a local benchmark with a fresh Linux ARM64 container, one CPU, 2 GiB of memory and a disposable PostgreSQL database, the time from container start to the first CSRF response fell from **about 8.1 s to 2.8 s**. Authenticated sign-in after preparation took **0.61 s** in that environment. See the [performance diagnosis](docs/DIAGNOSTICO_DESEMPENHO_2026-10-30.md) and [regression log](docs/REGRESSION_LOG.md).
 
-Validation of that release included **67 Java tests, 110 Angular tests and 26 browser tests**, plus the frontend build and end-to-end type checks. Read-only checks after promotion confirmed a healthy API and CSRF preparation in **0.33 s with an already active server**. Vercel can still scale instances down, so cold-start latency remains relevant.
-
-The deployment was built from the validated working tree; its performance changes are not all synchronized to the repository's default branch yet. The test counts above describe that release validation, not the current GitHub Actions result.
+Release validation included **67 Java tests, 110 Angular tests and 26 browser tests**, plus the frontend build and end-to-end type checks. The live demo was built from the validated working tree. The default branch on GitHub still reflects an earlier version of the application.
 
 ## Tech Stack
 
@@ -139,12 +141,18 @@ Run the frontend with Node.js 24 and pnpm:
 
 ```bash
 cd frontend
-pnpm install
+pnpm install --frozen-lockfile
 pnpm start
-pnpm test --watch=false
+pnpm test:unit
 ```
 
-The Angular development server proxies `/api` and `/actuator` to the backend at port `8080`.
+The Angular development server proxies `/api` and `/actuator` to the backend at `127.0.0.1:8080` by default. If another project occupies that port, select the running Compasso API explicitly:
+
+```bash
+BARBERFLOW_API_PORT=8091 pnpm start --host 127.0.0.1 --port 4200
+```
+
+For the existing `compasso-local` Compose stack, the web app is at `localhost:8090` and its API is at `127.0.0.1:8091`. The Angular preview then uses the same local accounts and data. The local Compose backend accepts both Angular origins (`localhost:4200` and `127.0.0.1:4200`). Accounts created on the published site belong to a separate database. E2E tests always use the isolated database on port 5433.
 
 ## Automated regression tests
 
@@ -156,11 +164,11 @@ Run `./scripts/test-all.sh` with Java 21, Node.js 24, pnpm and Docker available.
 2. Confirm the owner email in production.
 3. Add at least one service in the private dashboard.
 4. Configure the weekly working hours and any exceptional blocked periods.
-5. Optionally complete the public profile and publish the booking page.
+5. Complete the public profile, add a logo and cover image if desired, and publish the booking page.
 6. Share the generated `/b/{slug}` link with clients.
 7. Clients book without an account and, when they provide an email address,
    receive confirmation, reminders, and a one-time cancellation link.
-8. The owner manages the booking from the private agenda.
+8. The owner manages the booking from the private calendar.
 
 ## Repository Structure
 
@@ -215,4 +223,4 @@ chore: configure docker compose
 
 ## Image Credit
 
-Current landing page photograph by [mehdi pezhvak on Unsplash](https://unsplash.com/photos/a-barber-is-cutting-a-clients-hair-PQfvTunl4tY), used under the [Unsplash License](https://unsplash.com/license). Historical screenshots use a photograph by [Matt Connor on Unsplash](https://unsplash.com/photos/a-couple-of-men-standing-next-to-each-other-in-a-room-tmd97rYqtGU).
+Current landing page photograph by [mehdi pezhvak on Unsplash](https://unsplash.com/photos/a-barber-is-cutting-a-clients-hair-PQfvTunl4tY), used under the [Unsplash License](https://unsplash.com/license). The previous photograph was by [Matt Connor on Unsplash](https://unsplash.com/photos/a-couple-of-men-standing-next-to-each-other-in-a-room-tmd97rYqtGU).

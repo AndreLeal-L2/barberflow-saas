@@ -34,7 +34,7 @@ public class BookingNotificationService {
                 "NEW_BOOKING_OWNER",
                 booking.getBarbershop().getEmail(),
                 "Nova marcação: " + booking.getServiceNameSnapshot(),
-                "Nova marcação no BarberFlow.\n\nCliente: " + booking.getCustomerName()
+                "Nova marcação no Compasso.\n\nCliente: " + booking.getCustomerName()
                         + "\nTelefone: " + booking.getCustomerPhone()
                         + "\nServiço: " + booking.getServiceNameSnapshot()
                         + "\nData: " + appointment

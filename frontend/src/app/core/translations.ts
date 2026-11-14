@@ -1,4 +1,102 @@
 export const ENGLISH: Readonly<Record<string, string>> = {
+  'Carregar mais': 'Load more',
+  'A sua agenda e as marcações dos seus clientes, num link.':
+    'Your calendar and your clients’ bookings, in one link.',
+  Personalização: 'Personalisation',
+  'A imagem da sua barbearia': 'Your barbershop identity',
+  'Escolha o fundo da página pública e o logo que identifica o seu espaço.':
+    'Choose the background of your public page and the logo that identifies your business.',
+  'Logo de': 'Logo of',
+  'Logo da barbearia': 'Barbershop logo',
+  'Imagem de fundo': 'Background image',
+  'O seu logo': 'Your logo',
+  'O fundo da sua página': 'Your page background',
+  'Aparece no dashboard e na página de marcação.': 'Shown in your dashboard and booking page.',
+  'Uma fotografia do espaço dá personalidade à sua página pública.':
+    'A photograph of your space adds personality to your public page.',
+  'Recomendado: imagem quadrada. PNG com transparência ou JPEG.':
+    'Recommended: a square image. Transparent PNG or JPEG.',
+  'Recomendado: fotografia horizontal. PNG ou JPEG.':
+    'Recommended: a landscape photograph. PNG or JPEG.',
+  'Máximo: 5 MB.': 'Maximum: 5 MB.',
+  'A guardar imagem...': 'Saving image...',
+  'Escolher logo': 'Choose logo',
+  'Escolher imagem de fundo': 'Choose background image',
+  'Remover logo': 'Remove logo',
+  'Remover imagem de fundo': 'Remove background image',
+  'As imagens são guardadas assim que as escolhe. Pode substituí-las ou removê-las quando quiser.':
+    'Images are saved as soon as you choose them. You can replace or remove them whenever you like.',
+  'Escolha uma imagem PNG ou JPEG até 5 MB.': 'Choose a PNG or JPEG image up to 5 MB.',
+  'O ficheiro não é uma imagem PNG ou JPEG válida.': 'The file is not a valid PNG or JPEG image.',
+  'Escolha uma imagem PNG ou JPEG.': 'Choose a PNG or JPEG image.',
+  'A imagem deve ter no máximo 16 milhões de píxeis.':
+    'The image must have at most 16 million pixels.',
+  'A imagem é demasiado complexa. Escolha uma imagem mais pequena.':
+    'The image is too complex. Choose a smaller image.',
+  'Imagem atualizada.': 'Image updated.',
+  'Imagem removida.': 'Image removed.',
+  'Não foi possível enviar a imagem.': 'Unable to upload the image.',
+  'Não foi possível remover a imagem.': 'Unable to remove the image.',
+  'Escolha uma imagem até 5 MB.': 'Choose an image up to 5 MB.',
+  'Consulte a agenda e continue a configuração do seu negócio.':
+    'View your schedule and continue setting up your business.',
+  'Organize as marcações do seu negócio, sem custos durante esta fase.':
+    'Organise your business bookings, free of charge during this phase.',
+  'Para quem trabalha por marcação.': 'For businesses that work by appointment.',
+  'Página de marcações com a sua identidade': 'A booking page with your identity',
+  'O negócio recebeu a atualização e o horário voltou a ficar disponível.':
+    'The business has been notified and the time is available again.',
+  'A sua página já pode ser publicada.': 'Your page can now be published.',
+  'Como o Compasso trata os dados de profissionais e clientes durante a versão beta.':
+    'How Compasso processes professional and customer data during the beta.',
+  '. Cada negócio controla a utilização dos dados dos seus clientes; o Compasso trata-os para prestar o serviço de agenda.':
+    ". Each business controls the use of its customers' data; Compasso processes it to provide the booking service.",
+  'Tratamos os dados da conta do profissional, configuração do negócio e, para cada marcação, nome, telefone, e-mail opcional, serviço, data, hora e estado.':
+    'We process professional account details and business settings and, for each booking, the name, phone number, optional email, service, date, time and status.',
+  'Responsabilidade do negócio': 'Business responsibilities',
+  'O negócio deve fornecer dados corretos, proteger o acesso à conta, manter os horários atualizados e informar os clientes sobre o tratamento dos seus dados.':
+    'The business must provide accurate details, protect account access, keep working hours up to date and inform customers about data processing.',
+  'MAIS TEMPO PARA O QUE FAZ BEM': 'MORE TIME FOR WHAT YOU DO BEST',
+  'Uma agenda clara para si. Uma marcação simples para os seus clientes. Tudo começa com um link.':
+    'A clear schedule for you. Simple bookings for your customers. It all starts with a link.',
+  Barbearias: 'Barbershops',
+  Estúdios: 'Studios',
+  'Bem-estar': 'Wellbeing',
+  'Exemplo de uma agenda organizada': 'Example of an organised schedule',
+  'O SEU DIA': 'YOUR DAY',
+  'Tudo no seu tempo.': 'Everything in its own time.',
+  'Corte e acabamento · 45 min': 'Cut and finish · 45 min',
+  'Sessão individual · 60 min': 'Individual session · 60 min',
+  'Espaço para a próxima marcação': 'Room for the next booking',
+  'Está marcado.': 'You’re booked.',
+  'Um link. Três passos. Até breve.': 'One link. Three steps. See you soon.',
+  'Compasso, agenda': 'Compasso, schedule',
+  'Compasso | O seu negócio, ao seu ritmo': 'Compasso | Your business, at your own pace',
+  'Agenda | Compasso': 'Schedule | Compasso',
+  'O SEU ESPAÇO': 'YOUR BUSINESS',
+  'Link copiado': 'Link copied',
+  'Ver página': 'View page',
+  'Copie o link da sua página:': 'Copy your page link:',
+  'A sua agenda': 'Your schedule',
+  'O seu dia, com espaço para o que importa.': 'Your day, with room for what matters.',
+  'Atualizar agenda': 'Refresh schedule',
+  'Nova marcação': 'New booking',
+  'Prepare a sua agenda': 'Set up your schedule',
+  'Defina os serviços e horários e publique a página para começar a marcar.':
+    'Set your services and working hours, then publish your page to start booking.',
+  'Configurar página': 'Set up page',
+  'Marcar às': 'Book at',
+  Marcar: 'Book',
+  'Detalhes da marcação': 'Booking details',
+  'Sem conta. Sem aplicação. Apenas a sua marcação.': 'No account. No app. Just your booking.',
+  'Escolha o que precisa. O preço fica claro desde o início.':
+    'Choose what you need. Clear pricing from the start.',
+  Voltar: 'Back',
+  'Gerir disponibilidade': 'Manage availability',
+  Indisponibilidades: 'Blocked times',
+  'Gerir página pública': 'Manage public page',
+  Publicação: 'Publication',
+  'Página de marcações': 'Booking page',
   'Já confirmei o e-mail': 'I have verified my email',
   'A verificar...': 'Checking...',
   'A confirmação continua pendente. Abra o link enviado para o seu e-mail e tente novamente.':
@@ -55,14 +153,14 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Da configuração à primeira marcação.': 'From setup to your first booking.',
   'Defina serviços e horários': 'Set services and working hours',
   'E depois da beta?': 'What happens after the beta?',
-  'Experimente o BarberFlow durante a beta gratuita.': 'Try BarberFlow during the free beta.',
+  'Experimente o Compasso durante a beta gratuita.': 'Try Compasso during the free beta.',
   'Gestão de marcações confirmadas, concluídas e canceladas':
     'Manage confirmed, completed and cancelled bookings',
   'Horários definidos por si': 'Working hours set by you',
-  'Marcações online para a sua barbearia.': 'Online bookings for your barbershop.',
+  'O seu negócio, ao seu ritmo.': 'Your business, at your own pace.',
   'Menos tempo a combinar horários.': 'Less time arranging appointments.',
-  'O BarberFlow está a ser validado com os primeiros utilizadores. Algumas funcionalidades podem evoluir e podem ocorrer interrupções durante esta fase.':
-    'BarberFlow is being validated with its first users. Some features may change and interruptions may occur during this phase.',
+  'O Compasso está a ser validado com os primeiros utilizadores. Algumas funcionalidades podem evoluir e podem ocorrer interrupções durante esta fase.':
+    'Compasso is being validated with its first users. Some features may change and interruptions may occur during this phase.',
   'O essencial, bem organizado': 'The essentials, well organised',
   'O que significa estar em beta?': 'What does being in beta mean?',
   'Os clientes escolhem um horário. Acompanhe tudo numa agenda simples, com os serviços e a disponibilidade da sua barbearia.':
@@ -71,14 +169,14 @@ export const ENGLISH: Readonly<Record<string, string>> = {
     'Commercial prices will be presented once subscriptions have been integrated and tested. This version does not request payment details or charge you.',
   'Partilhe o seu link': 'Share your link',
   'Pré-visualização · Dados ilustrativos': 'Preview · Sample data',
-  'Publique a página da barbearia e comece a receber marcações online.':
-    'Publish your barbershop page and start receiving online bookings.',
-  'Registe a barbearia e confirme o e-mail de administrador.':
-    'Register your barbershop and verify the administrator email.',
+  'Publique a sua página e comece a receber marcações online.':
+    'Publish your page and start receiving online bookings.',
+  'Registe o seu negócio e confirme o e-mail de administrador.':
+    'Register your business and verify the administrator email.',
   'Tudo o que precisa para começar': 'Everything you need to get started',
-  'Uma ferramenta dedicada às tarefas do dia a dia da sua barbearia.':
-    'A tool built for the day-to-day work of your barbershop.',
-  'Uma página da sua barbearia': 'A page for your barbershop',
+  'O essencial para gerir os seus serviços e receber clientes.':
+    'The essentials for managing your services and welcoming customers.',
+  'Uma página para o seu negócio': 'A page for your business',
   'Vista diária': 'Day view',
 
   'Consulte os próximos clientes e mantenha o histórico organizado.':
@@ -87,7 +185,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   Preço: 'Pricing',
   Entrar: 'Sign in',
   'Começar grátis': 'Get started free',
-  'BarberFlow, página inicial': 'BarberFlow, homepage',
+  'Compasso, página inicial': 'Compasso, homepage',
   'Navegação principal': 'Main navigation',
   Claro: 'Light',
   Escuro: 'Dark',
@@ -104,7 +202,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Gerir página': 'Manage page',
   'Período experimental': 'Trial period',
   'Confirme o e-mail de administrador': 'Verify the administrator email',
-  'BarberFlow, visão geral': 'BarberFlow, overview',
+  'Compasso, visão geral': 'Compasso, overview',
   'Navegação do painel': 'Dashboard navigation',
   'Terminar sessão': 'Sign out',
   'É necessário para publicar a página em produção.':
@@ -172,7 +270,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Calendário diário': 'Daily calendar',
   'Cancelar marcação': 'Cancel booking',
   'Marcar como concluída': 'Mark as completed',
-  'Agenda da barbearia': 'Barbershop agenda',
+  'Agenda do negócio': 'Business schedule',
   'marcação registada': 'booking recorded',
   'marcações registadas': 'bookings recorded',
   evento: 'event',
@@ -194,7 +292,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'A cancelar...': 'Cancelling...',
   'Confirmar cancelamento': 'Confirm cancellation',
   'VISÃO GERAL': 'OVERVIEW',
-  'Hoje na barbearia': 'Today at the barbershop',
+  'O negócio em números': 'Your business in numbers',
   'Clientes, horários e atividade da agenda num só lugar.':
     'Clients, times and booking activity in one place.',
   'Abrir agenda': 'Open agenda',
@@ -312,18 +410,18 @@ export const ENGLISH: Readonly<Record<string, string>> = {
     'Online bookings for independent barbers and small barbershops.',
   Privacidade: 'Privacy',
   Termos: 'Terms',
-  'Demonstração da agenda diária BarberFlow': 'BarberFlow daily agenda demo',
+  'Demonstração da agenda diária Compasso': 'Compasso daily agenda demo',
   'Informação legal': 'Legal information',
   'ÚLTIMA ATUALIZAÇÃO: 11/09/2026': 'LAST UPDATED: 11 SEPTEMBER 2026',
   'Política de privacidade': 'Privacy policy',
-  'Como o BarberFlow trata os dados de barbeiros e clientes durante a versão beta.':
-    'How BarberFlow handles barber and client data during the beta.',
+  'Como o Compasso trata os dados de barbeiros e clientes durante a versão beta.':
+    'How Compasso handles barber and client data during the beta.',
   'Responsável e âmbito': 'Controller and scope',
-  'O BarberFlow é um projeto beta operado pelo responsável identificado no':
-    'BarberFlow is a beta project operated by the controller identified in the',
+  'O Compasso é um projeto beta operado pelo responsável identificado no':
+    'Compasso is a beta project operated by the controller identified in the',
   'repositório oficial': 'official repository',
-  '. Cada barbearia controla a utilização dos dados dos seus clientes; o BarberFlow trata-os para prestar o serviço de agenda.':
-    ". Each barbershop controls the use of its clients' data; BarberFlow processes it to provide the booking service.",
+  '. Cada barbearia controla a utilização dos dados dos seus clientes; o Compasso trata-os para prestar o serviço de agenda.':
+    ". Each barbershop controls the use of its clients' data; Compasso processes it to provide the booking service.",
   'Dados tratados': 'Data we process',
   'Tratamos os dados da conta do barbeiro, configuração da barbearia e, para cada marcação, nome, telefone, e-mail opcional, serviço, data, hora e estado.':
     'We process barber account details and barbershop settings and, for each booking, the name, phone number, optional email, service, date, time and status.',
@@ -331,8 +429,8 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Os dados são usados para criar e proteger contas, gerir disponibilidade, realizar e cancelar marcações, enviar comunicações transacionais e prevenir abuso. O tratamento é necessário para prestar o serviço e para proteger a plataforma e os seus utilizadores.':
     'Data is used to create and protect accounts, manage availability, create and cancel bookings, send transactional communications and prevent abuse. Processing is necessary to provide the service and protect the platform and its users.',
   'Conservação e segurança': 'Retention and security',
-  'Os dados pessoais das marcações são anonimizados 365 dias após o fim da marcação. Tokens expirados são eliminados e registos técnicos de e-mail são conservados por 30 dias. São aplicados controlos de acesso, encriptação em trânsito, passwords com hash e isolamento entre barbearias.':
-    'Personal booking data is anonymised 365 days after the appointment ends. Expired tokens are deleted and technical email records are kept for 30 days. We use access controls, encryption in transit, hashed passwords and isolation between barbershops.',
+  'Os dados pessoais das marcações são anonimizados 365 dias após o fim da marcação. Tokens expirados são eliminados e registos técnicos de e-mail são conservados por 30 dias. São aplicados controlos de acesso, encriptação em trânsito, passwords com hash e isolamento entre negócios.':
+    'Personal booking data is anonymised 365 days after the appointment ends. Expired tokens are deleted and technical email records are kept for 30 days. We use access controls, encryption in transit, hashed passwords and isolation between businesses.',
   'Fornecedores e transferências': 'Providers and transfers',
   'O alojamento, a base de dados e o envio de e-mail podem ser assegurados por fornecedores contratados pelo operador. Antes da abertura comercial, a lista dos fornecedores, países de tratamento e garantias de transferência será publicada nesta página.':
     'Hosting, the database and email delivery may be provided by suppliers contracted by the operator. Before commercial launch, the list of providers, processing countries and transfer safeguards will be published on this page.',
@@ -341,11 +439,11 @@ export const ENGLISH: Readonly<Record<string, string>> = {
     'You can request access, correction, deletion, restriction or portability of your data and lodge a complaint with the CNPD. During the beta, requests should be sent using the contact listed in the official repository.',
   'VERSÃO BETA': 'BETA VERSION',
   'Termos de utilização': 'Terms of use',
-  'Condições aplicáveis ao acesso gratuito de avaliação do BarberFlow.':
-    'Conditions for free evaluation access to BarberFlow.',
+  'Condições aplicáveis ao acesso gratuito de avaliação do Compasso.':
+    'Conditions for free evaluation access to Compasso.',
   'Serviço beta': 'Beta service',
-  'O BarberFlow disponibiliza ferramentas de agenda para avaliação. Nesta fase não existem pagamentos, contrato de subscrição ou garantia de disponibilidade contínua.':
-    'BarberFlow provides booking tools for evaluation. At this stage there are no payments, subscription contract or guarantee of continuous availability.',
+  'O Compasso disponibiliza ferramentas de agenda para avaliação. Nesta fase não existem pagamentos, contrato de subscrição ou garantia de disponibilidade contínua.':
+    'Compasso provides booking tools for evaluation. At this stage there are no payments, subscription contract or guarantee of continuous availability.',
   'Responsabilidade da barbearia': 'Barbershop responsibilities',
   'A barbearia deve fornecer dados corretos, proteger o acesso à conta, manter os horários atualizados e informar os clientes sobre o tratamento dos seus dados.':
     'The barbershop must provide accurate details, protect account access, keep working hours up to date and inform clients about how their data is processed.',
@@ -353,12 +451,12 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Não é permitido automatizar pedidos abusivos, tentar aceder a dados de terceiros, prejudicar a disponibilidade do serviço ou utilizar a plataforma para fins ilícitos.':
     "Abusive automated requests, attempts to access other people's data, disruption of the service and unlawful use of the platform are not permitted.",
   'Disponibilidade e dados': 'Availability and data',
-  'Sendo uma beta, podem ocorrer alterações e interrupções. O operador aplica medidas razoáveis de segurança e, no ambiente publicado, mantém uma política de backups testada. A barbearia deve conservar os contactos necessários à sua operação.':
+  'Sendo uma beta, podem ocorrer alterações e interrupções. O operador aplica medidas razoáveis de segurança e, no ambiente publicado, mantém uma política de backups testada. O negócio deve conservar os contactos necessários à sua operação.':
     'As this is a beta, changes and interruptions may occur. The operator applies reasonable security measures and maintains a tested backup policy in the published environment. The barbershop should keep the contact details it needs to operate.',
   'Suspensão e encerramento': 'Suspension and closure',
   'Contas usadas de forma abusiva podem ser suspensas. O utilizador pode pedir o encerramento e eliminação da conta através do contacto do repositório oficial.':
     'Accounts used abusively may be suspended. Users can request account closure and deletion using the contact in the official repository.',
-  'Voltar ao BarberFlow': 'Back to BarberFlow',
+  'Voltar ao Compasso': 'Back to Compasso',
   'Ainda não tem conta?': "Don't have an account yet?",
   'Criar conta': 'Create account',
   'ACESSO À CONTA': 'ACCOUNT ACCESS',
@@ -413,7 +511,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
     'E.g. Classic and modern haircuts in central Lisbon.',
   'Rua, número e localidade': 'Street, number and town',
   'Guardar alterações': 'Save changes',
-  'A descrição da barbearia aparece aqui.': 'Your barbershop description appears here.',
+  'A descrição do seu negócio aparece aqui.': 'Your business description appears here.',
   'Por preencher': 'Not filled in',
   'Página publicada': 'Page published',
   'Página por publicar': 'Page not published',
@@ -458,18 +556,18 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Por escolher': 'Not selected',
   'Já tem conta?': 'Already have an account?',
   '14 DIAS PARA TESTAR': '14 DAYS TO TRY IT',
-  'Comece pela barbearia.': 'Start with your barbershop.',
+  'Comece pelo seu negócio.': 'Start with your business.',
   'Crie o acesso de administrador. Os serviços e horários são configurados depois, dentro do painel.':
     'Create your administrator account. You will set up services and working hours in the dashboard afterwards.',
-  'Conta e barbearia': 'Account and barbershop',
+  'Conta e negócio': 'Account and business',
   'Serviços e horários': 'Services and working hours',
   'Link de marcações': 'Booking link',
   'PASSO 1 DE 3': 'STEP 1 OF 3',
   'Dados da conta': 'Account details',
   'Todos os campos são obrigatórios.': 'All fields are required.',
   'O seu nome': 'Your name',
-  'Nome da barbearia': 'Barbershop name',
-  'Introduza o nome da barbearia.': 'Enter the barbershop name.',
+  'Nome do negócio': 'Business name',
+  'Introduza o nome do negócio.': 'Enter your business name.',
   'Introduza um telefone válido.': 'Enter a valid phone number.',
   'Use entre 10 e 72 caracteres.': 'Use between 10 and 72 characters.',
   'Confirmar palavra-passe': 'Confirm password',
@@ -521,22 +619,22 @@ export const ENGLISH: Readonly<Record<string, string>> = {
   'Abrir o painel': 'Open dashboard',
   'LINK INVÁLIDO': 'INVALID LINK',
   'Não foi possível confirmar.': 'Unable to verify.',
-  'BarberFlow | Marcações para barbearias': 'BarberFlow | Bookings for barbershops',
-  'Preço | BarberFlow': 'Pricing | BarberFlow',
-  'Criar conta | BarberFlow': 'Create account | BarberFlow',
-  'Entrar | BarberFlow': 'Sign in | BarberFlow',
-  'Recuperar palavra-passe | BarberFlow': 'Reset password | BarberFlow',
-  'Nova palavra-passe | BarberFlow': 'New password | BarberFlow',
-  'Confirmar e-mail | BarberFlow': 'Verify email | BarberFlow',
-  'Cancelar marcação | BarberFlow': 'Cancel booking | BarberFlow',
-  'Privacidade | BarberFlow': 'Privacy | BarberFlow',
-  'Termos | BarberFlow': 'Terms | BarberFlow',
-  'Visão geral | BarberFlow': 'Overview | BarberFlow',
-  'Marcações | BarberFlow': 'Bookings | BarberFlow',
-  'Serviços | BarberFlow': 'Services | BarberFlow',
-  'Horários | BarberFlow': 'Working hours | BarberFlow',
-  'Página pública | BarberFlow': 'Public page | BarberFlow',
-  'Marcação online | BarberFlow': 'Online booking | BarberFlow',
+  'Compasso | Marcações para barbearias': 'Compasso | Bookings for barbershops',
+  'Preço | Compasso': 'Pricing | Compasso',
+  'Criar conta | Compasso': 'Create account | Compasso',
+  'Entrar | Compasso': 'Sign in | Compasso',
+  'Recuperar palavra-passe | Compasso': 'Reset password | Compasso',
+  'Nova palavra-passe | Compasso': 'New password | Compasso',
+  'Confirmar e-mail | Compasso': 'Verify email | Compasso',
+  'Cancelar marcação | Compasso': 'Cancel booking | Compasso',
+  'Privacidade | Compasso': 'Privacy | Compasso',
+  'Termos | Compasso': 'Terms | Compasso',
+  'Visão geral | Compasso': 'Overview | Compasso',
+  'Marcações | Compasso': 'Bookings | Compasso',
+  'Serviços | Compasso': 'Services | Compasso',
+  'Horários | Compasso': 'Working hours | Compasso',
+  'Página pública | Compasso': 'Public page | Compasso',
+  'Marcação online | Compasso': 'Online booking | Compasso',
   'Não foi possível terminar a sessão.': 'Unable to sign out.',
   'Não foi possível enviar um novo link.': 'Unable to send a new link.',
   'Terça-feira': 'Tuesday',

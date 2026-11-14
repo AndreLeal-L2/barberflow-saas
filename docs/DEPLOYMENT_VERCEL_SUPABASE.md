@@ -55,8 +55,8 @@ BARBERFLOW_DATABASE_USERNAME=postgres.PROJECT_REF
 BARBERFLOW_DATABASE_PASSWORD=SUPABASE_DATABASE_PASSWORD
 BARBERFLOW_DATABASE_MAX_POOL_SIZE=2
 
-BARBERFLOW_PUBLIC_BASE_URL=https://barberflow-saas-delta.vercel.app
-BARBERFLOW_ALLOWED_ORIGINS=https://barberflow-saas-delta.vercel.app
+BARBERFLOW_PUBLIC_BASE_URL=https://compasso-pt.vercel.app
+BARBERFLOW_ALLOWED_ORIGINS=https://compasso-pt.vercel.app
 BARBERFLOW_TIME_ZONE=Europe/Lisbon
 
 CRON_SECRET=GENERATED_RANDOM_SECRET
@@ -124,14 +124,14 @@ outbox until a later maintenance run.
 
 1. Confirm that the production branch is `main`.
 2. Keep preview deployments protected, but make the production deployment public.
-3. Add or confirm `barberflow-saas-delta.vercel.app` under **Settings > Domains**.
+3. Add or confirm `compasso-pt.vercel.app` under **Settings > Domains**.
 4. Redeploy the latest `main` commit after saving all environment variables.
 
 Validate the deployment:
 
 ```bash
-curl --fail --show-error https://barberflow-saas-delta.vercel.app/actuator/health
-curl --fail --show-error --head https://barberflow-saas-delta.vercel.app/
+curl --fail --show-error https://compasso-pt.vercel.app/actuator/health
+curl --fail --show-error --head https://compasso-pt.vercel.app/
 ```
 
 Then complete the full smoke test: registration, email verification, service
