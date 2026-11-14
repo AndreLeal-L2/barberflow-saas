@@ -5,6 +5,7 @@ import com.barberflow.availability.AvailabilityRuleRepository;
 import com.barberflow.servicecatalog.BarbershopServiceRepository;
 import com.barberflow.shared.error.BusinessRuleException;
 import com.barberflow.shared.error.ResourceNotFoundException;
+import java.time.Clock;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ public class BarbershopManager {
     private final BarbershopServiceRepository serviceRepository;
     private final AvailabilityRuleRepository availabilityRepository;
     private final AppUserRepository userRepository;
+    private final Clock clock;
     private final boolean requireEmailVerification;
 
     public BarbershopManager(
@@ -25,12 +27,14 @@ public class BarbershopManager {
             BarbershopServiceRepository serviceRepository,
             AvailabilityRuleRepository availabilityRepository,
             AppUserRepository userRepository,
+            Clock clock,
             @Value("${app.security.require-email-verification}") boolean requireEmailVerification
     ) {
         this.barbershopRepository = barbershopRepository;
         this.serviceRepository = serviceRepository;
         this.availabilityRepository = availabilityRepository;
         this.userRepository = userRepository;
+        this.clock = clock;
         this.requireEmailVerification = requireEmailVerification;
     }
 
@@ -91,7 +95,8 @@ public class BarbershopManager {
         return BarbershopDashboardResponse.from(
                 barbershop,
                 serviceCount,
-                availabilityCount
+                availabilityCount,
+                clock.getZone().getId()
         );
     }
 
@@ -100,7 +105,8 @@ public class BarbershopManager {
         return BarbershopDashboardResponse.from(
                 barbershop,
                 serviceRepository.countByBarbershopIdAndActiveTrue(barbershopId),
-                availabilityRepository.countByBarbershopIdAndActiveTrue(barbershopId)
+                availabilityRepository.countByBarbershopIdAndActiveTrue(barbershopId),
+                clock.getZone().getId()
         );
     }
 

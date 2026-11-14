@@ -216,6 +216,7 @@ test('manages services, schedule, publication and a customer booking', async ({
     const booking = page.locator('.booking-row-full').filter({ hasText: 'Cliente de teste E2E' });
     await expect(booking).toContainText('Confirmada');
     await booking.getByRole('button', { name: 'Cancelar marcação', exact: true }).click();
+    await booking.getByRole('button', { name: 'Confirmar cancelamento', exact: true }).click();
     await expect(booking).toHaveCount(0);
     await page.getByRole('button', { name: 'Histórico', exact: true }).click();
     await expect(booking).toContainText('Cancelada');

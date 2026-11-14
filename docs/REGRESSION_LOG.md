@@ -436,3 +436,21 @@ cd backend
 | `allowsCompletionOnlyAfterTheBookingHasStarted` | Uma marcação futura passou a concluída com HTTP 200. | Aplicar na API a regra temporal do painel e devolver HTTP 409 antes do início. |
 
 **GREEN.** Os testes de regressão passaram com as mesmas expectativas. O teste anterior do painel continua a confirmar a disponibilidade do link através do valor do novo campo selecionável.
+
+## 2026-11-14 — Agenda resiliente, confirmação e calendário do negócio
+
+Comandos RED e GREEN, na pasta `frontend`:
+
+```bash
+TZ=UTC pnpm test --watch=false --include='src/app/pages/bookings/bookings.spec.ts'
+TZ=UTC pnpm test --watch=false --include='src/app/pages/availability/availability.spec.ts'
+```
+
+| Teste | Evidência RED | Correção |
+| --- | --- | --- |
+| `keeps appointments visible and hides unverified free slots if blocked times fail` | O evento esperado não foi renderizado quando o pedido de bloqueios falhou. | Preservar as marcações e apresentar o erro do pedido secundário, com vagas indisponíveis até confirmar o horário e os bloqueios. |
+| `asks for confirmation before cancelling from the list` | Um único clique enviou `CANCELLED` à API, quando se esperavam zero pedidos. | Pedir confirmação na lista e nos detalhes, com opção de manter a marcação. |
+| `uses the business day and time to classify appointments after midnight` | A agenda mostrou o dia do dispositivo em vez de `2030-05-11` às 23:15 UTC de 10 de maio. | Converter o relógio para o fuso da agenda e manter as horas civis da API. |
+| `sets the initial block date from the business calendar after midnight` | O formulário ignorou que já era `2030-05-11` no fuso do negócio. | Reutilizar o calendário do negócio na data e no limite dos bloqueios. |
+
+Os mesmos testes passaram. A bateria local incluiu 71 testes Java, 127 Angular, a regressão do proxy e 29 testes de navegador. A compilação, a verificação dos tipos E2E e o arranque da imagem Vercel também passaram.

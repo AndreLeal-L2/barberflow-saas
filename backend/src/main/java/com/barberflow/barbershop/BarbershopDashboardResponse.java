@@ -18,12 +18,14 @@ public record BarbershopDashboardResponse(
         long serviceCount,
         long availabilityDayCount,
         int completedSetupSteps,
-        boolean canPublish
+        boolean canPublish,
+        String timeZone
 ) {
     public static BarbershopDashboardResponse from(
             Barbershop barbershop,
             long serviceCount,
-            long availabilityDayCount
+            long availabilityDayCount,
+            String timeZone
     ) {
         boolean canPublish = serviceCount > 0
                 && availabilityDayCount > 0
@@ -48,7 +50,8 @@ public record BarbershopDashboardResponse(
                 serviceCount,
                 availabilityDayCount,
                 completedSteps,
-                canPublish
+                canPublish,
+                timeZone
         );
     }
 }

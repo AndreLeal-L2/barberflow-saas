@@ -114,6 +114,10 @@ test('creates appointments from calendar slots and revisits their details on des
     const details = page.getByRole('dialog', { name: 'Detalhes da marcação', exact: true });
     await expect(details).toContainText(customerName);
     await details.getByRole('button', { name: 'Cancelar marcação', exact: true }).click();
+    await details.getByRole('button', { name: 'Manter marcação', exact: true }).click();
+    await expect(details.getByText('Confirmada', { exact: true })).toBeVisible();
+    await details.getByRole('button', { name: 'Cancelar marcação', exact: true }).click();
+    await details.getByRole('button', { name: 'Confirmar cancelamento', exact: true }).click();
     await expect(details.getByText('Cancelada', { exact: true })).toBeVisible();
     await details.getByRole('button', { name: 'Fechar', exact: true }).click();
     await page.reload();

@@ -2,7 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { BookingApiService } from '../../core/booking-api.service';
 import { LanguageService } from '../../core/language.service';
 import { ShopAppearanceService } from '../../core/shop-appearance.service';
@@ -42,12 +42,62 @@ describe('Daily agenda actions', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     localStorage.removeItem('barberflow.bookings.view');
     await TestBed.configureTestingModule({
       imports: [Bookings],
       providers: [provideRouter([]), { provide: BookingApiService, useValue: api }],
     }).compileComponents();
     TestBed.inject(LanguageService).setLanguage('pt-PT');
+  });
+
+  it('keeps appointments visible and hides unverified free slots if blocked times fail', () => {
+    api.listBlockedTimes.mockReturnValueOnce(throwError(() => new Error('unavailable')));
+    const fixture = TestBed.createComponent(Bookings);
+    fixture.componentInstance.selectedDate.set(date);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.calendar-event')?.textContent).toContain('Cliente exemplo');
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Não foi possível carregar as indisponibilidades.',
+    );
+    expect(element.querySelector('.calendar-free-slot')).toBeNull();
+  });
+
+  it('asks for confirmation before cancelling from the list', () => {
+    const fixture = TestBed.createComponent(Bookings);
+    fixture.detectChanges();
+    fixture.componentInstance.setView('LIST');
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    element.querySelector<HTMLButtonElement>('[aria-label="Cancelar marcação"]')!.click();
+    fixture.detectChanges();
+
+    expect(api.updateBookingStatus).not.toHaveBeenCalled();
+    const confirm = Array.from(element.querySelectorAll('button')).find(
+      button => button.textContent?.trim() === 'Confirmar cancelamento',
+    );
+    expect(confirm).toBeDefined();
+    confirm!.click();
+    expect(api.updateBookingStatus).toHaveBeenCalledExactlyOnceWith('booking-1', 'CANCELLED');
+  });
+
+  it('uses the business day and time to classify appointments after midnight', () => {
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2030-05-10T23:15:00Z'));
+    try {
+      const fixture = TestBed.createComponent(Bookings);
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+      const booking = component.bookings()[0];
+
+      component.selectToday();
+      expect(component.selectedDate()).toBe('2030-05-11');
+      expect(component.canComplete({ ...booking, startAt: '2030-05-11T00:10:00' })).toBe(true);
+      expect(component.canComplete({ ...booking, startAt: '2030-05-11T00:20:00' })).toBe(false);
+    } finally {
+      clock.mockRestore();
+    }
   });
 
   it('offers click-to-book only inside working hours, excluding appointments and blocks', () => {

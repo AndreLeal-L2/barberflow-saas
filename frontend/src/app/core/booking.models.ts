@@ -20,6 +20,7 @@ export interface DashboardBarbershop {
   availabilityDayCount: number;
   completedSetupSteps: number;
   canPublish: boolean;
+  timeZone?: string;
 }
 
 export interface DashboardAnalytics {

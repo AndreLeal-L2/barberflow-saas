@@ -69,14 +69,7 @@ export class Dashboard implements OnInit {
 
   readonly progress = computed(() => (this.shop()?.completedSetupSteps ?? 1) * 25);
 
-  readonly nextBookings = computed(() =>
-    this.bookings()
-      .filter(
-        (booking) =>
-          booking.status === 'CONFIRMED' && new Date(booking.startAt).getTime() >= Date.now(),
-      )
-      .slice(0, 5),
-  );
+  readonly nextBookings = computed(() => this.bookings().slice(0, 5));
 
   readonly activityDays = computed(() => {
     const days = this.analytics()?.upcomingDailyBookings ?? [];

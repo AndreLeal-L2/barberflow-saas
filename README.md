@@ -90,7 +90,7 @@ The Compasso deployment was updated on 30 October 2026 with:
 
 In a local benchmark with a fresh Linux ARM64 container, one CPU, 2 GiB of memory and a disposable PostgreSQL database, the time from container start to the first CSRF response fell from **about 8.1 s to 2.8 s**. Authenticated sign-in after preparation took **0.61 s** in that environment. See the [performance diagnosis](docs/DIAGNOSTICO_DESEMPENHO_2026-10-30.md) and [regression log](docs/REGRESSION_LOG.md).
 
-Release validation included **67 Java tests, 110 Angular tests and 26 browser tests**, plus the frontend build and end-to-end type checks. The live demo was built from the validated working tree. The default branch on GitHub still reflects an earlier version of the application.
+Release validation included **67 Java tests, 110 Angular tests and 26 browser tests**, plus the frontend build and end-to-end type checks. The 30 October demo was built from a validated working tree. This release includes the application source from that snapshot and the subsequent booking and availability fixes.
 
 ## Tech Stack
 

@@ -57,6 +57,9 @@
   @if (error()) {
     <div class="form-alert" role="alert">{{ error() | translate }}</div>
   }
+  @for (warning of calendarWarnings(); track warning) {
+    <div class="form-alert" role="alert">{{ warning | translate }}</div>
+  }
 
   @if (shop(); as currentShop) {
     @if (!currentShop.published) {
@@ -319,13 +322,16 @@
 
             @if (booking.status === 'CONFIRMED') {
               <div class="booking-actions">
+                @if (confirmingCancellationId() === booking.id) {
+                  <ng-container *ngTemplateOutlet="cancelActions; context: { $implicit: booking }" />
+                } @else {
                 <button
                   class="icon-button"
                   type="button"
                   [title]="'Cancelar marcação' | translate"
                   [attr.aria-label]="'Cancelar marcação' | translate"
                   [disabled]="updatingId() === booking.id"
-                  (click)="updateStatus(booking, 'CANCELLED')"
+                  (click)="confirmingCancellationId.set(booking.id)"
                 >
                   <svg lucideX [size]="18" aria-hidden="true"></svg>
                 </button>
@@ -339,6 +345,7 @@
                 >
                   <svg lucideCheck [size]="18" aria-hidden="true"></svg>
                 </button>
+                }
               </div>
             } @else {
               <span class="booking-actions-placeholder"></span>
@@ -391,6 +398,7 @@
   #detailDialog
   class="agenda-dialog booking-detail-dialog"
   aria-labelledby="booking-detail-title"
+  (close)="confirmingCancellationId.set(null)"
 >
   <header class="dialog-heading">
     <h2 id="booking-detail-title">{{ 'Detalhes da marcação' | translate }}</h2>
@@ -425,11 +433,14 @@
       }
       @if (booking.status === 'CONFIRMED') {
         <div class="dialog-actions">
+          @if (confirmingCancellationId() === booking.id) {
+            <ng-container *ngTemplateOutlet="cancelActions; context: { $implicit: booking }" />
+          } @else {
           <button
             class="button button-secondary"
             type="button"
             [disabled]="loading() || !!updatingId()"
-            (click)="updateStatus(booking, 'CANCELLED')"
+            (click)="confirmingCancellationId.set(booking.id)"
           >
             {{ 'Cancelar marcação' | translate }}
           </button>
@@ -441,8 +452,27 @@
           >
             {{ 'Marcar como concluída' | translate }}
           </button>
+          }
         </div>
       }
     </div>
   }
 </dialog>
+
+<ng-template #cancelActions let-booking>
+  <button
+    class="button button-danger button-small"
+    type="button"
+    [disabled]="loading() || !!updatingId()"
+    (click)="updateStatus(booking, 'CANCELLED')"
+  >
+    {{ 'Confirmar cancelamento' | translate }}
+  </button>
+  <button
+    class="button button-secondary button-small"
+    type="button"
+    (click)="confirmingCancellationId.set(null)"
+  >
+    {{ 'Manter marcação' | translate }}
+  </button>
+</ng-template>

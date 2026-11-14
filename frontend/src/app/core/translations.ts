@@ -291,6 +291,7 @@ export const ENGLISH: Readonly<Record<string, string>> = {
     'This action cannot be undone. To change the time, make a new booking.',
   'A cancelar...': 'Cancelling...',
   'Confirmar cancelamento': 'Confirm cancellation',
+  'Manter marcação': 'Keep appointment',
   'VISÃO GERAL': 'OVERVIEW',
   'O negócio em números': 'Your business in numbers',
   'Clientes, horários e atividade da agenda num só lugar.':

@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -23,11 +23,12 @@ import {
   LucideRefreshCw,
   LucideX,
 } from '@lucide/angular';
-import { finalize, forkJoin, Subscription } from 'rxjs';
+import { catchError, finalize, forkJoin, of, Subscription } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { PublicBooking } from '../public-booking/public-booking';
 import { ApiError } from '../../core/auth.models';
 import { BookingApiService } from '../../core/booking-api.service';
+import { addCalendarDays, businessDateTime } from '../../core/business-time';
 import { TranslatePipe } from '../../core/translate.pipe';
 import { LanguageService } from '../../core/language.service';
 import { ThemeService } from '../../core/theme.service';
@@ -101,6 +102,7 @@ const WEEK_DAYS_BY_DATE_INDEX: DayOfWeek[] = [
     PublicBooking,
     CurrencyPipe,
     DatePipe,
+    NgTemplateOutlet,
     LucideCalendarCheck,
     LucideCalendarDays,
     LucideCheck,
@@ -119,7 +121,6 @@ export class Bookings implements OnInit, OnDestroy {
   private readonly api = inject(BookingApiService);
   private readonly appearance = inject(ShopAppearanceService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly today = this.toDateInput(new Date());
 
   readonly shop = signal<DashboardBarbershop | null>(null);
   readonly dialogOpen = signal(false);
@@ -167,18 +168,20 @@ export class Bookings implements OnInit, OnDestroy {
 
   slotIsFree(minutes: number, lane: CalendarLane): boolean {
     const start = `${this.selectedDate()}T${this.formatMinutes(minutes)}:00`;
-    const end = new Date(new Date(start).getTime() + SLOT_MINUTES * 60_000);
+    const end = new Date(Date.parse(start + 'Z') + SLOT_MINUTES * 60_000).toISOString();
     const schedule = this.selectedAvailability();
     return Boolean(
       this.shop()?.published &&
       schedule &&
-      new Date(start).getTime() > Date.now() &&
+      !this.calendarWarnings().length &&
+      this.calendarLoaded() &&
+      start > this.businessNow() &&
       minutes >= this.timeToMinutes(schedule.startTime) &&
       minutes + SLOT_MINUTES <= this.timeToMinutes(schedule.endTime) &&
       !lane.items.some((item) => {
         if (item.status === 'CANCELLED') return false;
         const event = item.booking ?? item.block;
-        return event && new Date(event.startAt) < end && new Date(event.endAt) > new Date(start);
+        return event && event.startAt < end.slice(0, 19) && event.endAt > start;
       }),
     );
   }
@@ -191,15 +194,18 @@ export class Bookings implements OnInit, OnDestroy {
     this.readPreference(BOOKING_VIEW_KEY, 'CALENDAR', ['CALENDAR', 'LIST']),
   );
   readonly theme = inject(ThemeService).theme;
-  readonly selectedDate = signal(this.today);
+  readonly selectedDate = signal(this.businessNow().slice(0, 10));
   readonly loading = signal(false);
   readonly updatingId = signal<string | null>(null);
+  readonly confirmingCancellationId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
+  readonly calendarWarnings = signal<string[]>([]);
+  private readonly calendarLoaded = signal(false);
 
   readonly visibleBookings = computed(() => {
-    const now = Date.now();
+    const now = this.businessNow();
     return this.bookings().filter((booking) => {
-      const isUpcoming = booking.status === 'CONFIRMED' && new Date(booking.endAt).getTime() >= now;
+      const isUpcoming = booking.status === 'CONFIRMED' && booking.endAt >= now;
       return this.filter() === 'UPCOMING' ? isUpcoming : !isUpcoming;
     });
   });
@@ -329,6 +335,7 @@ export class Bookings implements OnInit, OnDestroy {
   readonly selectedDateLabel = computed(() => {
     const date = this.dateInputToDate(this.selectedDate());
     return new Intl.DateTimeFormat(this.i18n.locale(), {
+      timeZone: 'UTC',
       weekday: 'long',
       day: '2-digit',
       month: 'long',
@@ -364,6 +371,13 @@ export class Bookings implements OnInit, OnDestroy {
     if (!append) this.page = 0;
     this.loading.set(true);
     this.error.set(null);
+    this.calendarLoaded.set(false);
+    this.confirmingCancellationId.set(null);
+    const calendar = this.view() === 'CALENDAR';
+    const date = this.selectedDate();
+    const query = calendar
+      ? { from: date, to: addCalendarDays(date, 1) }
+      : { view: this.filter() === 'HISTORY' ? 'history' : 'upcoming', page: this.page, size: this.pageSize };
     this.api
       .getBarbershop()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -371,27 +385,38 @@ export class Bookings implements OnInit, OnDestroy {
         this.shop.set(shop);
         this.appearance.update(shop);
       }, error: () => this.shop.set(null) });
-    const date = this.selectedDate();
-    const query = this.view() === 'CALENDAR'
-      ? { from: date, to: this.toDateInput(this.dateBoundaries(date).end) }
-      : { view: this.filter() === 'HISTORY' ? 'history' : 'upcoming', page: this.page, size: this.pageSize };
     this.refresh = forkJoin({
       bookings: this.api.listBookings(query),
-      blockedTimes: this.api.listBlockedTimes(),
-      availability: this.api.getAvailability(),
+      blockedTimes: calendar
+        ? this.api.listBlockedTimes().pipe(catchError(() => of(null)))
+        : of([]),
+      availability: calendar
+        ? this.api.getAvailability().pipe(catchError(() => of(null)))
+        : of([]),
     })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: ({ bookings, blockedTimes, availability }) => {
-          const paginated = this.view() === 'LIST';
+          const paginated = !calendar;
           this.hasMore.set(paginated && bookings.length > this.pageSize);
           const items = paginated ? bookings.slice(0, this.pageSize) : bookings;
           this.bookings.update((previous) => append ? [...previous, ...items] : items);
-          this.blockedTimes.set(blockedTimes);
-          this.availability.set(availability);
+          this.blockedTimes.set(blockedTimes ?? []);
+          this.availability.set(availability ?? []);
+          this.calendarWarnings.set([
+            ...(blockedTimes === null ? ['Não foi possível carregar as indisponibilidades.'] : []),
+            ...(availability === null ? ['Não foi possível carregar os horários.'] : []),
+          ]);
+          this.calendarLoaded.set(calendar);
         },
         error: () => {
-          if (append) this.page--;
+          if (append) {
+            this.page--;
+          } else {
+            this.bookings.set([]);
+            this.hasMore.set(false);
+            this.calendarWarnings.set([]);
+          }
           this.error.set('Não foi possível carregar as marcações.');
         },
       });
@@ -417,14 +442,12 @@ export class Bookings implements OnInit, OnDestroy {
   }
 
   selectToday(): void {
-    this.selectedDate.set(this.today);
+    this.selectedDate.set(this.businessNow().slice(0, 10));
     this.reload(true);
   }
 
   moveDate(days: number): void {
-    const date = this.dateInputToDate(this.selectedDate());
-    date.setDate(date.getDate() + days);
-    this.selectedDate.set(this.toDateInput(date));
+    this.selectedDate.set(addCalendarDays(this.selectedDate(), days));
     this.reload(true);
   }
 
@@ -437,7 +460,11 @@ export class Bookings implements OnInit, OnDestroy {
   }
 
   canComplete(booking: Booking): boolean {
-    return booking.status === 'CONFIRMED' && new Date(booking.startAt).getTime() <= Date.now();
+    return booking.status === 'CONFIRMED' && booking.startAt <= this.businessNow();
+  }
+
+  private businessNow(): string {
+    return businessDateTime(this.shop()?.timeZone ?? this.appearance.shop()?.timeZone);
   }
 
   updateStatus(booking: Booking, status: BookingStatus): void {
@@ -446,10 +473,11 @@ export class Bookings implements OnInit, OnDestroy {
     }
 
     this.error.set(null);
+    this.confirmingCancellationId.set(null);
     this.updatingId.set(booking.id);
     this.api
       .updateBookingStatus(booking.id, status)
-      .pipe(finalize(() => this.updatingId.set(null)))
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.updatingId.set(null)))
       .subscribe({
         next: (updated) =>
           this.bookings.update((bookings) =>
@@ -595,28 +623,27 @@ export class Bookings implements OnInit, OnDestroy {
   }
 
   private dayOfWeek(dateInput: string): DayOfWeek {
-    return WEEK_DAYS_BY_DATE_INDEX[this.dateInputToDate(dateInput).getDay()];
+    return WEEK_DAYS_BY_DATE_INDEX[this.dateInputToDate(dateInput).getUTCDay()];
   }
 
   private dateBoundaries(dateInput: string): { start: Date; end: Date } {
-    const date = this.dateInputToDate(dateInput);
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-    return { start, end };
+    return {
+      start: this.dateInputToDate(dateInput),
+      end: this.dateInputToDate(addCalendarDays(dateInput, 1)),
+    };
   }
 
   private dateInputToDate(dateInput: string): Date {
-    const [year, month, day] = dateInput.split('-').map(Number);
-    return new Date(year, month - 1, day);
+    return new Date(`${dateInput}T00:00:00Z`);
   }
 
   private parseLocalDateTime(value: string): Date | null {
-    const parsed = new Date(value);
+    const parsed = new Date(`${value}Z`);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 
   private minutesFromDate(date: Date): number {
-    return date.getHours() * 60 + date.getMinutes();
+    return date.getUTCHours() * 60 + date.getUTCMinutes();
   }
 
   private timeToMinutes(value: string): number {
@@ -650,13 +677,6 @@ export class Bookings implements OnInit, OnDestroy {
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase())
       .join('');
-  }
-
-  private toDateInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
   }
 
   private readPreference<T extends string>(key: string, fallback: T, options: readonly T[]): T {

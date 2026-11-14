@@ -110,7 +110,7 @@
 
         <label class="field">
           <span>{{ 'Data' | translate }}</span>
-          <input type="date" formControlName="date" [min]="today" [max]="maxBlockDate" />
+          <input type="date" formControlName="date" [min]="today()" [max]="maxBlockDate()" />
         </label>
 
         <label class="block-mode-toggle">
